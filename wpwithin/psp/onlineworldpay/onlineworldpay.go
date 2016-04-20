@@ -136,7 +136,6 @@ func post(url string, requestBody []byte, headers map[string]string, v interface
 
 	for k, v := range headers {
 
-		fmt.Printf("Adding header: %s => %s\n", k, v)
 		request.Header.Set(k, v)
 	}
 
@@ -158,7 +157,7 @@ func post(url string, requestBody []byte, headers map[string]string, v interface
 	defer resp.Body.Close()
 
 	respBody, err := ioutil.ReadAll(resp.Body)
-fmt.Printf("Response: %s\n", string(respBody))
+
 	if err != nil {
 
 		return err
