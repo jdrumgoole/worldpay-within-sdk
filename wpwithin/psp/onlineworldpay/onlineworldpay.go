@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"strings"
+	log "github.com/Sirupsen/logrus"
 )
 
 type OnlineWorldpay struct {
@@ -60,9 +61,14 @@ func (owp *OnlineWorldpay) GetToken(hceCredentials hce.HCECardCredential, reusab
 		return "", err
 	}
 
+	log.WithField("TokenRequest", string(bJson)).Debug("POST Request Token.")
+
 	reqUrl := fmt.Sprintf("%s/tokens", owp.apiEndpoint)
 
 	var tokenResponse types.TokenResponse
+
+	log.WithFields(log.Fields{ "Url": reqUrl,
+		"RequestJSON": string(bJson) }).Debug("Sending Token POST request.")
 
 	err = post(reqUrl, bJson, make(map[string]string, 0), &tokenResponse)
 
@@ -105,6 +111,8 @@ func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, or
 		return "", err
 	}
 
+	log.WithField("JSON", string(bJson)).Debug("JSON form of OrderRequest object.")
+
 	reqUrl := fmt.Sprintf("%s/orders", owp.apiEndpoint)
 
 	var orderResponse types.OrderResponse
@@ -112,6 +120,9 @@ func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, or
 	headers := make(map[string]string, 0)
 
 	headers["Authorization"] = owp.hteCredential.MerchantServiceKey
+
+	log.WithFields(log.Fields{ "Url": reqUrl,
+		"RequestJSON": string(bJson) }).Debug("Sending Order POST request.")
 
 	err = post(reqUrl, bJson, headers, &orderResponse)
 
@@ -162,6 +173,8 @@ func post(url string, requestBody []byte, headers map[string]string, v interface
 
 		return err
 	}
+
+	log.WithField("Response Body", string(respBody)).Debug("Response content")
 
 	err = json.Unmarshal(respBody, &v)
 
