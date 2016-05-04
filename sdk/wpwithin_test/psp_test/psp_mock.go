@@ -1,6 +1,8 @@
 package psp_tests
 
-import "innovation.worldpay.com/worldpay-within-sdk/wpwithin/psp"
+import (
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
+)
 
 type owpMock struct {
 

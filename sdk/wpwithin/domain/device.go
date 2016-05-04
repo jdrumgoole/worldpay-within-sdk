@@ -1,10 +1,10 @@
 package domain
 import (
 	"fmt"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/hce"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/hte"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/psp"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/servicediscovery"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hte"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/servicediscovery"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
 )
 
 type Device struct {

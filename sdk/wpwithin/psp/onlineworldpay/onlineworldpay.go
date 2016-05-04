@@ -1,10 +1,6 @@
 package onlineworldpay
 import (
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/psp"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/hte"
 	"errors"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/hce"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/psp/onlineworldpay/types"
 	"fmt"
 	"encoding/json"
 	"net/http"
@@ -12,6 +8,10 @@ import (
 	"io/ioutil"
 	"strings"
 	log "github.com/Sirupsen/logrus"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hte"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
+"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp/onlineworldpay/types"
 )
 
 type OnlineWorldpay struct {

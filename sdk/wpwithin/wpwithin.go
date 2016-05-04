@@ -1,9 +1,9 @@
 package wpwithin
 import (
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/domain"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/hte"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/hce"
-	"innovation.worldpay.com/worldpay-within-sdk/wpwithin/servicediscovery"
+"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hte"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/servicediscovery"
 )
 
 type WPWithin interface {

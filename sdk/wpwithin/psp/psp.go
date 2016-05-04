@@ -1,5 +1,7 @@
 package psp
-import "innovation.worldpay.com/worldpay-within-sdk/wpwithin/hce"
+import (
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
+)
 
 type Psp interface {
 
