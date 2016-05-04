@@ -48,7 +48,7 @@ func testWebSocketServer() {
 		for {
 			time.Sleep(time.Duration(2 * time.Second))
 			log.Debug("Should be outputting")
-			EchoLogMsg("i = " + strconv.Itoa(i))
+			EchoLogMsg("i = **" + strconv.Itoa(i) + "**")
 			i++
 		}
 	}()	
