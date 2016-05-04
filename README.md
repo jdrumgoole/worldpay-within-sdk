@@ -1,8 +1,10 @@
 # worldpay-within-sdk
 Worldpay Within SDK to allow payments within IoT. Written in GoLang.
 
-Install
-1. Install Go command line
-2. Set up the environmental variables correctly
-3. clone the repo to $GOPATH/src/innovation.worldpay.com
-4. Get the dependencies; go get github.com/Sirupsen/logrus
+<h3>Install</h3>
+<ol>
+<li>Install Go command line</li>
+<li>Set up the environmental variables correctly</li>
+<li>clone the repo to $GOPATH/src/innovation.worldpay.com</li>
+<li>Get the dependencies; go get github.com/Sirupsen/logrus</li>
+</ol>
