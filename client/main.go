@@ -20,5 +20,5 @@ func initLog() {
 	// Only log the warning severity or above.
 	log.SetLevel(log.DebugLevel)
 
-	log.Debug("Log is initialised.")
+	log.Debug("Log is initialised. This is Worldpay Within Client app speaking.")
 }
