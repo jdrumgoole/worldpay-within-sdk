@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
+var addr = flag.String("addr", "localhost:8181", "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options
 
@@ -69,12 +69,14 @@ func EchoLogMsg(rs string) error {
     //     log.Println("Socket not open to write out to :(", err)
     // }
 
+    var socketClosedMsg = "Socket not open to write out to :(";
+
     if c == nil {
-        log.Println("Socket not open to write out to :(", err)
+        log.Println(socketClosedMsg, err)
     } else {
         err = c.WriteMessage(websocket.TextMessage, []byte(rs))
         if err != nil {
-           log.Println("write:", err)
+           log.Println(socketClosedMsg, err)
         }
     }
 
@@ -100,6 +102,7 @@ var homeTemplate = template.Must(template.New("").Parse(`
 <meta charset="utf-8">
 <script>  
 window.addEventListener("load", function(evt) {
+    alert("load function event thingy phalangy");
     var output = document.getElementById("output");
     var input = document.getElementById("input");
     var ws;
@@ -109,56 +112,62 @@ window.addEventListener("load", function(evt) {
         output.appendChild(d);
     };
     document.getElementById("open").onclick = function(evt) {
-        if (ws) {
+        console.log("open");
+        if (ws != null) {
+            console.log("ws open so nothing further to do");
             return false;
         }
         ws = new WebSocket("{{.}}");
         ws.onopen = function(evt) {
+            console.log("Should have openened ws");
             print("OPEN");
         }
         ws.onclose = function(evt) {
+            console.log("Should now close ws");
             print("CLOSE");
             ws = null;
         }
         ws.onmessage = function(evt) {
+            console.log("should message the ws");
             print("RESPONSE: " + evt.data);
         }
         ws.onerror = function(evt) {
+            console.log("should ouput error on ws");
             print("ERROR: " + evt.data);
-        }
-        return false;
-    };
-    document.getElementById("send").onclick = function(evt) {
-        if (!ws) {
-            return false;
-        }
-        print("SEND: " + input.value);
-        ws.send(input.value);
+        }       
+        console.log("should return from open onclick method");
         return false;
     };
     document.getElementById("close").onclick = function(evt) {
+        console.log("close");
         if (!ws) {
             return false;
         }
         ws.close();
         return false;
     };
+    document.getElementById("justclose").onclick = function(evt) {
+        console.log("justclose");
+        if (!ws) {
+             console.log("!ws so returning false");
+             return false;
+        }
+        console.log("Actually closing ws");
+        ws.close();
+        ws.onclose();
+        return false;
+    };    
 });
 </script>
 </head>
 <body>
 <table>
 <tr><td valign="top" width="50%">
-<p>Click "Open" to create a connection to the server, 
-"Send" to send a message to the server and "Close" to close the connection. 
-You can change the message and send multiple times.
+<p>Click "Open" to create a connection to the Rapsberry Pi Log. Click "Close" to close the connection.
 <p>
-<form>
 <button id="open">Open</button>
-<button id="close">Close</button>
-<p><input id="input" type="text" value="Hello world!">
-<button id="send">Send</button>
-</form>
+<button id="close">Close/Clear</button>
+<button id="justclose">Just Close</button>
 </td><td valign="top" width="50%">
 <div id="output"></div>
 </td></tr></table>
