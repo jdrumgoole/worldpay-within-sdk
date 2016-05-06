@@ -3,6 +3,7 @@ package main
 // Copyright 2015 The Gorilla WebSocket Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
+// Edited by Kevin Gordon Worldpay
 
 // +build ignore
 
@@ -11,7 +12,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-
 	"github.com/gorilla/websocket"
 	"time"
 )
@@ -24,29 +24,18 @@ var c *websocket.Conn
 
 func echo(w http.ResponseWriter, r *http.Request) {
 	_c, err := upgrader.Upgrade(w, r, nil)
+
     // c gains local scope so need to use temporary variable to get global
     c = _c
+
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
 	defer c.Close()
 	for {
-//		mt, message, err := c.ReadMessage()
-//		if err != nil {
-//			log.Println("read:", err)
-//			break
-//		}
-//		log.Printf("recv: %s", message)
-//		err = c.WriteMessage(mt, message)
-//		if err != nil {
-//			log.Println("write:", err)
-//			break
-//		}
 
 		time.Sleep(time.Duration(5 * time.Second))
-		//err = c.WriteMessage(websocket.TextMessage, []byte("Hello websocket logger... :)"))
-        //err = EchoLogMsg("Hello new websocket logger message")
 
 		if err != nil {
 			log.Println("write:", err)
@@ -60,14 +49,6 @@ func echo(w http.ResponseWriter, r *http.Request) {
 
 func EchoLogMsg(rs string) error {
     var err error
-    // if c != nil {
-    //     err = c.WriteMessage(websocket.TextMessage, []byte(rs))
-    //     if err != nil {
-    //        log.Println("write:", err)
-    //     }
-    // } else {
-    //     log.Println("Socket not open to write out to :(", err)
-    // }
 
     var socketClosedMsg = "Socket not open to write out to :(";
 
@@ -94,6 +75,7 @@ func entryPoint() {
     http.HandleFunc("/echo", echo)
     http.HandleFunc("/", home)
     log.Fatal(http.ListenAndServe(*addr, nil))
+
 }
 
 var homeTemplate = template.Must(template.New("").Parse(`
@@ -102,7 +84,6 @@ var homeTemplate = template.Must(template.New("").Parse(`
 <meta charset="utf-8">
 <script>  
 window.addEventListener("load", function(evt) {
-    alert("load function event thingy phalangy");
     var output = document.getElementById("output");
     var input = document.getElementById("input");
     var ws;
@@ -158,8 +139,7 @@ window.addEventListener("load", function(evt) {
 <p>Click "Open" to create a connection to the Rapsberry Pi Log. Click "Close" to close the connection.
 <p>
 <button id="open">Open</button>
-<button id="close">Close/Clear</button>
-<button id="justclose">Just Close</button>
+<button id="justclose">Close</button>
 </td><td valign="top" width="50%">
 <div id="output"></div>
 </td></tr></table>
