@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"github.com/gorilla/websocket"
 	"time"
+    "net"
 )
 
 var addr = flag.String("addr", "localhost:8181", "http service address")
@@ -46,18 +47,46 @@ func echo(w http.ResponseWriter, r *http.Request) {
 }
 
 
+func getIpAddress() string {
+    var ipString string
 
+    addrs, err := net.InterfaceAddrs()
+    if err != nil {
+        return "IP not detected"        
+    }
+
+    for _, a := range addrs {
+        if ipnet, ok := a.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+            if ipnet.IP.To4() != nil {
+                ipString = ipnet.IP.String()
+                return ipString
+            }
+        }
+    }
+
+    return ipString
+}
+
+var socketClosedMsgShown = false
+
+func showSocketClosedMsg() {
+    var socketClosedMsg = "Please open " + getIpAddress() + ":8181 in your browser and click Open to view logs";
+    if(!socketClosedMsgShown) {
+        log.Println(socketClosedMsg)
+        socketClosedMsgShown = true;
+    }
+}
 func EchoLogMsg(rs string) error {
-    var err error
+    var err error  
 
-    var socketClosedMsg = "Socket not open to write out to :(";
+    log.Println(rs)
 
     if c == nil {
-        log.Println(socketClosedMsg, err)
+        showSocketClosedMsg();
     } else {
         err = c.WriteMessage(websocket.TextMessage, []byte(rs))
         if err != nil {
-           log.Println(socketClosedMsg, err)
+           showSocketClosedMsg();
         }
     }
 
