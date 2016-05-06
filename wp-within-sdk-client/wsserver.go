@@ -138,14 +138,6 @@ window.addEventListener("load", function(evt) {
         console.log("should return from open onclick method");
         return false;
     };
-    document.getElementById("close").onclick = function(evt) {
-        console.log("close");
-        if (!ws) {
-            return false;
-        }
-        ws.close();
-        return false;
-    };
     document.getElementById("justclose").onclick = function(evt) {
         console.log("justclose");
         if (!ws) {
