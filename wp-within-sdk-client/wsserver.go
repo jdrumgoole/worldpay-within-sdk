@@ -132,16 +132,26 @@ window.addEventListener("load", function(evt) {
     };    
 });
 </script>
+<style>
+.mainFont {
+    font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+}
+.codeFont {
+    font-family: 'Lucida Sans Typewriter', 'Lucida Console', monaco, 'Bitstream Vera Sans Mono', monospace;
+    color: white;
+    background-color: black;
+}
+</style>
 </head>
-<body>
+<body class="mainFont">
 <table>
 <tr><td valign="top" width="50%">
-<p>Click "Open" to create a connection to the Rapsberry Pi Log. Click "Close" to close the connection.
+<p class="mainFont">Click "Open" to create a connection to the Rapsberry Pi Log. Click "Close" to close the connection.
 <p>
 <button id="open">Open</button>
 <button id="justclose">Close</button>
 </td><td valign="top" width="50%">
-<div id="output"></div>
+<div id="output" class="codeFont"></div>
 </td></tr></table>
 </body>
 </html>
