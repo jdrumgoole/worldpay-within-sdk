@@ -17,7 +17,9 @@ import (
     "net"
 )
 
-var addr = flag.String("addr", "localhost:8181", "http service address")
+var portNumber = "8181"
+
+var addr = flag.String("addr", "localhost:" + portNumber, "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options
 
@@ -70,7 +72,7 @@ func getIpAddress() string {
 var socketClosedMsgShown = false
 
 func showSocketClosedMsg() {
-    var socketClosedMsg = "Please open " + getIpAddress() + ":8181 in your browser and click Open to view logs";
+    var socketClosedMsg = "Please open " + getIpAddress() + ":" + portNumber + " in your browser and click Open to view logs";
     if(!socketClosedMsgShown) {
         log.Println(socketClosedMsg)
         socketClosedMsgShown = true;
