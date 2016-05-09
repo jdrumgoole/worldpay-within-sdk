@@ -1,4 +1,4 @@
-package main
+package client
 
 // Copyright 2015 The Gorilla WebSocket Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
@@ -8,18 +8,43 @@ package main
 // +build ignore
 
 import (
-	"flag"
+    "flag"
 	"html/template"
-	"log"
-	"net/http"
+    "net/http"
 	"github.com/gorilla/websocket"
 	"time"
     "net"
 )
 
+type Wsserver struct {
+}
+
+func (wss Wsserver) EchoLogMsg(rs string) error {
+   return EchoLogMsg(rs)
+}
+
+func (wss Wsserver) EntryPoint() {
+   EntryPoint()
+}
+
+func (wss Wsserver) ShowSocketClosedMsg() string {
+    return showSocketClosedMsg();
+}
+
+// func (wss Wsserver) NewWsserver() *Wsserver {
+//     return &Wsserver{}
+// }
+
+//    EchoLogMsg(rs string) error
+//    EntryPoint()
+
+// type Wsserver struct {
+//
+//}
+
 var portNumber = "8181"
 
-var addr = flag.String("addr", "localhost:" + portNumber, "http service address")
+var addr = flag.String("addr", getIpAddress() + ":" + portNumber, "http service address")
 
 var upgrader = websocket.Upgrader{} // use default options
 
@@ -32,7 +57,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
     c = _c
 
 	if err != nil {
-		log.Print("upgrade:", err)
+		//log.Print("upgrade:", err)
 		return
 	}
 	defer c.Close()
@@ -41,7 +66,7 @@ func echo(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(time.Duration(5 * time.Second))
 
 		if err != nil {
-			log.Println("write:", err)
+			//log.Println("write:", err)
 			break
 		}
 
@@ -69,19 +94,15 @@ func getIpAddress() string {
     return ipString
 }
 
-var socketClosedMsgShown = false
-
-func showSocketClosedMsg() {
+func showSocketClosedMsg() string {
     var socketClosedMsg = "Please open " + getIpAddress() + ":" + portNumber + " in your browser and click Open to view logs";
-    if(!socketClosedMsgShown) {
-        log.Println(socketClosedMsg)
-        socketClosedMsgShown = true;
-    }
+    return socketClosedMsg;
 }
+
 func EchoLogMsg(rs string) error {
     var err error  
 
-    log.Println(rs)
+    //log.Println(rs)
 
     if c == nil {
         showSocketClosedMsg();
@@ -101,11 +122,15 @@ func home(w http.ResponseWriter, r *http.Request) {
 	homeTemplate.Execute(w, "ws://"+r.Host+"/echo")
 }
 
-func entryPoint() {
+func EntryPoint() {
+
+    //log.Info("WebSocketServer EntryPoint starting");
 
     http.HandleFunc("/echo", echo)
     http.HandleFunc("/", home)
-    log.Fatal(http.ListenAndServe(*addr, nil))
+    //log.Fatal(http.ListenAndServe(*addr, nil))
+
+    //log.Info("WebSocketServer EntryPoint started?");
 
 }
 

@@ -1,7 +1,9 @@
 package main
-import "innovation.worldpay.com/worldpay-within-sdk/client"
+import initialise "innovation.worldpay.com/worldpay-within-sdk/client/initialise"
 
 func main() {
 
-	client.Main()
+	initialise.Main()
+
+
 } // Needed to run the target from within IntelliJ Idea.

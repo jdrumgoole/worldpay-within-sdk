@@ -1,23 +1,29 @@
-package main
+package client
 import
 (
 	"fmt"
 	"strconv"
-	log "github.com/Sirupsen/logrus"
 	"os"
 	"time"
 	"runtime"
 	"sync"
+	log "github.com/Sirupsen/logrus"
+	wsserver "innovation.worldpay.com/worldpay-within-sdk/client/Wsserver"
 )
 
-func main() {
+var wssKEV wsserver.Wsserver
 
-	//initLog()
-
+func Main() {
+	var _wssKEV = &wsserver.Wsserver{};
+	wssKEV = *_wssKEV
 	testWebSocketServer()
+	initLog()
+
 }
 
 func initLog() {
+
+	log.SetSecureSocketsServer(wssKEV)
 
 	log.SetFormatter(&log.JSONFormatter{})
 
@@ -39,7 +45,18 @@ func testWebSocketServer() {
 
 	go func() {
 		defer wg.Done()
-		entryPoint()
+
+		// debb kev - this creates a memory issue
+		//if(wssKEV != nil) {
+			log.Info("WebSocketServer EntryPoint calling");
+			wssKEV.EntryPoint() 
+			wssKEV.ShowSocketClosedMsg();
+			log.Info("WebSocketServer EntryPoint called");
+
+		//} else {
+		// 	log.Info("WebSocketServer was nil so couldn't start");
+		//}
+
 	}()
 
 	go func() {
@@ -48,11 +65,13 @@ func testWebSocketServer() {
 		for {
 			time.Sleep(time.Duration(2 * time.Second))
 			log.Debug("Should be outputting")
-			EchoLogMsg("i = **" + strconv.Itoa(i) + "** ANOTHER CHANGE")
+			log.Info("This is via log.info: i = **" + strconv.Itoa(i) + "** ANOTHER CHANGE")
 			i++
 		}
 	}()	
 
 	fmt.Println("Waiting To Finish")
     wg.Wait()
+
+
 }
