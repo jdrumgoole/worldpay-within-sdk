@@ -8,7 +8,7 @@ func NewScanner() (Scanner, error) {
 	return result, nil
 }
 
-func NewBroadcaster(description, host, svcUid, urlPrefix string, port int, stepSleep int) (Broadcaster, error) {
+func NewBroadcaster(host string, port int, stepSleep int) (Broadcaster, error) {
 
 	result := &broadcasterImpl{
 

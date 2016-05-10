@@ -20,15 +20,17 @@ type Device struct {
 	SvcBroadcaster servicediscovery.Broadcaster
 	SvcScanner servicediscovery.Scanner
 	IPv4Address string
+	SvcPrefix string
 }
 
-func NewDevice(name, description, uid string, ipv4 string) (*Device, error) {
+func NewDevice(name, description, uid string, ipv4 string, svcPrefix string) (*Device, error) {
 
 	result := &Device{
 		Name:name,
 		Description:description,
 		Uid:uid,
 		IPv4Address: ipv4,
+		SvcPrefix: svcPrefix,
 	}
 
 	return result, nil
@@ -82,7 +84,15 @@ func (wp Device) SetHCEClientCredential(hceClientCredential hce.HCEClientCredent
 	return nil
 }
 
-func (wp Device) StartSvcBroadcast(msg servicediscovery.BroadcastMessage, timeoutMillis int) {
+func (wp Device) StartSvcBroadcast(timeoutMillis int) {
+
+	msg := servicediscovery.BroadcastMessage{
+
+		Description: wp.Description,
+		Host: wp.IPv4Address,
+		SvcUid: wp.Uid,
+		UrlPrefix: wp.SvcPrefix,
+	}
 
 	wp.SvcBroadcaster.StartBroadcast(msg, timeoutMillis)
 }

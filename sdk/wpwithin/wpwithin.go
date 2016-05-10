@@ -24,7 +24,7 @@ type WPWithin interface {
 	InitConsumer() error
 	InitProducer() error
 	GetDevice() (domain.Device, error)
-	StartSvcBroadcast(msg servicediscovery.BroadcastMessage, timeoutMillis int)
+	StartSvcBroadcast(timeoutMillis int)
 	StopSvcBroadcast()
 	ScanServices() []domain.Service
 	GetSvcPrices(svc domain.Service) []domain.Price
@@ -37,16 +37,16 @@ func Initialise(name, description string) (WPWithin, error) {
 	// Device
 
 	// TODO CH Check for GUID file and create if not exist
-	deviceUID := "<device_guid>"
+	deviceUID := "device_guid_goes_here"
 
 	deviceAddress, err := utils.ExternalIPv4()
 
 	if err != nil {
 
-		return WPWithin(), err
+		return domain.Device{}, err
 	}
 
-	device, err := domain.NewDevice(name, description, deviceUID, deviceAddress)
+	device, err := domain.NewDevice(name, description, deviceUID, deviceAddress, SVC_URL_PREFIX)
 
 	if err != nil {
 
@@ -55,7 +55,7 @@ func Initialise(name, description string) (WPWithin, error) {
 
 	// Service broadcaster
 
-	svcBroadcaster, err := servicediscovery.NewBroadcaster(device.Description, device.IPv4Address, device.Uid, SVC_URL_PREFIX, HTE_PORT, BCAST_STEP_SLEEP)
+	svcBroadcaster, err := servicediscovery.NewBroadcaster(device.IPv4Address, HTE_PORT, BCAST_STEP_SLEEP)
 
 	if err != nil {
 
