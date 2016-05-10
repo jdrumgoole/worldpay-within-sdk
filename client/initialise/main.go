@@ -4,7 +4,7 @@ import
 	"strconv"
 	"os"
 	"time"
-	log "github.com/Sirupsen/logrus"
+	log "innovation.worldpay.com/worldpay-within-sdk/logrus"
 )
 
 func Main() {
