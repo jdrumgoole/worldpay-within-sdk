@@ -128,6 +128,7 @@ func EntryPoint() {
 
     http.HandleFunc("/echo", echo)
     http.HandleFunc("/", home)
+    http.ListenAndServe(*addr, nil)
     //log.Fatal(http.ListenAndServe(*addr, nil))
 
     //log.Info("WebSocketServer EntryPoint started?");

@@ -50,7 +50,7 @@ func testWebSocketServer() {
 		//if(wssKEV != nil) {
 			log.Info("WebSocketServer EntryPoint calling");
 			wssKEV.EntryPoint() 
-			wssKEV.ShowSocketClosedMsg();
+			log.Info(wssKEV.ShowSocketClosedMsg());
 			log.Info("WebSocketServer EntryPoint called");
 
 		//} else {
