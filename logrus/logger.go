@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 	"sync"
-	wsserver "innovation.worldpay.com/worldpay-within-sdk/client/Wsserver"
+	wsserver "innovation.worldpay.com/worldpay-within-sdk/client/wsserver"
 )
 
 type Logger struct {
