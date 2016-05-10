@@ -1,4 +1,5 @@
 package servicediscovery
+import "net"
 
 func NewScanner() (Scanner, error) {
 
@@ -7,9 +8,16 @@ func NewScanner() (Scanner, error) {
 	return result, nil
 }
 
-func NewBroadcaster(description, host, svcUid, urlPrefix string, port int32) (Broadcaster, error) {
+func NewBroadcaster(description, host, svcUid, urlPrefix string, port int, stepSleep int) (Broadcaster, error) {
 
-	result := &broadcasterImpl{}
+	result := &broadcasterImpl{
+
+		stepSleep: stepSleep,
+		run: false,
+		host: net.IPv4(255, 255, 255, 255),
+		port: port,
+		udpProtocol: "udp4",
+	}
 
 	return result, nil
 }

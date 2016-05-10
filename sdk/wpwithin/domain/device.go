@@ -19,14 +19,16 @@ type Device struct {
 	Psp psp.Psp
 	SvcBroadcaster servicediscovery.Broadcaster
 	SvcScanner servicediscovery.Scanner
+	IPv4Address string
 }
 
-func NewDevice(name, description, uid string) (*Device, error) {
+func NewDevice(name, description, uid string, ipv4 string) (*Device, error) {
 
 	result := &Device{
 		Name:name,
 		Description:description,
 		Uid:uid,
+		IPv4Address: ipv4,
 	}
 
 	return result, nil
@@ -80,13 +82,14 @@ func (wp Device) SetHCEClientCredential(hceClientCredential hce.HCEClientCredent
 	return nil
 }
 
-func (wp Device) StartSvcBroadcast(timeoutMillis int32) {
+func (wp Device) StartSvcBroadcast(msg servicediscovery.BroadcastMessage, timeoutMillis int) {
 
-	wp.SvcBroadcaster.StartBroadcast(timeoutMillis)
+	wp.SvcBroadcaster.StartBroadcast(msg, timeoutMillis)
 }
 
 func (wp Device) StopSvcBroadcast() {
 
+	wp.SvcBroadcaster.StopBroadcast()
 }
 
 func (wp Device) ScanServices() []Service {

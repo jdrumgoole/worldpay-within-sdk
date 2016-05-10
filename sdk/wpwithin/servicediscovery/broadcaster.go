@@ -2,6 +2,6 @@ package servicediscovery
 
 type Broadcaster interface {
 
-	StartBroadcast(timeoutMillis int32) error
+	StartBroadcast(msg BroadcastMessage, timeoutMillis int) error
 	StopBroadcast() error
 }
