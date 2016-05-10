@@ -2,7 +2,7 @@ package logrus
 
 import (
 	"io"
-	wsserver "innovation.worldpay.com/worldpay-within-sdk/client/Wsserver"
+	wsserver "innovation.worldpay.com/worldpay-within-sdk/client/wsserver"
 )
 
 var (
