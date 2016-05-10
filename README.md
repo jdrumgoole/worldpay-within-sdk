@@ -13,3 +13,5 @@ Worldpay Within SDK to allow payments within IoT. Written in GoLang.
 <p>Now by simply using the following code;</p>
 <code>log.SetSecureSocketsServer(true)</code>
 <p>You can add a web server to your application, that will send the logs to a secure socket which can be viewed in a web browser on the same network.</p>
+
+<h3>Next steps</h3>
