@@ -1,7 +1,6 @@
 package client
 import
 (
-	"fmt"
 	"strconv"
 	"os"
 	"time"
@@ -14,16 +13,13 @@ import
 var wssKEV wsserver.Wsserver
 
 func Main() {
-	var _wssKEV = &wsserver.Wsserver{};
-	wssKEV = *_wssKEV
-	testWebSocketServer()
+
 	initLog()
 
 }
 
 func initLog() {
 
-	log.SetSecureSocketsServer(wssKEV)
 
 	log.SetFormatter(&log.JSONFormatter{})
 
@@ -34,28 +30,30 @@ func initLog() {
 	log.SetLevel(log.DebugLevel)
 
 	log.Debug("Log is initialised.")
+
+	setupServer();
+
+	log.SetSecureSocketsServer(wssKEV)
+
 }
 
-func testWebSocketServer() {
-	log.Println("testWebSocketServer", nil)
+func setupServer() {
+	var _wssKEV = &wsserver.Wsserver{};
+	wssKEV = *_wssKEV
+	startWebSocketServer()
+}
+
+func startWebSocketServer() {
 
 	runtime.GOMAXPROCS(2)
 	var wg sync.WaitGroup
     wg.Add(2)
 
 	go func() {
+
 		defer wg.Done()
-
-		// debb kev - this creates a memory issue
-		//if(wssKEV != nil) {
-			log.Info("WebSocketServer EntryPoint calling");
-			wssKEV.EntryPoint() 
-			log.Info(wssKEV.ShowSocketClosedMsg());
-			log.Info("WebSocketServer EntryPoint called");
-
-		//} else {
-		// 	log.Info("WebSocketServer was nil so couldn't start");
-		//}
+		log.Info(wssKEV.ShowSocketClosedMsg());		
+		wssKEV.EntryPoint() 
 
 	}()
 
@@ -64,14 +62,11 @@ func testWebSocketServer() {
 		var i = 0
 		for {
 			time.Sleep(time.Duration(2 * time.Second))
-			log.Debug("Should be outputting")
-			log.Info("This is via log.info: i = **" + strconv.Itoa(i) + "** ANOTHER CHANGE")
+			log.Info("[" + strconv.Itoa(i) + "]")
 			i++
 		}
 	}()	
 
-	fmt.Println("Waiting To Finish")
-    wg.Wait()
-
+	wg.Wait()
 
 }
