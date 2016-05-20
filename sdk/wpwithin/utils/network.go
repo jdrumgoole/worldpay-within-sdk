@@ -4,6 +4,9 @@ import (
 	"net"
 )
 
+// Return the IPv4 external address of this device.
+// Note external does not necessarily mean WAN IP. On most networks it will be the LAN IP of device as opposed
+// to internal localhost address (127.0.0.1)
 func ExternalIPv4() (string, error) {
 
 	ifaces, err := net.Interfaces()
@@ -40,5 +43,5 @@ func ExternalIPv4() (string, error) {
 			return ip.String(), nil
 		}
 	}
-	return "", errors.New("are you connected to the network?")
+	return "", errors.New("Device does not appear to be network connected.")
 }
