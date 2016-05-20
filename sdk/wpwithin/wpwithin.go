@@ -9,8 +9,8 @@ import (
 
 const (
 
-	BCAST_STEP_SLEEP = 5000
-	HTE_PORT = 8980
+	BROADCAST_STEP_SLEEP = 5000
+	BROADCAST_PORT = 8980
 	SVC_URL_PREFIX = "/services"
 	UUID_FILE_PATH = "uuid.txt"
 )
@@ -25,9 +25,9 @@ type WPWithin interface {
 	InitConsumer() error
 	InitProducer() error
 	GetDevice() domain.Device
-	StartSvcBroadcast(timeoutMillis int)
+	StartSvcBroadcast(timeoutMillis int) (chan bool, error)
 	StopSvcBroadcast()
-	ScanServices() []domain.Service
+	ScanServices(timeoutMillis int) (chan bool, error)
 	GetSvcPrices(svc domain.Service) []domain.Price
 	SelectSvc(svc domain.Service) domain.PaymentRequest
 	MakePayment(payRequest domain.PaymentRequest) domain.PaymentResponse
@@ -62,7 +62,7 @@ func Initialise(name, description string) (WPWithin, error) {
 		return domain.Device{}, err
 	}
 
-	device, err := domain.NewDevice(name, description, deviceGUID, deviceAddress, SVC_URL_PREFIX)
+	device, err := domain.NewDevice(name, description, deviceGUID, deviceAddress.String(), SVC_URL_PREFIX)
 
 	if err != nil {
 
@@ -71,7 +71,7 @@ func Initialise(name, description string) (WPWithin, error) {
 
 	// Service broadcaster
 
-	svcBroadcaster, err := servicediscovery.NewBroadcaster(device.IPv4Address, HTE_PORT, BCAST_STEP_SLEEP)
+	svcBroadcaster, err := servicediscovery.NewBroadcaster(device.IPv4Address, BROADCAST_PORT, BROADCAST_STEP_SLEEP)
 
 	if err != nil {
 
@@ -82,7 +82,7 @@ func Initialise(name, description string) (WPWithin, error) {
 
 	// Service scanner
 
-	svcScanner, err := servicediscovery.NewScanner()
+	svcScanner, err := servicediscovery.NewScanner(BROADCAST_PORT, BROADCAST_STEP_SLEEP)
 
 	if err != nil {
 

@@ -14,7 +14,7 @@ func NewBroadcaster(host string, port int, stepSleep int) (Broadcaster, error) {
 
 		stepSleep: stepSleep,
 		run: false,
-		host: net.IPv4(255, 255, 255, 255),
+		host: net.IPv4bcast.To4(),
 		port: port,
 		udpProtocol: "udp4",
 	}

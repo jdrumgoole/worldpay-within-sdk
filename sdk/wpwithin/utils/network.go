@@ -40,8 +40,9 @@ func ExternalIPv4() (string, error) {
 				continue // not an ipv4 address
 			}
 
-			return ip.String(), nil
+			return ip, nil
 		}
 	}
-	return "", errors.New("Device does not appear to be network connected.")
+	return nil, errors.New("Device does not appear to be network connected.")
+}
 }
