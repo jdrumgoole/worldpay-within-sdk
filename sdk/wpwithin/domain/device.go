@@ -64,9 +64,9 @@ func (wp Device) InitProducer() error {
 	return nil
 }
 
-func (wp Device) GetDevice() (Device, error) {
+func (wp Device) GetDevice() Device {
 
-	return wp, nil
+	return wp
 }
 
 func (wp Device) SetHTECredentials(hteCredentials hte.HTECredential) error {

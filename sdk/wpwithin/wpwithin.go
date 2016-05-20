@@ -12,6 +12,7 @@ const (
 	BCAST_STEP_SLEEP = 5000
 	HTE_PORT = 8980
 	SVC_URL_PREFIX = "/services"
+	UUID_FILE_PATH = "uuid.txt"
 )
 
 type WPWithin interface {
@@ -23,7 +24,7 @@ type WPWithin interface {
 	SetHCEClientCredential(hceClientCredential hce.HCEClientCredential) error
 	InitConsumer() error
 	InitProducer() error
-	GetDevice() (domain.Device, error)
+	GetDevice() domain.Device
 	StartSvcBroadcast(timeoutMillis int)
 	StopSvcBroadcast()
 	ScanServices() []domain.Service
@@ -36,8 +37,23 @@ func Initialise(name, description string) (WPWithin, error) {
 
 	// Device
 
-	// TODO CH Check for GUID file and create if not exist
-	deviceUID := "device_guid_goes_here"
+	var deviceGUID string
+	var err error
+
+	if b, _ := utils.FileExists(UUID_FILE_PATH); b {
+
+		deviceGUID, err = utils.ReadLocalUUID(UUID_FILE_PATH)
+	} else {
+
+		deviceGUID, err = utils.NewUUID()
+
+		utils.WriteString(UUID_FILE_PATH, deviceGUID, true)
+	}
+
+	if err != nil {
+
+		return domain.Device{}, err
+	}
 
 	deviceAddress, err := utils.ExternalIPv4()
 
@@ -46,7 +62,7 @@ func Initialise(name, description string) (WPWithin, error) {
 		return domain.Device{}, err
 	}
 
-	device, err := domain.NewDevice(name, description, deviceUID, deviceAddress, SVC_URL_PREFIX)
+	device, err := domain.NewDevice(name, description, deviceGUID, deviceAddress, SVC_URL_PREFIX)
 
 	if err != nil {
 
