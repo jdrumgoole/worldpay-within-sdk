@@ -67,7 +67,7 @@ func (bcast *broadcasterImpl) StartBroadcast(msg BroadcastMessage, timeoutMillis
 
 		time.Sleep(time.Duration(bcast.stepSleep) * time.Millisecond)
 
-		timedOut = timeoutTime.Second() >= time.Now().Second()
+		timedOut = timeoutTime.Unix() <= time.Now().Unix()
 	}
 
 	if udpConn != nil {
