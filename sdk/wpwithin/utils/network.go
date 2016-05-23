@@ -7,11 +7,11 @@ import (
 // Return the IPv4 external address of this device.
 // Note external does not necessarily mean WAN IP. On most networks it will be the LAN IP of device as opposed
 // to internal localhost address (127.0.0.1)
-func ExternalIPv4() (string, error) {
+func ExternalIPv4() (net.IP, error) {
 
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	for _, iface := range ifaces {
 		if iface.Flags&net.FlagUp == 0 {
@@ -22,7 +22,7 @@ func ExternalIPv4() (string, error) {
 		}
 		addrs, err := iface.Addrs()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		for _, addr := range addrs {
 			var ip net.IP
