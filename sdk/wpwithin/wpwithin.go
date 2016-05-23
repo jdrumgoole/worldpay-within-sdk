@@ -11,8 +11,9 @@ const (
 
 	BROADCAST_STEP_SLEEP = 5000
 	BROADCAST_PORT = 8980
-	SVC_URL_PREFIX = "/services"
+	HTE_SVC_URL_PREFIX = "/services"
 	UUID_FILE_PATH = "uuid.txt"
+	HTE_SVC_PORT = 8080
 )
 
 type WPWithin interface {
@@ -62,7 +63,7 @@ func Initialise(name, description string) (WPWithin, error) {
 		return domain.Device{}, err
 	}
 
-	device, err := domain.NewDevice(name, description, deviceGUID, deviceAddress.String(), SVC_URL_PREFIX)
+	device, err := domain.NewDevice(name, description, deviceGUID, deviceAddress.String(), HTE_SVC_URL_PREFIX, HTE_SVC_PORT)
 
 	if err != nil {
 
@@ -71,7 +72,7 @@ func Initialise(name, description string) (WPWithin, error) {
 
 	// Service broadcaster
 
-	svcBroadcaster, err := servicediscovery.NewBroadcaster(device.IPv4Address, BROADCAST_PORT, BROADCAST_STEP_SLEEP)
+	svcBroadcaster, err := servicediscovery.NewBroadcaster(device.HTEIPv4Address, BROADCAST_PORT, BROADCAST_STEP_SLEEP)
 
 	if err != nil {
 

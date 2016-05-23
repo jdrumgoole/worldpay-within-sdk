@@ -19,18 +19,20 @@ type Device struct {
 	Psp psp.Psp
 	SvcBroadcaster servicediscovery.Broadcaster
 	SvcScanner servicediscovery.Scanner
-	IPv4Address string
-	SvcPrefix string
+	HTEIPv4Address string
+	HTEPrefix string
+	HTEPort int
 }
 
-func NewDevice(name, description, uid string, ipv4 string, svcPrefix string) (*Device, error) {
+func NewDevice(name, description, uid string, hteIpv4 string, htePrefix string, htePort int) (*Device, error) {
 
 	result := &Device{
 		Name:name,
 		Description:description,
 		Uid:uid,
-		IPv4Address: ipv4,
-		SvcPrefix: svcPrefix,
+		HTEIPv4Address: hteIpv4,
+		HTEPrefix: htePrefix,
+		HTEPort: htePort,
 	}
 
 	return result, nil
@@ -93,9 +95,10 @@ func (wp Device) StartSvcBroadcast(timeoutMillis int) (chan bool, error) {
 		msg := servicediscovery.BroadcastMessage{
 
 			DeviceDescription: wp.Description,
-			Hostname: wp.IPv4Address,
+			Hostname: wp.HTEIPv4Address,
 			ServerID: wp.Uid,
-			UrlPrefix: wp.SvcPrefix,
+			UrlPrefix: wp.HTEPrefix,
+			PortNumber:wp.HTEPort,
 		}
 
 		wp.SvcBroadcaster.StartBroadcast(msg, timeoutMillis)
