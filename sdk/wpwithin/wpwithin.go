@@ -27,7 +27,7 @@ type WPWithin interface {
 	GetDevice() domain.Device
 	StartSvcBroadcast(timeoutMillis int) (chan bool, error)
 	StopSvcBroadcast()
-	ScanServices(timeoutMillis int) (chan bool, error)
+	ScanServices(timeoutMillis int) ([]servicediscovery.BroadcastMessage, error)
 	GetSvcPrices(svc domain.Service) []domain.Price
 	SelectSvc(svc domain.Service) domain.PaymentRequest
 	MakePayment(payRequest domain.PaymentRequest) domain.PaymentResponse

@@ -111,11 +111,28 @@ func (wp Device) StopSvcBroadcast() {
 	wp.SvcBroadcaster.StopBroadcast()
 }
 
-func (wp Device) ScanServices() []Service {
+func (wp Device) ScanServices(timeoutMillis int) ([]servicediscovery.BroadcastMessage, error) {
 
-	wp.SvcScanner.ScanForServices(1000)
+	svcResults := make([]servicediscovery.BroadcastMessage, 0)
 
-	return nil
+	scanResult := wp.SvcScanner.ScanForServices(timeoutMillis)
+
+	// Wait for scanning to complete
+	<-scanResult.Complete
+
+	if scanResult.Error != nil {
+
+		return nil, scanResult.Error
+	} else if len(scanResult.Services) > 0 {
+
+		// Convert map of services to array
+		for _, svc := range scanResult.Services {
+
+			svcResults = append(svcResults, svc)
+		}
+	}
+
+	return svcResults, nil
 }
 
 func (wp Device) GetSvcPrices(svc Service) []Price {

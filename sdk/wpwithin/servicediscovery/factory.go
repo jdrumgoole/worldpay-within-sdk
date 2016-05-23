@@ -1,9 +1,14 @@
 package servicediscovery
 import "net"
 
-func NewScanner() (Scanner, error) {
+func NewScanner(port, stepSleep int) (Scanner, error) {
 
-	result := &scannerImpl{}
+	result := &scannerImpl{
+		run: false,
+		stepSleep: stepSleep,
+		port: port,
+		udpProtocol: "udp4",
+	}
 
 	return result, nil
 }
