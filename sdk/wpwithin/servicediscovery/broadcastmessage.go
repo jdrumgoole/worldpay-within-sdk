@@ -2,8 +2,9 @@ package servicediscovery
 
 type BroadcastMessage struct {
 
-	Description string `json:"description"`
-	Host string `json:"host"`
-	SvcUid string `json:"svcUid"`
+	DeviceDescription string `json:"deviceDescription"`
+	Hostname string `json:"hostname"`
+	PortNumber int `json:"portNumber"`
+	ServerID string `json:"serverID"`
 	UrlPrefix string `json:"urlPrefix"`
 }

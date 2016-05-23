@@ -92,9 +92,9 @@ func (wp Device) StartSvcBroadcast(timeoutMillis int) (chan bool, error) {
 
 		msg := servicediscovery.BroadcastMessage{
 
-			Description: wp.Description,
-			Host: wp.IPv4Address,
-			SvcUid: wp.Uid,
+			DeviceDescription: wp.Description,
+			Hostname: wp.IPv4Address,
+			ServerID: wp.Uid,
 			UrlPrefix: wp.SvcPrefix,
 		}
 
