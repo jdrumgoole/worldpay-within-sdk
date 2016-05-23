@@ -6,7 +6,6 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"encoding/json"
-	"errors"
 )
 
 type scannerImpl struct {
@@ -105,11 +104,6 @@ func (scanner *scannerImpl) ScanForServices(timeout int) ScanResult {
 	}()
 
 	return result
-}
-
-func (scanner *scannerImpl) SetServerGuidFilter(filter string) error {
-
-	return errors.New("Not implemented..")
 }
 
 func (scanner *scannerImpl) StopScanner() {
