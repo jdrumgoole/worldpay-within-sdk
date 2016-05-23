@@ -86,27 +86,29 @@ func (wp Device) SetHCEClientCredential(hceClientCredential hce.HCEClientCredent
 	return nil
 }
 
-func (wp Device) StartSvcBroadcast(timeoutMillis int) (chan bool, error) {
+func (wp Device) StartSvcBroadcast(timeoutMillis int) error {
 
-	done := make(chan bool)
+	// Setup message that is broadcast over network
+	msg := servicediscovery.BroadcastMessage{
 
-	go func() {
+		DeviceDescription: wp.Description,
+		Hostname: wp.HTEIPv4Address,
+		ServerID: wp.Uid,
+		UrlPrefix: wp.HTEPrefix,
+		PortNumber:wp.HTEPort,
+	}
 
-		msg := servicediscovery.BroadcastMessage{
+	complete, err := wp.SvcBroadcaster.StartBroadcast(msg, timeoutMillis)
 
-			DeviceDescription: wp.Description,
-			Hostname: wp.HTEIPv4Address,
-			ServerID: wp.Uid,
-			UrlPrefix: wp.HTEPrefix,
-			PortNumber:wp.HTEPort,
-		}
+	if err != nil {
 
-		wp.SvcBroadcaster.StartBroadcast(msg, timeoutMillis)
+		return err
+	}
 
-		done <- true
-	}()
+	// Wait for broadcast to complete
+	<-complete
 
-	return done, nil
+	return nil
 }
 
 func (wp Device) StopSvcBroadcast() {

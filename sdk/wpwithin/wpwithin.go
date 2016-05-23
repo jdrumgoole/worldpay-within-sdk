@@ -26,7 +26,7 @@ type WPWithin interface {
 	InitConsumer() error
 	InitProducer() error
 	GetDevice() domain.Device
-	StartSvcBroadcast(timeoutMillis int) (chan bool, error)
+	StartSvcBroadcast(timeoutMillis int) error
 	StopSvcBroadcast()
 	ScanServices(timeoutMillis int) ([]servicediscovery.BroadcastMessage, error)
 	GetSvcPrices(svc domain.Service) []domain.Price

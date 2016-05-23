@@ -15,77 +15,87 @@ type broadcasterImpl struct {
 	udpProtocol string
 }
 
-func (bcast *broadcasterImpl) StartBroadcast(msg BroadcastMessage, timeoutMillis int) error {
+func (bcast *broadcasterImpl) StartBroadcast(msg BroadcastMessage, timeoutMillis int) (chan bool, error) {
 
 	log.Debug("Start svc broadcast")
 
+	chDone := make(chan bool)
+
 	var udpConn *net.UDPConn
 
+	// Enable broadcaster to run
 	bcast.run = true
 
+	// Determine when the broadcast operation will expire
 	timeoutTime := time.Now().Add(time.Duration(timeoutMillis) * time.Millisecond)
-
 	timedOut := false
 
-	for bcast.run && !timedOut {
+	go func(){
 
-		log.Debug("Broadcasting now")
+		for bcast.run && !timedOut {
 
-		BROADCAST_IPv4 := bcast.host
-		conn, err := net.DialUDP(bcast.udpProtocol, nil, &net.UDPAddr{
-			IP:   BROADCAST_IPv4,
-			Port: int(bcast.port),
-		})
+			log.Debug("Broadcasting..")
 
-		if err != nil {
-
-			log.Error(err)
-			break
-
-		} else {
-
-			log.Debug("Did open UDP broadcast socket")
-
-			jsonBytes, err := json.Marshal(msg)
+			BROADCAST_IPv4 := bcast.host
+			conn, err := net.DialUDP(bcast.udpProtocol, nil, &net.UDPAddr{
+				IP:   BROADCAST_IPv4,
+				Port: int(bcast.port),
+			})
 
 			if err != nil {
 
 				log.Error(err)
-				break
+
+			} else {
+
+				log.Debug("Did open UDP broadcast socket")
+
+				jsonBytes, err := json.Marshal(msg)
+
+				if err != nil {
+
+					log.Error(err)
+					continue
+				}
+
+				_, err = conn.Write(jsonBytes)
+
+				if err != nil {
+
+					log.Error(err)
+					continue
+				}
+
+				log.Debug("Did successfully write broadcast message")
 			}
 
-			_, err = conn.Write(jsonBytes)
+			// Sleep before broadcasting another message - don't want to flood network
+			time.Sleep(time.Duration(bcast.stepSleep) * time.Millisecond)
+
+			// Determine if operation has timed out yet
+			timedOut = timeoutTime.Unix() <= time.Now().Unix()
+		}
+
+		// Clean up connection if still active
+		if udpConn != nil {
+
+			err := udpConn.Close()
 
 			if err != nil {
 
 				log.Error(err)
-				break;
+			} else {
+
+				log.Debug("Did close UDP broadcast socket")
 			}
-
-			log.Debug("Did successfully write broadcast message")
 		}
 
-		time.Sleep(time.Duration(bcast.stepSleep) * time.Millisecond)
+		log.WithFields(log.Fields{ "Timed out": timedOut, "Run": bcast.run }).Debug("Finished broadcasting")
 
-		timedOut = timeoutTime.Unix() <= time.Now().Unix()
-	}
+		chDone <- true
+	}()
 
-	if udpConn != nil {
-
-		err := udpConn.Close()
-
-		if err != nil {
-
-			log.Error(err)
-		} else {
-
-			log.Debug("Did close UDP broadcast socket")
-		}
-	}
-
-	log.WithFields(log.Fields{ "Timed out": timedOut, "Run": bcast.run }).Debug("Finished broadcasting")
-
-	return nil
+	return chDone, nil
 }
 
 func (bcast *broadcasterImpl) StopBroadcast() error {
