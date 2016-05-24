@@ -4,7 +4,6 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/servicediscovery"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
-"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
 )
 
 type Core struct {
@@ -16,18 +15,9 @@ type Core struct {
 	HCE *hce.Manager
 }
 
-func New(device *domain.Device, hteIpv4 string, htePrefix string, htePort int) (*Core, error) {
+func New() (*Core, error) {
 
-	hte, err := hte.NewService(hteIpv4, htePrefix, htePort)
-
-	if err != nil {
-
-		return nil, err
-	}
-
-	result := &Core{
-		HTE: hte,
-	}
+	result := &Core{}
 
 	return result, nil
 }

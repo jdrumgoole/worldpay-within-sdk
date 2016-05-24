@@ -71,7 +71,7 @@ func Initialise(name, description string) (WPWithin, error) {
 		return &wpWithinImpl{}, err
 	}
 
-	device, err := domain.NewDevice(name, description, deviceGUID)
+	device, err := domain.NewDevice(name, description, deviceGUID, deviceAddress.String())
 
 	if err != nil {
 
@@ -80,16 +80,32 @@ func Initialise(name, description string) (WPWithin, error) {
 
 	// Set up SDK core
 
-	core, err := core.New(device, deviceAddress.String(), HTE_SVC_URL_PREFIX, HTE_SVC_PORT)
+	core, err := core.New()
 
 	if err != nil {
 
 		return &wpWithinImpl{}, err
 	}
 
+	// Add core and device to WPWithin SDK Implementation
+	wp := &wpWithinImpl{}
+	wp.core = core
+	wp.device = device
+
+	// Set up HTE service
+
+	hte, err := hte.NewService(device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT)
+
+	if err != nil {
+
+		return &wpWithinImpl{}, err
+	}
+
+	core.HTE = hte
+
 	// Service broadcaster
 
-	svcBroadcaster, err := servicediscovery.NewBroadcaster(core.HTE.IPv4Address, BROADCAST_PORT, BROADCAST_STEP_SLEEP)
+	svcBroadcaster, err := servicediscovery.NewBroadcaster(core.HTE.IPv4Address, core.HTE.Port, BROADCAST_STEP_SLEEP)
 
 	if err != nil {
 
@@ -108,9 +124,6 @@ func Initialise(name, description string) (WPWithin, error) {
 	}
 
 	core.SvcScanner = svcScanner
-
-	wp := &wpWithinImpl{}
-	wp.core = core
 
 	return wp, nil
 }
