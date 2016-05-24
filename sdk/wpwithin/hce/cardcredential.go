@@ -1,6 +1,6 @@
 package hce
 
-type HCECardCredential struct {
+type CardCredential struct {
 
 	FirstName string
 	LastName string
@@ -11,9 +11,9 @@ type HCECardCredential struct {
 	Cvc string
 }
 
-func NewHCECardCredential() (*HCECardCredential, error) {
+func NewHCECardCredential() (*CardCredential, error) {
 
-	result := &HCECardCredential{}
+	result := &CardCredential{}
 
 	return result, nil
 }
