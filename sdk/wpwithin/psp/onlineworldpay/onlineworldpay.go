@@ -16,14 +16,12 @@ import (
 
 type OnlineWorldpay struct {
 
-	hteCredential hte.Credential
 	apiEndpoint string
 }
 
-func New(hteCredential hte.Credential, apiEndpoint string) (psp.Psp, error) {
+func New(apiEndpoint string) (psp.Psp, error) {
 
 	result := &OnlineWorldpay{
-		hteCredential:hteCredential,
 		apiEndpoint:apiEndpoint,
 	}
 

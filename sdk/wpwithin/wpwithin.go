@@ -7,6 +7,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/core"
 	"fmt"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp/onlineworldpay"
 )
 
 const (
@@ -16,6 +17,7 @@ const (
 	HTE_SVC_URL_PREFIX = ""
 	UUID_FILE_PATH = "uuid.txt"
 	HTE_SVC_PORT = 8080
+	WP_ONLINE_API_ENDPOINT = "https://api.worldpay.com/v1"
 )
 
 type WPWithin interface {
@@ -38,16 +40,29 @@ type WPWithin interface {
 
 type wpWithinImpl struct {
 
-	device *domain.Device
 	core *core.Core
 }
 
 func Initialise(name, description string) (WPWithin, error) {
 
+	var err error
+
+	// Set up SDK core
+
+	core, err := core.New()
+
+	if err != nil {
+
+		return &wpWithinImpl{}, err
+	}
+
+	// Add core and device to WPWithin SDK Implementation
+	wp := &wpWithinImpl{}
+	wp.core = core
+
 	// Device setup
 
 	var deviceGUID string
-	var err error
 
 	if b, _ := utils.FileExists(UUID_FILE_PATH); b {
 
@@ -78,23 +93,19 @@ func Initialise(name, description string) (WPWithin, error) {
 		return &wpWithinImpl{}, err
 	}
 
-	// Set up SDK core
+	core.Device = device
 
-	core, err := core.New()
+	// Set up PSP
+	psp, err := onlineworldpay.New(WP_ONLINE_API_ENDPOINT)
 
 	if err != nil {
 
 		return &wpWithinImpl{}, err
 	}
 
-	// Add core and device to WPWithin SDK Implementation
-	wp := &wpWithinImpl{}
-	wp.core = core
-	wp.device = device
-
 	// Set up HTE service
 
-	hte, err := hte.NewService(device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT)
+	hte, err := hte.NewService(device, psp, device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT)
 
 	if err != nil {
 
@@ -130,12 +141,12 @@ func Initialise(name, description string) (WPWithin, error) {
 
 func (wp *wpWithinImpl) AddService(service domain.Service) error {
 
-	if wp.device.Services == nil {
+	if wp.core.Device.Services == nil {
 
-		wp.device.Services = make(map[string]domain.Service, 0)
+		wp.core.Device.Services = make(map[string]domain.Service, 0)
 	}
 
-	wp.device.Services[service.Uid] = service
+	wp.core.Device.Services[service.Uid] = service
 
 	return nil
 }
@@ -171,7 +182,7 @@ func (wp *wpWithinImpl) InitProducer() (chan bool, error) {
 
 func (wp *wpWithinImpl) GetDevice() *domain.Device {
 
-	return wp.device
+	return wp.core.Device
 }
 
 func (wp *wpWithinImpl) SetHTECredentials(hteCredentials hte.Credential) error {
@@ -194,9 +205,9 @@ func (wp *wpWithinImpl) StartSvcBroadcast(timeoutMillis int) error {
 	// Setup message that is broadcast over network
 	msg := servicediscovery.BroadcastMessage{
 
-		DeviceDescription: wp.device.Description,
+		DeviceDescription: wp.core.Device.Description,
 		Hostname: wp.core.HTE.IPv4Address,
-		ServerID: wp.device.Uid,
+		ServerID: wp.core.Device.Uid,
 		UrlPrefix: wp.core.HTE.UrlPrefix,
 		PortNumber:wp.core.HTE.Port,
 	}

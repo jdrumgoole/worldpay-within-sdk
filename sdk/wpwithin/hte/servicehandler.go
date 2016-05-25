@@ -2,15 +2,22 @@ package hte
 import (
 	"net/http"
 "encoding/json"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
 )
 
 type ServiceHandler struct {
 
+	device *domain.Device
+	psp *psp.Psp
 }
 
-func NewServiceHandler() *ServiceHandler {
+func NewServiceHandler(device *domain.Device, psp *psp.Psp) *ServiceHandler {
 
-	result := &ServiceHandler{}
+	result := &ServiceHandler{
+		device: device,
+		psp: psp,
+	}
 
 	return result
 }
