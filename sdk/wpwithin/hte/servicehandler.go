@@ -124,6 +124,16 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 	reqVars := mux.Vars(r)
 	svcId, err := strconv.Atoi(reqVars["service_id"])
 
+	if err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: "Unable to parse input service id",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
 	// Parse message body (POST)
 	var totalPriceRequest TotalPriceRequest
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
@@ -155,16 +165,6 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 		}
 
 		returnMessage(w, 422/*Unprocessable Entity*/, errorResponse)
-		return
-	}
-
-	if err != nil {
-
-		errorResponse := ErrorResponse{
-			Message: "Unable to parse input service id",
-		}
-
-		returnMessage(w, http.StatusBadRequest, errorResponse)
 		return
 	}
 
