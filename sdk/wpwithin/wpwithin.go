@@ -22,8 +22,8 @@ const (
 
 type WPWithin interface {
 
-	AddService(service domain.Service) error
-	RemoveService(service domain.Service) error
+	AddService(service *domain.Service) error
+	RemoveService(service *domain.Service) error
 	SetHCECardCredential(hceCardCredential *hce.CardCredential) error
 	SetHCEClientCredential(hceClientCredential *hce.ClientCredential) error
 	InitConsumer() error
@@ -115,7 +115,7 @@ func Initialise(name, description string, hteCredential hte.Credential) (WPWithi
 
 	// Service broadcaster
 
-	svcBroadcaster, err := servicediscovery.NewBroadcaster(core.HTE.IPv4Address, core.HTE.Port, BROADCAST_STEP_SLEEP)
+	svcBroadcaster, err := servicediscovery.NewBroadcaster(core.HTE.IPv4Address, BROADCAST_PORT, BROADCAST_STEP_SLEEP)
 
 	if err != nil {
 
@@ -138,11 +138,11 @@ func Initialise(name, description string, hteCredential hte.Credential) (WPWithi
 	return wp, nil
 }
 
-func (wp *wpWithinImpl) AddService(service domain.Service) error {
+func (wp *wpWithinImpl) AddService(service *domain.Service) error {
 
 	if wp.core.Device.Services == nil {
 
-		wp.core.Device.Services = make(map[string]domain.Service, 0)
+		wp.core.Device.Services = make(map[string]*domain.Service, 0)
 	}
 
 	wp.core.Device.Services[service.Uid] = service
@@ -150,7 +150,7 @@ func (wp *wpWithinImpl) AddService(service domain.Service) error {
 	return nil
 }
 
-func (wp *wpWithinImpl) RemoveService(service domain.Service) error {
+func (wp *wpWithinImpl) RemoveService(service *domain.Service) error {
 
 	if wp.core.Device.Services != nil {
 

@@ -3,15 +3,15 @@ import "fmt"
 
 type Service struct {
 
-	Uid string
-	Name string
-	Description string
-	prices map[string]Price
+	Uid string `json:"uid"`
+	Name string `json:"name"`
+	Description string `json:"description`
+	prices map[string]Price `json:"prices"`
 }
 
-func NewService() (Service, error) {
+func NewService() (*Service, error) {
 
-	result := Service{}
+	result := &Service{}
 
 	result.prices = make(map[string]Price, 0)
 

@@ -26,7 +26,22 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 
 	// GET
 
-	returnMessage(w, 200, "Service discovert")
+	responseServices := make([]ServiceDetails, 0)
+
+	for _, srv := range srv.device.Services {
+
+		responseServices = append(responseServices, ServiceDetails{
+			ServiceID:srv.Uid,
+			ServiceDescription:srv.Description,
+		})
+	}
+
+	response := ServiceListResponse{
+		Services:responseServices,
+		ServerID:srv.device.Uid,
+	}
+
+	returnMessage(w, 200, response)
 }
 
 func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request) {

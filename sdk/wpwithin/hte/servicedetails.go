@@ -2,6 +2,6 @@ package hte
 
 type ServiceDetails struct {
 
-	ServiceID int32
+	ServiceID string
 	ServiceDescription string
 }

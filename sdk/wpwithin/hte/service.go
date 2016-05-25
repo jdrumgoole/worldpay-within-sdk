@@ -34,6 +34,7 @@ func NewService(device *domain.Device, psp psp.Psp, ip, prefix string, port int)
 
 	service.UrlPrefix = prefix
 	service.Port = port
+	service.IPv4Address = ip
 
 	initRoutes(service)
 
