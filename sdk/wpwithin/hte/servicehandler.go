@@ -17,14 +17,16 @@ type ServiceHandler struct {
 	device *domain.Device
 	psp psp.Psp
 	credential *Credential
+	orderManager *OrderManager
 }
 
-func NewServiceHandler(device *domain.Device, psp psp.Psp, credential *Credential) *ServiceHandler {
+func NewServiceHandler(device *domain.Device, psp psp.Psp, credential *Credential, orderManager *OrderManager) *ServiceHandler {
 
 	result := &ServiceHandler{
 		device: device,
 		psp: psp,
 		credential: credential,
+		orderManager: orderManager,
 	}
 
 	return result
@@ -178,8 +180,6 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			response.TotalPrice = price.PricePerUnit * totalPriceRequest.SelectedNumberOfUnits
 			response.MerchantClientKey = srv.credential.MerchantClientKey
 
-			// TODO CH - Add payment ref to core and keep for later to link payment
-
 			payRef, err := utils.NewUUID()
 			if err != nil {
 
@@ -191,7 +191,29 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			}
 			response.PaymentReferenceID = payRef
 
-			returnMessage(w, http.StatusOK, response)
+			order := Order{
+				PaymentReference:payRef,
+				TotalPrice:response.TotalPrice,
+				ClientID:response.ClientID,
+				SelectedNumberOfUnits:response.UnitsToSupply,
+				SelectedPriceId:response.PriceID,
+				ServiceID:svcId,
+			}
+
+			err = srv.orderManager.AddOrder(order)
+
+			if err != nil {
+
+				errorResponse := ErrorResponse{
+					Message:"Unable to add order to local store",
+				}
+
+				returnMessage(w, http.StatusInternalServerError, errorResponse)
+
+			} else {
+
+				returnMessage(w, http.StatusOK, response)
+			}
 
 		} else {
 

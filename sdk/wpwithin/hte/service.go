@@ -16,6 +16,7 @@ type Service struct {
 	routes []Route
 	handler *ServiceHandler
 	HTECredential *Credential
+	orderManager *OrderManager
 }
 
 type Route struct {
@@ -26,15 +27,16 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func NewService(device *domain.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential) (*Service, error) {
+func NewService(device *domain.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential, orderManager *OrderManager) (*Service, error) {
 
 	service := &Service{}
 
-	service.handler = NewServiceHandler(device, psp, hteCredential)
+	service.handler = NewServiceHandler(device, psp, hteCredential, orderManager)
 
 	service.UrlPrefix = prefix
 	service.Port = port
 	service.IPv4Address = ip
+	service.orderManager = orderManager
 
 	initRoutes(service)
 
@@ -52,9 +54,9 @@ func NewService(device *domain.Device, psp psp.Psp, ip, prefix string, port int,
 	return service, nil
 }
 
-func (server *Service) Start() error {
+func (service *Service) Start() error {
 
-	return http.ListenAndServe(fmt.Sprintf(":%d", server.Port), server.router)
+	return http.ListenAndServe(fmt.Sprintf(":%d", service.Port), service.router)
 }
 
 func initRoutes(srv *Service) {
