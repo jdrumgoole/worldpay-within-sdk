@@ -3,10 +3,10 @@ package domain
 type Price struct {
 
 	ServiceID int
-	Uid string `json:"uid"`
-	Description string `json:"description"`
+	ID int `json:"priceID"`
+	Description string `json:"priceDescription"`
 	PricePerUnit int `json:"pricePerUnit"`
-	UnitId int `json:"unitId"`
+	UnitID int `json:"unitID"`
 	UnitDescription string `json:"unitDescription"`
 }
 

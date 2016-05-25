@@ -31,7 +31,7 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 	for _, srv := range srv.device.Services {
 
 		responseServices = append(responseServices, ServiceDetails{
-			ServiceID:srv.Uid,
+			ServiceID:srv.Id,
 			ServiceDescription:srv.Description,
 		})
 	}
