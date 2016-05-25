@@ -4,6 +4,9 @@ import (
 "encoding/json"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
+	"github.com/gorilla/mux"
+	"fmt"
+	"strconv"
 )
 
 type ServiceHandler struct {
@@ -22,9 +25,17 @@ func NewServiceHandler(device *domain.Device, psp psp.Psp) *ServiceHandler {
 	return result
 }
 
+// List all the services available from this thing
 func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Request) {
 
 	// GET
+
+	defer func() {
+		if err := recover(); err != nil {
+
+			returnMessage(w, http.StatusInternalServerError, err)
+		}
+	}()
 
 	responseServices := make([]ServiceDetails, 0)
 
@@ -41,14 +52,54 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 		ServerID:srv.device.Uid,
 	}
 
-	returnMessage(w, 200, response)
+	returnMessage(w, http.StatusOK, response)
 }
 
 func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request) {
 
 	// GET
 
-	returnMessage(w, 200, "Service prices..")
+	defer func() {
+		if err := recover(); err != nil {
+
+			returnMessage(w, http.StatusInternalServerError, err)
+		}
+	}()
+
+	// Parse variables from request
+	reqVars := mux.Vars(r)
+	svcId, err := strconv.Atoi(reqVars["service_id"])
+
+	if err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: "Unable to parse input service id",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if svc, ok := srv.device.Services[svcId]; ok {
+
+		response := ServicePriceResponse{}
+		response.ServerID = srv.device.Uid
+
+		for _, price := range svc.Prices() {
+
+			response.Prices = append(response.Prices, price)
+		}
+
+		returnMessage(w, http.StatusOK, response)
+
+	} else {
+
+		errorResponse := ErrorResponse{
+			Message: fmt.Sprintf("Service not found for id %d", svcId),
+		}
+
+		returnMessage(w, http.StatusNotFound, errorResponse)
+	}
 }
 
 func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Request) {
