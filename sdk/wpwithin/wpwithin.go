@@ -24,9 +24,8 @@ type WPWithin interface {
 
 	AddService(service domain.Service) error
 	RemoveService(service domain.Service) error
-	SetHTECredentials(hteCredentials hte.Credential) error
-	SetHCECardCredential(hceCardCredential hce.CardCredential) error
-	SetHCEClientCredential(hceClientCredential hce.ClientCredential) error
+	SetHCECardCredential(hceCardCredential *hce.CardCredential) error
+	SetHCEClientCredential(hceClientCredential *hce.ClientCredential) error
 	InitConsumer() error
 	InitProducer() (chan bool, error)
 	GetDevice() *domain.Device
@@ -43,7 +42,7 @@ type wpWithinImpl struct {
 	core *core.Core
 }
 
-func Initialise(name, description string) (WPWithin, error) {
+func Initialise(name, description string, hteCredential hte.Credential) (WPWithin, error) {
 
 	var err error
 
@@ -96,7 +95,7 @@ func Initialise(name, description string) (WPWithin, error) {
 	core.Device = device
 
 	// Set up PSP
-	psp, err := onlineworldpay.New(WP_ONLINE_API_ENDPOINT)
+	psp, err := onlineworldpay.New(hteCredential.MerchantClientKey, hteCredential.MerchantServiceKey, WP_ONLINE_API_ENDPOINT)
 
 	if err != nil {
 
@@ -187,21 +186,14 @@ func (wp *wpWithinImpl) GetDevice() *domain.Device {
 	return wp.core.Device
 }
 
-func (wp *wpWithinImpl) SetHTECredentials(hteCredentials hte.Credential) error {
-
-	wp.core.HTE.HTECredential = hteCredentials
-
-	return nil
-}
-
-func (wp *wpWithinImpl) SetHCECardCredential(hceCardCredential hce.CardCredential) error {
+func (wp *wpWithinImpl) SetHCECardCredential(hceCardCredential *hce.CardCredential) error {
 
 	wp.core.HCE.HCECardCredential = hceCardCredential
 
 	return nil
 }
 
-func (wp *wpWithinImpl) SetHCEClientCredential(hceClientCredential hce.ClientCredential) error {
+func (wp *wpWithinImpl) SetHCEClientCredential(hceClientCredential *hce.ClientCredential) error {
 
 	wp.core.HCE.HCEClientCredential = hceClientCredential
 

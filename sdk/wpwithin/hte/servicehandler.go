@@ -9,10 +9,10 @@ import (
 type ServiceHandler struct {
 
 	device *domain.Device
-	psp *psp.Psp
+	psp psp.Psp
 }
 
-func NewServiceHandler(device *domain.Device, psp *psp.Psp) *ServiceHandler {
+func NewServiceHandler(device *domain.Device, psp psp.Psp) *ServiceHandler {
 
 	result := &ServiceHandler{
 		device: device,

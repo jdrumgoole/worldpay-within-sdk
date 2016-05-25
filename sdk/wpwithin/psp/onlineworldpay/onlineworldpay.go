@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"strings"
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hte"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
 "innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp/onlineworldpay/types"
@@ -16,12 +15,16 @@ import (
 
 type OnlineWorldpay struct {
 
+	MerchantClientKey string
+	MerchantServiceKey string
 	apiEndpoint string
 }
 
-func New(apiEndpoint string) (psp.Psp, error) {
+func New(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp.Psp, error) {
 
 	result := &OnlineWorldpay{
+		MerchantClientKey:merchantClientKey,
+		MerchantServiceKey:merchantServiceKey,
 		apiEndpoint:apiEndpoint,
 	}
 
@@ -49,7 +52,7 @@ func (owp *OnlineWorldpay) GetToken(hceCredentials hce.CardCredential, reusableT
 	tokenRequest := types.TokenRequest{
 		Reusable:reusableToken,
 		PaymentMethod:paymentMethod,
-		ClientKey:owp.hteCredential.MerchantClientKey,
+		ClientKey:owp.MerchantClientKey,
 	}
 
 	bJson, err := json.Marshal(tokenRequest)
@@ -117,7 +120,7 @@ func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, or
 
 	headers := make(map[string]string, 0)
 
-	headers["Authorization"] = owp.hteCredential.MerchantServiceKey
+	headers["Authorization"] = owp.MerchantServiceKey
 
 	log.WithFields(log.Fields{ "Url": reqUrl,
 		"RequestJSON": string(bJson) }).Debug("Sending Order POST request.")

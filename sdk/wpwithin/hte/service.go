@@ -26,7 +26,7 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func NewService(device *domain.Device, psp *psp.Psp, ip, prefix string, port int) (*Service, error) {
+func NewService(device *domain.Device, psp psp.Psp, ip, prefix string, port int) (*Service, error) {
 
 	service := &Service{}
 
