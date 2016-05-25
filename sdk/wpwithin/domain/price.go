@@ -2,6 +2,7 @@ package domain
 
 type Price struct {
 
+	ServiceID int
 	Uid string `json:"uid"`
 	Description string `json:"description"`
 	PricePerUnit int `json:"pricePerUnit"`

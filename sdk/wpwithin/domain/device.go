@@ -5,7 +5,7 @@ type Device struct {
 	Uid string
 	Name string
 	Description string
-	Services map[string]*Service
+	Services map[int]*Service
 	IPv4Address string
 }
 

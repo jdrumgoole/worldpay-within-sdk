@@ -142,10 +142,10 @@ func (wp *wpWithinImpl) AddService(service *domain.Service) error {
 
 	if wp.core.Device.Services == nil {
 
-		wp.core.Device.Services = make(map[string]*domain.Service, 0)
+		wp.core.Device.Services = make(map[int]*domain.Service, 0)
 	}
 
-	wp.core.Device.Services[service.Uid] = service
+	wp.core.Device.Services[service.Id] = service
 
 	return nil
 }
@@ -154,7 +154,7 @@ func (wp *wpWithinImpl) RemoveService(service *domain.Service) error {
 
 	if wp.core.Device.Services != nil {
 
-		delete(wp.core.Device.Services, service.Uid)
+		delete(wp.core.Device.Services, service.Id)
 	}
 
 	return nil

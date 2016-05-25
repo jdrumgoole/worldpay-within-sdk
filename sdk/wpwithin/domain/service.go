@@ -3,7 +3,7 @@ import "fmt"
 
 type Service struct {
 
-	Uid string `json:"uid"`
+	Id int `json:"serviceID"`
 	Name string `json:"name"`
 	Description string `json:"description`
 	prices map[string]Price `json:"prices"`
