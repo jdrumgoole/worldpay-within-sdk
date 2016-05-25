@@ -7,6 +7,9 @@ import (
 	"github.com/gorilla/mux"
 	"fmt"
 	"strconv"
+	"io/ioutil"
+	"io"
+	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/utils"
 )
 
 type ServiceHandler struct {
@@ -106,7 +109,106 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 	// POST
 
-	returnMessage(w, 200, "Service total price")
+	defer func() {
+		if err := recover(); err != nil {
+
+			returnMessage(w, http.StatusInternalServerError, err)
+		}
+	}()
+
+	// Parse variables from URI
+	reqVars := mux.Vars(r)
+	svcId, err := strconv.Atoi(reqVars["service_id"])
+
+	// Parse message body (POST)
+	var totalPriceRequest TotalPriceRequest
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+
+	if err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: "Unable to read POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := r.Body.Close(); err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: "Unable to close POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := json.Unmarshal(body, &totalPriceRequest); err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: "Unable to parse POST body",
+		}
+
+		returnMessage(w, 422/*Unprocessable Entity*/, errorResponse)
+		return
+	}
+
+	if err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: "Unable to parse input service id",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if svc, ok := srv.device.Services[svcId]; ok {
+
+		if price, ok := svc.Prices()[totalPriceRequest.SelectedPriceId]; ok {
+
+			response := TotalPriceResponse{}
+			response.ServerID = srv.device.Uid
+			response.ClientID = totalPriceRequest.ClientID
+			response.PriceID = totalPriceRequest.SelectedPriceId
+			response.UnitsToSupply = totalPriceRequest.SelectedNumberOfUnits
+			response.TotalPrice = price.PricePerUnit * totalPriceRequest.SelectedNumberOfUnits
+			// TODO CH - Sort out HTE Credentials and add client key here
+			//response.MerchantClientKey
+
+			// TODO CH - Add payment ref to core and keep for later to link payment
+
+			payRef, err := utils.NewUUID()
+			if err != nil {
+
+				errorResponse := ErrorResponse{
+					Message: "Internal error [payment-ref]",
+				}
+
+				returnMessage(w, http.StatusInternalServerError, errorResponse)
+			}
+			response.PaymentReferenceID = payRef
+
+			returnMessage(w, http.StatusOK, response)
+
+		} else {
+
+			errorResponse := ErrorResponse{
+				Message: fmt.Sprintf("Price not found for id %d", totalPriceRequest.SelectedPriceId),
+			}
+
+			returnMessage(w, http.StatusNotFound, errorResponse)
+		}
+
+	} else {
+
+		errorResponse := ErrorResponse{
+			Message: fmt.Sprintf("Service not found for id %d", svcId),
+		}
+
+		returnMessage(w, http.StatusNotFound, errorResponse)
+	}
 }
 
 func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
