@@ -2,6 +2,8 @@ package utils
 import (
 	"errors"
 	"net"
+	"fmt"
+	"reflect"
 )
 
 // Return the IPv4 external address of this device.
@@ -45,4 +47,81 @@ func ExternalIPv4() (net.IP, error) {
 	}
 	return nil, errors.New("Device does not appear to be network connected.")
 }
+
+func NetMask() (net.IPMask, error) {
+
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+	for _, iface := range ifaces {
+
+		if iface.Flags&net.FlagUp == 0 {
+			continue // interface down
+		}
+		if iface.Flags&net.FlagLoopback != 0 {
+			continue // loopback interface
+		}
+
+//		mAddrs, err := iface.Addrs()
+//
+//		if err != nil {
+//
+//			return nil, err
+//		}
+
+//		for _, addr := range mAddrs {
+//
+//			fmt.Println(addr)
+//		}
+//
+//		fmt.Println("---")
+
+		addrs, err := iface.Addrs()
+		if err != nil {
+			return nil, err
+		}
+		for _, addr := range addrs {
+
+			var ip net.IPMask
+
+			switch v := addr.(type) {
+
+			case *net.IPNet:
+
+				if v.IP.To4() != nil {
+
+					ones, _ := v.Mask.Size()
+
+					i := ones/8
+
+					for j := 1; j <= i; j++ {
+
+						fmt.Print("255")
+
+						if j < i {
+
+							fmt.Print(".")
+						} else {
+
+							fmt.Println(".0")
+						}
+					}
+
+
+					fmt.Printf("V %s\n", v)
+					fmt.Printf("Type %s\n", reflect.TypeOf(v))
+					fmt.Println("******************")
+				}
+			}
+			fmt.Println("--------------------")
+			if ip == nil {
+				fmt.Print("Not IPV4\n")
+				continue // not an ipv4 address
+			}
+
+			return ip, nil
+		}
+	}
+	return nil, errors.New("Unable to calculate netmask")
 }
