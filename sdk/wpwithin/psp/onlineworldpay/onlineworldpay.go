@@ -137,7 +137,7 @@ func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, or
 		return "", errors.New("Payment failed.")
 	} else {
 
-		return orderResponse.PaymentStatus, nil
+		return orderResponse.OrderCode, nil
 	}
 }
 
