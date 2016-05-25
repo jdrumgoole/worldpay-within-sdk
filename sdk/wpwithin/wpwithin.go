@@ -153,7 +153,10 @@ func (wp *wpWithinImpl) AddService(service domain.Service) error {
 
 func (wp *wpWithinImpl) RemoveService(service domain.Service) error {
 
-	fmt.Println("Remove service..")
+	if wp.core.Device.Services != nil {
+
+		delete(wp.core.Device.Services, service.Uid)
+	}
 
 	return nil
 }
@@ -166,7 +169,6 @@ func (wp *wpWithinImpl) InitConsumer() error {
 }
 
 func (wp *wpWithinImpl) InitProducer() (chan bool, error) {
-
 
 	err := wp.core.HTE.Start()
 
@@ -187,15 +189,21 @@ func (wp *wpWithinImpl) GetDevice() *domain.Device {
 
 func (wp *wpWithinImpl) SetHTECredentials(hteCredentials hte.Credential) error {
 
+	wp.core.HTE.HTECredential = hteCredentials
+
 	return nil
 }
 
 func (wp *wpWithinImpl) SetHCECardCredential(hceCardCredential hce.CardCredential) error {
 
+	wp.core.HCE.HCECardCredential = hceCardCredential
+
 	return nil
 }
 
 func (wp *wpWithinImpl) SetHCEClientCredential(hceClientCredential hce.ClientCredential) error {
+
+	wp.core.HCE.HCEClientCredential = hceClientCredential
 
 	return nil
 }

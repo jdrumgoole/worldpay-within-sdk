@@ -15,6 +15,7 @@ type Service struct {
 	UrlPrefix string
 	routes []Route
 	handler *ServiceHandler
+	HTECredential *Credential
 }
 
 type Route struct {
