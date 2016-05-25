@@ -16,13 +16,15 @@ type ServiceHandler struct {
 
 	device *domain.Device
 	psp psp.Psp
+	credential *Credential
 }
 
-func NewServiceHandler(device *domain.Device, psp psp.Psp) *ServiceHandler {
+func NewServiceHandler(device *domain.Device, psp psp.Psp, credential *Credential) *ServiceHandler {
 
 	result := &ServiceHandler{
 		device: device,
 		psp: psp,
+		credential: credential,
 	}
 
 	return result
@@ -174,8 +176,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			response.PriceID = totalPriceRequest.SelectedPriceId
 			response.UnitsToSupply = totalPriceRequest.SelectedNumberOfUnits
 			response.TotalPrice = price.PricePerUnit * totalPriceRequest.SelectedNumberOfUnits
-			// TODO CH - Sort out HTE Credentials and add client key here
-			//response.MerchantClientKey
+			response.MerchantClientKey = srv.credential.MerchantClientKey
 
 			// TODO CH - Add payment ref to core and keep for later to link payment
 

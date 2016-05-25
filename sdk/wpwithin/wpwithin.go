@@ -42,7 +42,7 @@ type wpWithinImpl struct {
 	core *core.Core
 }
 
-func Initialise(name, description string, hteCredential hte.Credential) (WPWithin, error) {
+func Initialise(name, description string, hteCredential *hte.Credential) (WPWithin, error) {
 
 	var err error
 
@@ -104,7 +104,7 @@ func Initialise(name, description string, hteCredential hte.Credential) (WPWithi
 
 	// Set up HTE service
 
-	hte, err := hte.NewService(device, psp, device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT)
+	hte, err := hte.NewService(device, psp, device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential)
 
 	if err != nil {
 
