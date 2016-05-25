@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"io"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/utils"
+	"strings"
 )
 
 type ServiceHandler struct {
@@ -198,6 +199,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 				SelectedNumberOfUnits:response.UnitsToSupply,
 				SelectedPriceId:response.PriceID,
 				ServiceID:svcId,
+				ClientUUID:totalPriceRequest.ClientUUID,
 			}
 
 			err = srv.orderManager.AddOrder(order)
@@ -238,7 +240,94 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 	// POST
 
-	returnMessage(w, 200, "Payment")
+	defer func() {
+		if err := recover(); err != nil {
+
+			returnMessage(w, http.StatusInternalServerError, err)
+		}
+	}()
+
+	// Parse message body (POST)
+	var paymentRequest PaymentRequest
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+
+	if err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: "Unable to read POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := r.Body.Close(); err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: "Unable to close POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := json.Unmarshal(body, &paymentRequest); err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: "Unable to parse POST body",
+		}
+
+		returnMessage(w, 422/*HTTP Status Code: Unprocessable Entity*/, errorResponse)
+		return
+	}
+
+	order, err := srv.orderManager.GetOrder(paymentRequest.PaymentReferenceID)
+
+	if err != nil {
+
+		errorResponse := ErrorResponse{
+			Message: fmt.Sprintf("Unable to find order for payment ref %s", paymentRequest.PaymentReferenceID),
+		}
+
+		returnMessage(w, http.StatusNotFound, errorResponse)
+	} else {
+
+		// Some quick checks to compare validity of incoming request
+		if strings.Compare(order.ClientID, paymentRequest.ClientID) != 0 {
+
+			errorResponse := ErrorResponse{
+				Message: "Client ID does not match Order Client ID",
+			}
+
+			returnMessage(w, http.StatusBadRequest, errorResponse)
+		} else {
+
+			paymentOrderCode, err := srv.psp.MakePayment(order.TotalPrice, srv.device, srv.device.CurrencyCode, paymentRequest.ClientToken, order.PaymentReference)
+
+			if err != nil {
+
+				errorResponse := ErrorResponse{
+					Message:"Unable to process payment with gateway at this time",
+				}
+
+				returnMessage(w, http.StatusInternalServerError, errorResponse)
+
+			} else {
+
+				paymentResponse := PaymentResponse{
+					ClientID: order.ClientID,
+					ServerID: srv.device.Uid,
+					TotalPaid: order.TotalPrice,
+					ServiceDeliveryToken: paymentOrderCode, // TODO CH - Use generated GUID instead of payment ref and persist in order manager for validation later
+					ClientUUID: order.ClientUUID,
+				}
+
+				// TODO CH - Save paymentOrderCode to the order
+
+				returnMessage(w, http.StatusOK, paymentResponse)
+			}
+		}
+	}
 }
 
 func (srv *ServiceHandler) ServiceDeliveryBegin(w http.ResponseWriter, r *http.Request) {

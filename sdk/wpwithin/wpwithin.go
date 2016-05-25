@@ -102,9 +102,20 @@ func Initialise(name, description string, hteCredential *hte.Credential) (WPWith
 		return &wpWithinImpl{}, err
 	}
 
+	// Setup Order Manager
+
+	orderManager, err := hte.NewOrderManager()
+
+	if err != nil {
+
+		return &wpWithinImpl{}, err
+	}
+
+	core.OrderManager = orderManager
+
 	// Set up HTE service
 
-	hte, err := hte.NewService(device, psp, device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential)
+	hte, err := hte.NewService(device, psp, device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential, orderManager)
 
 	if err != nil {
 

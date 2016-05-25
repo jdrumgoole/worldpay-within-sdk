@@ -15,6 +15,7 @@ type Core struct {
 	SvcScanner servicediscovery.Scanner
 	HTE *hte.Service
 	HCE *hce.Manager
+	OrderManager *hte.OrderManager
 }
 
 func New() (*Core, error) {

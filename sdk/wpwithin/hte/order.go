@@ -8,4 +8,7 @@ type Order struct {
 	SelectedPriceId int
 	TotalPrice int
 	PaymentReference string
+	ClientUUID string
+	PSPReference string
+	DeliveryToken string
 }
