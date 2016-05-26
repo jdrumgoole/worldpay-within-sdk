@@ -302,7 +302,8 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 			returnMessage(w, http.StatusBadRequest, errorResponse)
 		} else {
 
-			paymentOrderCode, err := srv.psp.MakePayment(order.TotalPrice, srv.device, srv.device.CurrencyCode, paymentRequest.ClientToken, order.PaymentReference)
+			// TODO CH - Fix order description
+			paymentOrderCode, err := srv.psp.MakePayment(order.TotalPrice, srv.device.CurrencyCode, paymentRequest.ClientToken, "fixme", order.PaymentReference)
 
 			if err != nil {
 

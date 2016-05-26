@@ -85,7 +85,7 @@ func Initialise(name, description string, hteCredential *hte.Credential) (WPWith
 		return &wpWithinImpl{}, err
 	}
 
-	device, err := domain.NewDevice(name, description, deviceGUID, deviceAddress.String())
+	device, err := domain.NewDevice(name, description, deviceGUID, deviceAddress.String(), "GBP")
 
 	if err != nil {
 
