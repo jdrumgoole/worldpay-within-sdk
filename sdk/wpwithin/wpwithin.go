@@ -6,15 +6,15 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/servicediscovery"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/core"
-	"fmt"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp/onlineworldpay"
+	"errors"
 )
 
 const (
 
 	BROADCAST_STEP_SLEEP = 5000
 	BROADCAST_PORT = 8980
-	HTE_SVC_URL_PREFIX = ""
+	HTE_SVC_URL_PREFIX = "/"
 	UUID_FILE_PATH = "uuid.txt"
 	HTE_SVC_PORT = 8080
 	WP_ONLINE_API_ENDPOINT = "https://api.worldpay.com/v1"
@@ -35,6 +35,7 @@ type WPWithin interface {
 	GetSvcPrices(svc domain.Service) []domain.Price
 	SelectSvc(svc domain.Service) domain.PaymentRequest
 	MakePayment(payRequest domain.PaymentRequest) domain.PaymentResponse
+	GetHTEClient(scheme, host string, port int, urlPrefix string, clientId string) (hte.Client, error)
 }
 
 type wpWithinImpl struct {
@@ -173,8 +174,6 @@ func (wp *wpWithinImpl) RemoveService(service *domain.Service) error {
 
 func (wp *wpWithinImpl) InitConsumer() error {
 
-	fmt.Println("init consumer...")
-
 	return nil
 }
 
@@ -278,4 +277,14 @@ func (wp *wpWithinImpl) SelectSvc(svc domain.Service) domain.PaymentRequest {
 func (wp *wpWithinImpl) MakePayment(payRequest domain.PaymentRequest) domain.PaymentResponse {
 
 	return domain.PaymentResponse{}
+}
+
+func (wp *wpWithinImpl) DiscoverServices() ([]hte.ServiceDetails, error) {
+
+	return nil, errors.New("Not implemented yet..")
+}
+
+func (wp *wpWithinImpl) GetHTEClient(scheme, host string, port int, urlPrefix string, clientId string) (hte.Client, error) {
+
+	return hte.NewClient(scheme, host, port, urlPrefix, clientId)
 }

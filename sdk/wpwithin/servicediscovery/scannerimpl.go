@@ -42,28 +42,29 @@ func (scanner *scannerImpl) ScanForServices(timeout int) ScanResult {
 		Port:scanner.port,
 	}
 
-	srvConn, err := net.ListenUDP(scanner.udpProtocol, srvAddr)
-
-	if err != nil {
-
-		result.Error = err
-
-		return result
-	}
-
 	go func() {
-
-		// Defer closing connection in go routine instead of main routine as it will be closed before the go routine starts.
-		defer srvConn.Close()
 
 		// Reading incoming messages - 2kb buffer
 		buf := make([]byte, 2048)
 
 		for scanner.run && !timedOut {
 
-			// Wait for incoming UDP message
-			nRecv, addrRecv,err := srvConn.ReadFromUDP(buf)
+			srvConn, err := net.ListenUDP(scanner.udpProtocol, srvAddr)
+			if err != nil {
 
+				result.Error = err
+
+				scanner.run = false
+			}
+
+			// Defer closing connection in go routine instead of main routine as it will be closed before the go routine starts.
+			defer srvConn.Close()
+
+			// Wait for incoming UDP message
+			srvConn.SetReadDeadline(time.Now().Add(time.Second * 1))
+
+			nRecv, addrRecv,err := srvConn.ReadFromUDP(buf)
+			
 			if err != nil {
 
 				log.Error(err)
