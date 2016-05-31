@@ -24,8 +24,8 @@ type WPWithin interface {
 
 	AddService(service *domain.Service) error
 	RemoveService(service *domain.Service) error
-	SetHCECardCredential(hceCardCredential *hce.CardCredential) error
-	SetHCEClientCredential(hceClientCredential *hce.ClientCredential) error
+	InitHCE(hceCardCredential *hce.CardCredential) error
+	InitHTE(hteCredential *hte.Credential) error
 	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error
 	InitProducer() (chan bool, error)
 	GetDevice() *domain.Device
@@ -39,12 +39,38 @@ type WPWithin interface {
 
 }
 
+func (wp *wpWithinImpl) InitHTE(hteCredential *hte.Credential) error {
+
+	// Set up PSP
+	psp, err := onlineworldpay.New(hteCredential.MerchantClientKey, hteCredential.MerchantServiceKey, WP_ONLINE_API_ENDPOINT)
+
+	if err != nil {
+
+		return err
+	}
+
+	wp.core.Psp = psp
+
+	// Set up HTE service
+
+	hte, err := hte.NewService(wp.core.Device, psp, wp.core.Device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential, wp.core.OrderManager)
+
+	if err != nil {
+
+		return err
+	}
+
+	wp.core.HTE = hte
+
+	return nil
+}
+
 type wpWithinImpl struct {
 
 	core *core.Core
 }
 
-func Initialise(name, description string, hteCredential *hte.Credential) (WPWithin, error) {
+func Initialise(name, description string) (WPWithin, error) {
 
 	var err error
 
@@ -96,16 +122,6 @@ func Initialise(name, description string, hteCredential *hte.Credential) (WPWith
 
 	core.Device = device
 
-	// Set up PSP
-	psp, err := onlineworldpay.New(hteCredential.MerchantClientKey, hteCredential.MerchantServiceKey, WP_ONLINE_API_ENDPOINT)
-
-	if err != nil {
-
-		return &wpWithinImpl{}, err
-	}
-
-	core.Psp = psp
-
 	// Setup Order Manager
 
 	orderManager, err := hte.NewOrderManager()
@@ -117,20 +133,9 @@ func Initialise(name, description string, hteCredential *hte.Credential) (WPWith
 
 	core.OrderManager = orderManager
 
-	// Set up HTE service
-
-	hte, err := hte.NewService(device, psp, device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential, orderManager)
-
-	if err != nil {
-
-		return &wpWithinImpl{}, err
-	}
-
-	core.HTE = hte
-
 	// Service broadcaster
 
-	svcBroadcaster, err := servicediscovery.NewBroadcaster(core.HTE.IPv4Address, BROADCAST_PORT, BROADCAST_STEP_SLEEP)
+	svcBroadcaster, err := servicediscovery.NewBroadcaster(core.Device.IPv4Address, BROADCAST_PORT, BROADCAST_STEP_SLEEP)
 
 	if err != nil {
 
@@ -212,16 +217,9 @@ func (wp *wpWithinImpl) GetDevice() *domain.Device {
 	return wp.core.Device
 }
 
-func (wp *wpWithinImpl) SetHCECardCredential(hceCardCredential *hce.CardCredential) error {
+func (wp *wpWithinImpl) InitHCE(hceCardCredential *hce.CardCredential) error {
 
 	wp.core.HCE.HCECardCredential = hceCardCredential
-
-	return nil
-}
-
-func (wp *wpWithinImpl) SetHCEClientCredential(hceClientCredential *hce.ClientCredential) error {
-
-	wp.core.HCE.HCEClientCredential = hceClientCredential
 
 	return nil
 }
