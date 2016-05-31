@@ -61,7 +61,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) ScanResult {
 			defer srvConn.Close()
 
 			// Wait for incoming UDP message
-			srvConn.SetReadDeadline(time.Now().Add(time.Second * 1))
+			srvConn.SetReadDeadline(time.Now().Add(time.Duration(scanner.stepSleep) * time.Millisecond))
 
 			nRecv, addrRecv,err := srvConn.ReadFromUDP(buf)
 			
@@ -91,10 +91,6 @@ func (scanner *scannerImpl) ScanForServices(timeout int) ScanResult {
 					result.Services[msg.ServerID] = msg
 				}
 			}
-
-			// Sleep before doing another read
-			time.Sleep(time.Duration(scanner.stepSleep) * time.Millisecond)
-
 			// Have we timed out? i.e. Is the current time greater or equal time out time
 			timedOut = timeoutTime.Unix() <= time.Now().Unix()
 		}
