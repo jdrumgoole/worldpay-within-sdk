@@ -7,7 +7,6 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/core"
 	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp/onlineworldpay"
-	"errors"
 )
 
 const (
@@ -18,6 +17,7 @@ const (
 	UUID_FILE_PATH = "uuid.txt"
 	HTE_SVC_PORT = 8080
 	WP_ONLINE_API_ENDPOINT = "https://api.worldpay.com/v1"
+	HTE_CLIENT_SCHEME = "http://"
 )
 
 type WPWithin interface {
@@ -26,16 +26,17 @@ type WPWithin interface {
 	RemoveService(service *domain.Service) error
 	SetHCECardCredential(hceCardCredential *hce.CardCredential) error
 	SetHCEClientCredential(hceClientCredential *hce.ClientCredential) error
-	InitConsumer() error
+	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error
 	InitProducer() (chan bool, error)
 	GetDevice() *domain.Device
 	StartSvcBroadcast(timeoutMillis int) error
 	StopSvcBroadcast()
 	ScanServices(timeoutMillis int) ([]servicediscovery.BroadcastMessage, error)
-	GetSvcPrices(svc domain.Service) []domain.Price
-	SelectSvc(svc domain.Service) domain.PaymentRequest
-	MakePayment(payRequest domain.PaymentRequest) domain.PaymentResponse
-	GetHTEClient(scheme, host string, port int, urlPrefix string, clientId string) (hte.Client, error)
+	DiscoverServices() ([]hte.ServiceDetails, error)
+	GetSvcPrices(serviceId int) ([]domain.Price, error)
+	SelectSvc(serviceId, numberOfUnits, priceId int) (hte.TotalPriceResponse, error)
+	MakePayment(payRequest hte.TotalPriceResponse) (hte.PaymentResponse, error)
+
 }
 
 type wpWithinImpl struct {
@@ -103,6 +104,8 @@ func Initialise(name, description string, hteCredential *hte.Credential) (WPWith
 		return &wpWithinImpl{}, err
 	}
 
+	core.Psp = psp
+
 	// Setup Order Manager
 
 	orderManager, err := hte.NewOrderManager()
@@ -147,6 +150,8 @@ func Initialise(name, description string, hteCredential *hte.Credential) (WPWith
 
 	core.SvcScanner = svcScanner
 
+	core.HCE = &hce.Manager{}
+
 	return wp, nil
 }
 
@@ -172,7 +177,18 @@ func (wp *wpWithinImpl) RemoveService(service *domain.Service) error {
 	return nil
 }
 
-func (wp *wpWithinImpl) InitConsumer() error {
+func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error {
+
+	// Setup HTE Client
+
+	client, err := hte.NewClient(scheme, hostname, portNumber, urlPrefix, serverID)
+
+	if err != nil {
+
+		return err
+	}
+
+	wp.core.HTEClient = client
 
 	return nil
 }
@@ -264,27 +280,69 @@ func (wp *wpWithinImpl) ScanServices(timeoutMillis int) ([]servicediscovery.Broa
 	return svcResults, nil
 }
 
-func (wp *wpWithinImpl) GetSvcPrices(svc domain.Service) []domain.Price {
+func (wp *wpWithinImpl) GetSvcPrices(serviceId int) ([]domain.Price, error) {
 
-	return nil
+	result := make([]domain.Price, 0)
+
+	priceResponse, err := wp.core.HTEClient.GetPrices(serviceId)
+
+	if err != nil {
+
+		return nil, err
+	} else {
+
+		for _, price := range priceResponse.Prices {
+
+			result = append(result, price)
+		}
+	}
+
+	return result, nil
 }
 
-func (wp *wpWithinImpl) SelectSvc(svc domain.Service) domain.PaymentRequest {
+func (wp *wpWithinImpl) SelectSvc(serviceId, numberOfUnits, priceId int) (hte.TotalPriceResponse, error) {
 
-	return domain.PaymentRequest{}
+	tpr, err := wp.core.HTEClient.NegotiatePrice(serviceId, priceId, numberOfUnits)
+
+	// TODO CH - Should we be returning a hte.TotalPriceResponse here ?
+
+	return tpr, err
 }
 
-func (wp *wpWithinImpl) MakePayment(payRequest domain.PaymentRequest) domain.PaymentResponse {
+func (wp *wpWithinImpl) MakePayment(request hte.TotalPriceResponse) (hte.PaymentResponse, error) {
 
-	return domain.PaymentResponse{}
+	token, err := wp.core.Psp.GetToken(wp.core.HCE.HCECardCredential, false)
+
+	if err != nil {
+
+		return hte.PaymentResponse{}, err
+	}
+
+	paymentResponse, err := wp.core.HTEClient.MakeHtePayment(request.PaymentReferenceID, request.ClientID, token)
+
+	// TODO CH - Should we be returning the hte.PaymentResponse here ?
+
+	return paymentResponse, err
 }
 
 func (wp *wpWithinImpl) DiscoverServices() ([]hte.ServiceDetails, error) {
 
-	return nil, errors.New("Not implemented yet..")
-}
+	// TODO CH - Should we be returning hte.ServiceListResponse here ?
 
-func (wp *wpWithinImpl) GetHTEClient(scheme, host string, port int, urlPrefix string, clientId string) (hte.Client, error) {
+	result := make([]hte.ServiceDetails, 0)
 
-	return hte.NewClient(scheme, host, port, urlPrefix, clientId)
+	serviceResponse, err := wp.core.HTEClient.DiscoverServices()
+
+	if err != nil {
+
+		return nil, err
+	} else {
+
+		for _, svc := range serviceResponse.Services {
+
+			result = append(result, svc)
+		}
+	}
+
+	return result, nil
 }

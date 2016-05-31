@@ -16,7 +16,7 @@ type Core struct {
 	HTE *hte.Service
 	HCE *hce.Manager
 	OrderManager *hte.OrderManager
-	HTEClient *hte.Client
+	HTEClient hte.Client
 }
 
 func New() (*Core, error) {

@@ -31,7 +31,7 @@ func New(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp.Psp, er
 	return result, nil
 }
 
-func (owp *OnlineWorldpay) GetToken(hceCredentials hce.CardCredential, reusableToken bool) (string, error) {
+func (owp *OnlineWorldpay) GetToken(hceCredentials *hce.CardCredential, reusableToken bool) (string, error) {
 
 	if(reusableToken) {
 		// TODO: CH - support reusable token by storing the value (along with merchant client key so link to a merchant) within the car so that token can be re-used if present, or created if not

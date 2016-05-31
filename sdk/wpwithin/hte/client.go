@@ -16,7 +16,7 @@ type Client interface {
 	DiscoverServices() (ServiceListResponse, error)
 	GetPrices(serviceId int) (ServicePriceResponse, error)
 	NegotiatePrice(serviceId, priceId, numberOfUnits int) (TotalPriceResponse, error)
-	MakeHtePayment(paymentReferenceId, clientId, clientToken string) (string, error)
+	MakeHtePayment(paymentReferenceId, clientId, clientToken string) (PaymentResponse, error)
 	StartDelivery(serviceId int, serviceDeliveryToken string, unitsToSupply int) (int, error)
 	EndDelivery(serviceId int, serviceDeliveryToken string, unitsReceived int) (int, error)
 }
@@ -144,9 +144,9 @@ func (client *clientImpl) NegotiatePrice(serviceId, priceId, numberOfUnits int) 
 	return priceResp, nil
 }
 
-func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientToken string) (string, error) {
+func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientToken string) (PaymentResponse, error) {
 
-	url := fmt.Sprintf("%s/payment")
+	url := fmt.Sprintf("%s/payment", client.baseUrl)
 
 	requestBody := PaymentRequest{
 		ClientID:clientId,
@@ -158,14 +158,14 @@ func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientTok
 
 	if err != nil {
 
-		return "", err
+		return PaymentResponse{}, err
 	}
 
 	byteResp, err := client.postJSON(url, jsonBody)
 
 	if err != nil {
 
-		return "", err
+		return PaymentResponse{}, err
 	}
 
 	paymentResponse := PaymentResponse{}
@@ -174,7 +174,7 @@ func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientTok
 
 	if err != nil {
 
-		return "", err
+		return PaymentResponse{}, err
 	}
 
 	return paymentResponse, nil
