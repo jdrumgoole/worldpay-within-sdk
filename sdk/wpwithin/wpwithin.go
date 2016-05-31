@@ -13,7 +13,7 @@ const (
 
 	BROADCAST_STEP_SLEEP = 5000
 	BROADCAST_PORT = 8980
-	HTE_SVC_URL_PREFIX = "/"
+	HTE_SVC_URL_PREFIX = ""
 	UUID_FILE_PATH = "uuid.txt"
 	HTE_SVC_PORT = 8080
 	WP_ONLINE_API_ENDPOINT = "https://api.worldpay.com/v1"
