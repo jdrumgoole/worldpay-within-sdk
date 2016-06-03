@@ -33,8 +33,8 @@ type WPWithin interface {
 	StopServiceBroadcast()
 	ServiceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error)
 	RequestServices() ([]types.ServiceDetails, error)
-	GetSvcPrices(serviceId int) ([]types.Price, error)
-	SelectSvc(serviceId, numberOfUnits, priceId int) (types.TotalPriceResponse, error)
+	GetServicePrices(serviceId int) ([]types.Price, error)
+	SelectService(serviceId, numberOfUnits, priceId int) (types.TotalPriceResponse, error)
 	MakePayment(payRequest types.TotalPriceResponse) (types.PaymentResponse, error)
 
 }
