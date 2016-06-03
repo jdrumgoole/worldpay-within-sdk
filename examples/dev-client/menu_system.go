@@ -20,6 +20,7 @@ func doUI() {
 
 	menuItems = append(menuItems, MenuItem{"-------------------- GENERAL  --------------------", mInvalidSelection,})
 	menuItems = append(menuItems, MenuItem{"Init default device", mInitDefaultDevice,})
+	menuItems = append(menuItems, MenuItem{"Start RPC Service", mStartRPCService,})
 	menuItems = append(menuItems, MenuItem{"Init new device", mInitNewDevice,})
 	menuItems = append(menuItems, MenuItem{"Get device info", mGetDeviceInfo,})
 	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Producer)", mCarWashDemoProducer,})

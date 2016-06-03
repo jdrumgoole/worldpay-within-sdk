@@ -4,6 +4,10 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
+"git.apache.org/thrift.git/lib/go/thrift"
+	"os"
+	"flag"
 )
 
 func mGetDeviceInfo() {
@@ -198,4 +202,56 @@ func mReadConfig() {
 	// Print out the path to file that was loaded (Need to keep reference during load stage)
 
 	fmt.Println("Not implemented yet..")
+}
+
+func mStartRPCService() {
+
+
+	protocol := "binary"
+	framed := false
+	buffered := false
+	addr := "127.0.0.1:9090"
+	secure := false
+
+	flag.Parse()
+
+	var protocolFactory thrift.TProtocolFactory
+	switch protocol {
+	case "compact":
+		protocolFactory = thrift.NewTCompactProtocolFactory()
+	case "simplejson":
+		protocolFactory = thrift.NewTSimpleJSONProtocolFactory()
+	case "json":
+		protocolFactory = thrift.NewTJSONProtocolFactory()
+	case "binary", "":
+		protocolFactory = thrift.NewTBinaryProtocolFactoryDefault()
+	default:
+		fmt.Fprint(os.Stderr, "Invalid protocol specified", protocol, "\n")
+		os.Exit(1)
+	}
+
+	var transportFactory thrift.TTransportFactory
+	if buffered {
+		transportFactory = thrift.NewTBufferedTransportFactory(8192)
+	} else {
+		transportFactory = thrift.NewTTransportFactory()
+	}
+
+	if framed {
+		transportFactory = thrift.NewTFramedTransportFactory(transportFactory)
+	}
+
+	rpc, err := rpc.NewService(transportFactory, protocolFactory, addr, secure, sdk)
+
+	if err != nil {
+
+		fmt.Println(err.Error())
+		return
+	}
+
+	if err := rpc.Start(); err != nil {
+
+		fmt.Println("Error starting local RPC service")
+		fmt.Println(err.Error())
+	}
 }
