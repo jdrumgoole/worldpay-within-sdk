@@ -9,8 +9,8 @@ import (
 	"strings"
 	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
 "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
 )
 
 type OnlineWorldpay struct {
@@ -31,7 +31,7 @@ func New(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp.Psp, er
 	return result, nil
 }
 
-func (owp *OnlineWorldpay) GetToken(hceCredentials *hce.CardCredential, reusableToken bool) (string, error) {
+func (owp *OnlineWorldpay) GetToken(hceCredentials *domain.HCECard, reusableToken bool) (string, error) {
 
 	if(reusableToken) {
 		// TODO: CH - support reusable token by storing the value (along with merchant client key so link to a merchant) within the car so that token can be re-used if present, or created if not

@@ -10,25 +10,13 @@ import
 	"time"
 "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
 "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
 )
 
-var hteCred *hte.Credential
-
 func main() {
-
-	_hteCred, err := hte.NewHTECredential("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
-	hteCred = _hteCred
-
-	if err != nil {
-
-		fmt.Printf("%q", err.Error())
-		return
-	}
 
 	initLog()
 
@@ -118,7 +106,7 @@ func testWPPay() {
 		return
 	}
 
-	card := hce.CardCredential{
+	card := &domain.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
@@ -129,7 +117,7 @@ func testWPPay() {
 		Cvc:"113",
 	}
 
-	token, err := psp.GetToken(&card, false)
+	token, err := psp.GetToken(card, false)
 
 	if err != nil {
 
@@ -235,7 +223,7 @@ func testBroadcast() {
 
 	sdk.AddService(svc)
 
-	err := sdk.StartSvcBroadcast(21000)
+	err := sdk.StartServiceBroadcast(21000)
 
 	if err != nil {
 
@@ -445,7 +433,7 @@ func testWPTokenise() {
 		return
 	}
 
-	card := hce.CardCredential{
+	card := &domain.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
@@ -456,7 +444,7 @@ func testWPTokenise() {
 		Cvc:"113",
 	}
 
-	token, err := psp.GetToken(&card, false)
+	token, err := psp.GetToken(card, false)
 
 	if err != nil {
 
@@ -545,7 +533,7 @@ func testHTEandBroadcast() {
 
 	go func() {
 
-		sdk.StartSvcBroadcast(20000)
+		sdk.StartServiceBroadcast(20000)
 	}()
 
 	<-prodDone
@@ -566,7 +554,7 @@ func testDiscoveryAndNegotiation() {
 		return
 	}
 
-	_hteCred, err := hte.NewHTECredential("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
+	err = sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
 
 	if err != nil {
 
@@ -574,15 +562,7 @@ func testDiscoveryAndNegotiation() {
 		return
 	}
 
-	err = sdk.InitHTE(_hteCred)
-
-	if err != nil {
-
-		fmt.Println(err)
-		return
-	}
-
-	card := &hce.CardCredential{
+	card := domain.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
@@ -602,7 +582,7 @@ func testDiscoveryAndNegotiation() {
 	}
 
 	log.Debug("pre scan for services")
-	services, err := sdk.ScanServices(20000)
+	services, err := sdk.ServiceDiscovery(20000)
 	log.Debug("end scan for services")
 
 
@@ -627,7 +607,7 @@ func testDiscoveryAndNegotiation() {
 
 			log.Debug("Client created..")
 
-			serviceDetails, err := sdk.DiscoverServices()
+			serviceDetails, err := sdk.RequestServices()
 
 			if err != nil {
 

@@ -6,6 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"encoding/json"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
 )
 
 type scannerImpl struct {
@@ -29,7 +30,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) ScanResult {
 
 	result := ScanResult{}
 	result.Complete = make(chan bool)
-	result.Services = make(map[string]BroadcastMessage, 0)
+	result.Services = make(map[string]domain.ServiceMessage, 0)
 	// Enable the scanner to run
 	scanner.run = true
 	// Calculate when the operation will expire based on the timeout duration
@@ -74,7 +75,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) ScanResult {
 
 				log.Debugf("Did receive UDP message from %s: %s", addrRecv.String(), string(buf[0:nRecv]))
 
-				var msg BroadcastMessage
+				var msg domain.ServiceMessage
 
 				// Try to deserialize the message into a broadcast message
 				// NB: Anybody can send a message here so not all messages are expected to be valid

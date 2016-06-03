@@ -45,17 +45,17 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 		}
 	}()
 
-	responseServices := make([]ServiceDetails, 0)
+	responseServices := make([]domain.ServiceDetails, 0)
 
 	for _, srv := range srv.device.Services {
 
-		responseServices = append(responseServices, ServiceDetails{
+		responseServices = append(responseServices, domain.ServiceDetails{
 			ServiceID:srv.Id,
 			ServiceDescription:srv.Description,
 		})
 	}
 
-	response := ServiceListResponse{
+	response := domain.ServiceListResponse{
 		Services:responseServices,
 		ServerID:srv.device.Uid,
 	}
@@ -80,7 +80,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 
 	if err != nil {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: "Unable to parse input service id",
 		}
 
@@ -90,7 +90,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 
 	if svc, ok := srv.device.Services[svcId]; ok {
 
-		response := ServicePriceResponse{}
+		response := domain.ServicePriceResponse{}
 		response.ServerID = srv.device.Uid
 
 		for _, price := range svc.Prices() {
@@ -102,7 +102,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 
 	} else {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: fmt.Sprintf("Service not found for id %d", svcId),
 		}
 
@@ -127,7 +127,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 	if err != nil {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: "Unable to parse input service id",
 		}
 
@@ -136,12 +136,12 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Parse message body (POST)
-	var totalPriceRequest TotalPriceRequest
+	var totalPriceRequest domain.TotalPriceRequest
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 
 	if err != nil {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: "Unable to read POST body",
 		}
 
@@ -151,7 +151,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 	if err := r.Body.Close(); err != nil {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: "Unable to close POST body",
 		}
 
@@ -161,7 +161,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 	if err := json.Unmarshal(body, &totalPriceRequest); err != nil {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: "Unable to parse POST body",
 		}
 
@@ -173,7 +173,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 		if price, ok := svc.Prices()[totalPriceRequest.SelectedPriceId]; ok {
 
-			response := TotalPriceResponse{}
+			response := domain.TotalPriceResponse{}
 			response.ServerID = srv.device.Uid
 			response.ClientID = totalPriceRequest.ClientID
 			response.PriceID = totalPriceRequest.SelectedPriceId
@@ -184,7 +184,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			payRef, err := utils.NewUUID()
 			if err != nil {
 
-				errorResponse := ErrorResponse{
+				errorResponse := domain.ErrorResponse{
 					Message: "Internal error [payment-ref]",
 				}
 
@@ -192,7 +192,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			}
 			response.PaymentReferenceID = payRef
 
-			order := Order{
+			order := domain.Order{
 				PaymentReference:payRef,
 				TotalPrice:response.TotalPrice,
 				ClientID:response.ClientID,
@@ -206,7 +206,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 			if err != nil {
 
-				errorResponse := ErrorResponse{
+				errorResponse := domain.ErrorResponse{
 					Message:"Unable to add order to local store",
 				}
 
@@ -219,7 +219,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 		} else {
 
-			errorResponse := ErrorResponse{
+			errorResponse := domain.ErrorResponse{
 				Message: fmt.Sprintf("Price not found for id %d", totalPriceRequest.SelectedPriceId),
 			}
 
@@ -228,7 +228,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 	} else {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: fmt.Sprintf("Service not found for id %d", svcId),
 		}
 
@@ -248,12 +248,12 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Parse message body (POST)
-	var paymentRequest PaymentRequest
+	var paymentRequest domain.PaymentRequest
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
 
 	if err != nil {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: "Unable to read POST body",
 		}
 
@@ -263,7 +263,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 	if err := r.Body.Close(); err != nil {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: "Unable to close POST body",
 		}
 
@@ -273,7 +273,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.Unmarshal(body, &paymentRequest); err != nil {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: "Unable to parse POST body",
 		}
 
@@ -285,7 +285,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 
-		errorResponse := ErrorResponse{
+		errorResponse := domain.ErrorResponse{
 			Message: fmt.Sprintf("Unable to find order for payment ref %s", paymentRequest.PaymentReferenceID),
 		}
 
@@ -295,7 +295,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 		// Some quick checks to compare validity of incoming request
 		if strings.Compare(order.ClientID, paymentRequest.ClientID) != 0 {
 
-			errorResponse := ErrorResponse{
+			errorResponse := domain.ErrorResponse{
 				Message: "Client ID does not match Order Client ID",
 			}
 
@@ -307,7 +307,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 
-				errorResponse := ErrorResponse{
+				errorResponse := domain.ErrorResponse{
 					Message:"Unable to process payment with gateway at this time",
 				}
 
@@ -315,7 +315,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 			} else {
 
-				paymentResponse := PaymentResponse{
+				paymentResponse := domain.PaymentResponse{
 					ClientID: order.ClientID,
 					ServerID: srv.device.Uid,
 					TotalPaid: order.TotalPrice,

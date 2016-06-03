@@ -1,22 +1,23 @@
 package hte
 import (
 "errors"
+"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
 )
 
 type OrderManager struct {
 
-	orders map[string]Order
+	orders map[string]domain.Order
 }
 
 func NewOrderManager() (*OrderManager, error) {
 
 	result := &OrderManager{}
-	result.orders = make(map[string]Order, 0)
+	result.orders = make(map[string]domain.Order, 0)
 
 	return result, nil
 }
 
-func (om *OrderManager) AddOrder(order Order) error {
+func (om *OrderManager) AddOrder(order domain.Order) error {
 
 	if _, ok := om.orders[order.PaymentReference]; ok {
 
@@ -29,13 +30,13 @@ func (om *OrderManager) AddOrder(order Order) error {
 	}
 }
 
-func (om *OrderManager) GetOrder(paymentReference string) (Order, error) {
+func (om *OrderManager) GetOrder(paymentReference string) (domain.Order, error) {
 
 	if order, ok := om.orders[paymentReference]; ok {
 
 		return order, nil
 	} else {
 
-		return Order{}, errors.New("Order not found")
+		return domain.Order{}, errors.New("Order not found")
 	}
 }

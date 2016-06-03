@@ -2,11 +2,7 @@ package domain
 
 type PaymentRequest struct {
 
-}
-
-func NewPaymentRequest() (*PaymentRequest, error) {
-
-	result := &PaymentRequest{}
-
-	return result, nil
+	ClientID string `json:"clientID"`
+	ClientToken string `json:"clientToken"`
+	PaymentReferenceID string `json:"paymentReferenceID"`
 }

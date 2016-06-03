@@ -2,9 +2,8 @@ package main
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
 )
 
 func mGetDeviceInfo() {
@@ -22,17 +21,9 @@ func mInitDefaultDevice() {
 		return
 	}
 
-	_hteCred, err := hte.NewHTECredential("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
+	_sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
 
-	if err != nil {
-
-		fmt.Println(err)
-		return
-	}
-
-	_sdk.InitHTE(_hteCred)
-
-	card := &hce.CardCredential{
+	card := domain.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
@@ -71,21 +62,14 @@ func mCarWashDemoConsumer() {
 		fmt.Println(err)
 	}
 
-	_hteCred, err := hte.NewHTECredential("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
+	err = sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
 
 	if err != nil {
 
 		fmt.Println(err)
 	}
 
-	err = sdk.InitHTE(_hteCred)
-
-	if err != nil {
-
-		fmt.Println(err)
-	}
-
-	card := &hce.CardCredential{
+	card := domain.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
@@ -105,7 +89,7 @@ func mCarWashDemoConsumer() {
 	}
 
 	log.Debug("pre scan for services")
-	services, err := sdk.ScanServices(20000)
+	services, err := sdk.ServiceDiscovery(20000)
 	log.Debug("end scan for services")
 
 
@@ -131,7 +115,7 @@ func mCarWashDemoConsumer() {
 
 			log.Debug("Client created..")
 
-			serviceDetails, err := sdk.DiscoverServices()
+			serviceDetails, err := sdk.RequestServices()
 
 			if err != nil {
 

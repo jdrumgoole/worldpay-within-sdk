@@ -24,25 +24,25 @@ type WPWithin interface {
 
 	AddService(service *domain.Service) error
 	RemoveService(service *domain.Service) error
-	InitHCE(hceCardCredential *hce.CardCredential) error
-	InitHTE(hteCredential *hte.Credential) error
+	InitHCE(hceCard domain.HCECard) error
+	InitHTE(merchantClientKey, merchantServiceKey string) error
 	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error
 	InitProducer() (chan bool, error)
 	GetDevice() *domain.Device
 	StartServiceBroadcast(timeoutMillis int) error
 	StopServiceBroadcast()
-	ServiceDiscovery(timeoutMillis int) ([]servicediscovery.BroadcastMessage, error)
-	RequestServices() ([]hte.ServiceDetails, error)
+	ServiceDiscovery(timeoutMillis int) ([]domain.ServiceMessage, error)
+	RequestServices() ([]domain.ServiceDetails, error)
 	GetSvcPrices(serviceId int) ([]domain.Price, error)
-	SelectSvc(serviceId, numberOfUnits, priceId int) (hte.TotalPriceResponse, error)
-	MakePayment(payRequest hte.TotalPriceResponse) (hte.PaymentResponse, error)
+	SelectSvc(serviceId, numberOfUnits, priceId int) (domain.TotalPriceResponse, error)
+	MakePayment(payRequest domain.TotalPriceResponse) (domain.PaymentResponse, error)
 
 }
 
-func (wp *wpWithinImpl) InitHTE(hteCredential *hte.Credential) error {
+func (wp *wpWithinImpl) InitHTE(merchantClientKey, merchantServiceKey string) error {
 
 	// Set up PSP
-	psp, err := onlineworldpay.New(hteCredential.MerchantClientKey, hteCredential.MerchantServiceKey, WP_ONLINE_API_ENDPOINT)
+	psp, err := onlineworldpay.New(merchantClientKey, merchantServiceKey, WP_ONLINE_API_ENDPOINT)
 
 	if err != nil {
 
@@ -52,6 +52,13 @@ func (wp *wpWithinImpl) InitHTE(hteCredential *hte.Credential) error {
 	wp.core.Psp = psp
 
 	// Set up HTE service
+
+	hteCredential, err := hte.NewHTECredential(merchantClientKey, merchantServiceKey)
+
+	if err != nil {
+
+		return err
+	}
 
 	hte, err := hte.NewService(wp.core.Device, psp, wp.core.Device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential, wp.core.OrderManager)
 
@@ -217,17 +224,26 @@ func (wp *wpWithinImpl) GetDevice() *domain.Device {
 	return wp.core.Device
 }
 
-func (wp *wpWithinImpl) InitHCE(hceCardCredential *hce.CardCredential) error {
+func (wp *wpWithinImpl) InitHCE(hceCardCredential domain.HCECard) error {
 
-	wp.core.HCE.HCECardCredential = hceCardCredential
+	cred := new(domain.HCECard)
+	cred.FirstName = hceCardCredential.FirstName
+	cred.LastName = hceCardCredential.LastName
+	cred.ExpMonth = hceCardCredential.ExpMonth
+	cred.ExpYear = hceCardCredential.ExpYear
+	cred.CardNumber = hceCardCredential.CardNumber
+	cred.Type = hceCardCredential.Type
+	cred.Cvc = hceCardCredential.Cvc
+
+	wp.core.HCE.HCECard = cred
 
 	return nil
 }
 
-func (wp *wpWithinImpl) StartSvcBroadcast(timeoutMillis int) error {
+func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 
 	// Setup message that is broadcast over network
-	msg := servicediscovery.BroadcastMessage{
+	msg := domain.ServiceMessage{
 
 		DeviceDescription: wp.core.Device.Description,
 		Hostname: wp.core.HTE.IPv4Address,
@@ -249,14 +265,14 @@ func (wp *wpWithinImpl) StartSvcBroadcast(timeoutMillis int) error {
 	return nil
 }
 
-func (wp *wpWithinImpl) StopSvcBroadcast() {
+func (wp *wpWithinImpl) StopServiceBroadcast() {
 
 	wp.core.SvcBroadcaster.StopBroadcast()
 }
 
-func (wp *wpWithinImpl) ScanServices(timeoutMillis int) ([]servicediscovery.BroadcastMessage, error) {
+func (wp *wpWithinImpl) ServiceDiscovery(timeoutMillis int) ([]domain.ServiceMessage, error) {
 
-	svcResults := make([]servicediscovery.BroadcastMessage, 0)
+	svcResults := make([]domain.ServiceMessage, 0)
 
 	scanResult := wp.core.SvcScanner.ScanForServices(timeoutMillis)
 
@@ -298,36 +314,30 @@ func (wp *wpWithinImpl) GetSvcPrices(serviceId int) ([]domain.Price, error) {
 	return result, nil
 }
 
-func (wp *wpWithinImpl) SelectSvc(serviceId, numberOfUnits, priceId int) (hte.TotalPriceResponse, error) {
+func (wp *wpWithinImpl) SelectSvc(serviceId, numberOfUnits, priceId int) (domain.TotalPriceResponse, error) {
 
 	tpr, err := wp.core.HTEClient.NegotiatePrice(serviceId, priceId, numberOfUnits)
-
-	// TODO CH - Should we be returning a hte.TotalPriceResponse here ?
 
 	return tpr, err
 }
 
-func (wp *wpWithinImpl) MakePayment(request hte.TotalPriceResponse) (hte.PaymentResponse, error) {
+func (wp *wpWithinImpl) MakePayment(request domain.TotalPriceResponse) (domain.PaymentResponse, error) {
 
-	token, err := wp.core.Psp.GetToken(wp.core.HCE.HCECardCredential, false)
+	token, err := wp.core.Psp.GetToken(wp.core.HCE.HCECard, false)
 
 	if err != nil {
 
-		return hte.PaymentResponse{}, err
+		return domain.PaymentResponse{}, err
 	}
 
 	paymentResponse, err := wp.core.HTEClient.MakeHtePayment(request.PaymentReferenceID, request.ClientID, token)
 
-	// TODO CH - Should we be returning the hte.PaymentResponse here ?
-
 	return paymentResponse, err
 }
 
-func (wp *wpWithinImpl) DiscoverServices() ([]hte.ServiceDetails, error) {
+func (wp *wpWithinImpl) RequestServices() ([]domain.ServiceDetails, error) {
 
-	// TODO CH - Should we be returning hte.ServiceListResponse here ?
-
-	result := make([]hte.ServiceDetails, 0)
+	result := make([]domain.ServiceDetails, 0)
 
 	serviceResponse, err := wp.core.HTEClient.DiscoverServices()
 

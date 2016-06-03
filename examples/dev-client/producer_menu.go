@@ -130,7 +130,7 @@ func mCarWashDemoProducer() {
 
 	go func() {
 
-		sdk.StartSvcBroadcast(20000)
+		sdk.StartServiceBroadcast(20000)
 	}()
 
 	<-prodDone

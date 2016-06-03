@@ -1,4 +1,4 @@
-package hte
+package domain
 
 type ServiceDetails struct {
 

@@ -1,6 +1,6 @@
-package servicediscovery
+package domain
 
-type BroadcastMessage struct {
+type ServiceMessage struct {
 
 	DeviceDescription string `json:"deviceDescription"`
 	Hostname string `json:"hostname"`

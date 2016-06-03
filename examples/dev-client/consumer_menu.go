@@ -1,10 +1,9 @@
 package main
 import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
 )
 
 func mScanService() {
@@ -19,9 +18,7 @@ func mScanService() {
 		return
 	}
 
-	_hteCred, err := hte.NewHTECredential("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
-
-	err = sdk.InitHTE(_hteCred)
+	err = sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
 
 	if err != nil {
 
@@ -29,7 +26,7 @@ func mScanService() {
 		return
 	}
 
-	card := &hce.CardCredential{
+	card := domain.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
@@ -49,7 +46,7 @@ func mScanService() {
 	}
 
 	log.Debug("pre scan for services")
-	services, err := sdk.ScanServices(20000)
+	services, err := sdk.ServiceDiscovery(20000)
 	log.Debug("end scan for services")
 
 

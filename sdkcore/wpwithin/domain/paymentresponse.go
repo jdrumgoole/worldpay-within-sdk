@@ -2,11 +2,9 @@ package domain
 
 type PaymentResponse struct {
 
-}
-
-func NewPaymentResponse() (*PaymentResponse, error) {
-
-	result := &PaymentResponse{}
-
-	return result, nil
+	ServerID string `json:"serverID"`
+	ClientID string `json:"clientID"`
+	TotalPaid int `json:"totalPaid"`
+	ServiceDeliveryToken string `json:"serviceDeliveryToken"`
+	ClientUUID string `json:"client-uuid"`
 }
