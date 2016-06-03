@@ -8,7 +8,7 @@
 
 namespace csharp wptypes
 namespace java com.worldpay.innovation.wpwithin.rpc.types
-namespace go worldpay_within.wpwithin.rpc.types
+namespace go wpthrift_types
 
 exception Error {
 	
@@ -41,15 +41,15 @@ struct HCECard {
 	4: i32 ExpYear
 	5: string CardNumber
 	6: string Type
-	7: optional string Cvc
+	7:  string Cvc
 }
 
 struct Device {
 	
 	1: string uid
 	2: string name
-	3: optional string description
-	4: optional map<i32, Service> services
+	3:  string description
+	4:  map<i32, Service> services
 	5: string ipv4Address
 	6: string currencyCode
 }
