@@ -8,9 +8,9 @@ import (
 	"io/ioutil"
 	"strings"
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
-"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp/onlineworldpay/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
+"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay/types"
 )
 
 type OnlineWorldpay struct {

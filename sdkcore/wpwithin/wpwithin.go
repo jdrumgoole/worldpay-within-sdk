@@ -1,12 +1,12 @@
 package wpwithin
 import (
-"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hte"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/servicediscovery"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/utils"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/core"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp/onlineworldpay"
+"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/core"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay"
 )
 
 const (

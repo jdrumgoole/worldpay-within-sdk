@@ -1,7 +1,7 @@
 package main
 import (
 "fmt"
-"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
+"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
 )
 
 func mBroadcast() {

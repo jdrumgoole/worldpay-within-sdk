@@ -3,8 +3,8 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
 )
 
 type Service struct {

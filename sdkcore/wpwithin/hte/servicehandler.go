@@ -2,14 +2,14 @@ package hte
 import (
 	"net/http"
 "encoding/json"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"github.com/gorilla/mux"
 	"fmt"
 	"strconv"
 	"io/ioutil"
 	"io"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/utils"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"strings"
 )
 

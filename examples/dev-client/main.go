@@ -8,13 +8,13 @@ import
 "github.com/gorilla/websocket"
 	"os/signal"
 	"time"
-"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/psp/onlineworldpay"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hte"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
-"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/utils"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/utils/wslog"
+"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
+"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
 )
 
 var hteCred *hte.Credential

@@ -1,8 +1,8 @@
 package main
 import (
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hce"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/hte"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 )

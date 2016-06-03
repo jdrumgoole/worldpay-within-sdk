@@ -1,5 +1,5 @@
 package hte
-import "innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin/domain"
+import "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
 
 type ServicePriceResponse struct {
 

@@ -1,7 +1,7 @@
 package main
 import (
 	"fmt"
-	"innovation.worldpay.com/worldpay-within-sdk/sdk/wpwithin"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"strings"
 )
 
