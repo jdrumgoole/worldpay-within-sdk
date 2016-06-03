@@ -9,6 +9,7 @@
 include "wptypes.thrift"
 
 namespace csharp wpwithin
+namespace java com.worldpay.innovation.wpwithin.rpc
 
 /**
  * WorldpayWithin Service - exposing all WorldpayWithin SDK functionality
