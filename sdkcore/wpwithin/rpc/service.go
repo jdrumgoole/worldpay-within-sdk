@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	"crypto/tls"
 )
 
 type ServiceImpl struct {
@@ -31,27 +32,27 @@ func (svc *ServiceImpl) Start() error {
 
 	var transport thrift.TServerTransport
 	var err error
-	//	if secure {
-	//		cfg := new(tls.Config)
-	//		if cert, err := tls.LoadX509KeyPair("server.crt", "server.key"); err == nil {
-	//			cfg.Certificates = append(cfg.Certificates, cert)
-	//		} else {
-	//			return err
-	//		}
-	//		transport, err = thrift.NewTSSLServerSocket(addr, cfg)
-	//	} else {
-	transport, err = thrift.NewTServerSocket(svc.addr)
-	//	}
+		if svc.secure {
+			cfg := new(tls.Config)
+			if cert, err := tls.LoadX509KeyPair("server.crt", "server.key"); err == nil {
+				cfg.Certificates = append(cfg.Certificates, cert)
+			} else {
+				return err
+			}
+			transport, err = thrift.NewTSSLServerSocket(svc.addr, cfg)
+		} else {
+			transport, err = thrift.NewTServerSocket(svc.addr)
+		}
 
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%T\n", transport)
+	fmt.Printf("Transport: %T\n", transport)
 	handler := NewWPWithinHandler(svc.wpWithin)
 	processor := wpthrift.NewWPWithinProcessor(handler)
 	server := thrift.NewTSimpleServer4(processor, transport, svc.transportFactory, svc.protocolFactory)
 
-	fmt.Println("Starting the simple server... on ", svc.addr)
+	fmt.Printf("Starting the rpc server on...: %s", svc.addr)
 
 	return server.Serve()
 }

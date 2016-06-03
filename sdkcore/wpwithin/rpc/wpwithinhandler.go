@@ -60,7 +60,7 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 		UID: device.Uid,
 		Name: device.Name,
 		Description: device.Description,
-		//Services: device.Services,
+		//Services: device.Services, /* TODO CH - Convert types */
 		Ipv4Address: device.IPv4Address,
 		CurrencyCode: device.CurrencyCode,
 	}
