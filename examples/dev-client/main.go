@@ -10,7 +10,7 @@ import
 	"time"
 "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
@@ -106,7 +106,7 @@ func testWPPay() {
 		return
 	}
 
-	card := &domain.HCECard{
+	card := &types.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
@@ -146,9 +146,9 @@ func testWPPay() {
 //	testChannel()
 //	sdk, _ := wpwithin.Initialise("Conor-Macbook", "Macbook Pro laptop computer", hteCred)
 //
-//	svc, _ := domain.NewService()
+//	svc, _ := types.NewService()
 //
-//	price1 := domain.Price{
+//	price1 := types.Price{
 //
 //		UnitID:1,
 //		ID:123,
@@ -207,9 +207,9 @@ func testBroadcast() {
 
 	sdk, _ := wpwithin.Initialise("Conor-Macbook", "Macbook Pro laptop computer")
 
-	svc, _ := domain.NewService()
+	svc, _ := types.NewService()
 
-	price1 := domain.Price{
+	price1 := types.Price{
 
 		UnitID:1,
 		ID:123,
@@ -316,12 +316,12 @@ func testHTEService() {
 
 	sdk, _ := wpwithin.Initialise("conorhwp-pi", "Conor H WP - Raspberry Pi")
 
-	roboWash, _ := domain.NewService()
+	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
 	roboWash.Description = "Car washed by robot"
 	roboWash.Id = 1
 
-	washPriceCar := domain.Price{
+	washPriceCar := types.Price{
 
 		ServiceID:roboWash.Id,
 		UnitID:1,
@@ -331,7 +331,7 @@ func testHTEService() {
 		PricePerUnit:500,
 	}
 
-	washPriceSUV := domain.Price{
+	washPriceSUV := types.Price{
 
 		ServiceID:roboWash.Id,
 		UnitID:1,
@@ -345,12 +345,12 @@ func testHTEService() {
 	roboWash.AddPrice(washPriceSUV)
 	sdk.AddService(roboWash)
 
-	roboAir, _ := domain.NewService()
+	roboAir, _ := types.NewService()
 	roboAir.Name = "RoboAir"
 	roboAir.Description = "Car tyre pressure checked and topped up by robot"
 	roboAir.Id = 2
 
-	airSinglePrice := domain.Price{
+	airSinglePrice := types.Price{
 		ServiceID: roboAir.Id,
 		UnitID: 1,
 		ID: 1,
@@ -359,7 +359,7 @@ func testHTEService() {
 		PricePerUnit:25,
 	}
 
-	airFourPrice := domain.Price{
+	airFourPrice := types.Price{
 		ServiceID: roboAir.Id,
 		UnitID: 2,
 		ID: 2,
@@ -433,7 +433,7 @@ func testWPTokenise() {
 		return
 	}
 
-	card := &domain.HCECard{
+	card := &types.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
@@ -459,12 +459,12 @@ func testHTEandBroadcast() {
 
 	sdk, _ := wpwithin.Initialise("conorhwp-pi", "Conor H WP - Raspberry Pi")
 
-	roboWash, _ := domain.NewService()
+	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
 	roboWash.Description = "Car washed by robot"
 	roboWash.Id = 1
 
-	washPriceCar := domain.Price{
+	washPriceCar := types.Price{
 
 		ServiceID:roboWash.Id,
 		UnitID:1,
@@ -474,7 +474,7 @@ func testHTEandBroadcast() {
 		PricePerUnit:500,
 	}
 
-	washPriceSUV := domain.Price{
+	washPriceSUV := types.Price{
 
 		ServiceID:roboWash.Id,
 		UnitID:1,
@@ -488,12 +488,12 @@ func testHTEandBroadcast() {
 	roboWash.AddPrice(washPriceSUV)
 	sdk.AddService(roboWash)
 
-	roboAir, _ := domain.NewService()
+	roboAir, _ := types.NewService()
 	roboAir.Name = "RoboAir"
 	roboAir.Description = "Car tyre pressure checked and topped up by robot"
 	roboAir.Id = 2
 
-	airSinglePrice := domain.Price{
+	airSinglePrice := types.Price{
 		ServiceID: roboAir.Id,
 		UnitID: 1,
 		ID: 1,
@@ -502,7 +502,7 @@ func testHTEandBroadcast() {
 		PricePerUnit:25,
 	}
 
-	airFourPrice := domain.Price{
+	airFourPrice := types.Price{
 		ServiceID: roboAir.Id,
 		UnitID: 2,
 		ID: 2,
@@ -562,7 +562,7 @@ func testDiscoveryAndNegotiation() {
 		return
 	}
 
-	card := domain.HCECard{
+	card := types.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",

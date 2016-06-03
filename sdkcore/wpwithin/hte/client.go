@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"bytes"
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 const PORT_RANGE_MIN = 1
@@ -14,10 +14,10 @@ const PORT_RANGE_MAX = 65535
 
 type Client interface {
 
-	DiscoverServices() (domain.ServiceListResponse, error)
-	GetPrices(serviceId int) (domain.ServicePriceResponse, error)
-	NegotiatePrice(serviceId, priceId, numberOfUnits int) (domain.TotalPriceResponse, error)
-	MakeHtePayment(paymentReferenceId, clientId, clientToken string) (domain.PaymentResponse, error)
+	DiscoverServices() (types.ServiceListResponse, error)
+	GetPrices(serviceId int) (types.ServicePriceResponse, error)
+	NegotiatePrice(serviceId, priceId, numberOfUnits int) (types.TotalPriceResponse, error)
+	MakeHtePayment(paymentReferenceId, clientId, clientToken string) (types.PaymentResponse, error)
 	StartDelivery(serviceId int, serviceDeliveryToken string, unitsToSupply int) (int, error)
 	EndDelivery(serviceId int, serviceDeliveryToken string, unitsReceived int) (int, error)
 }
@@ -63,7 +63,7 @@ func NewClient(scheme, host string, port int, urlPrefix string, clientId string)
 	return result, nil
 }
 
-func (client *clientImpl) DiscoverServices() (domain.ServiceListResponse, error) {
+func (client *clientImpl) DiscoverServices() (types.ServiceListResponse, error) {
 
 	url := fmt.Sprintf("%s/service/discover", client.baseUrl)
 
@@ -71,22 +71,22 @@ func (client *clientImpl) DiscoverServices() (domain.ServiceListResponse, error)
 
 	if err != nil {
 
-		return domain.ServiceListResponse{}, err
+		return types.ServiceListResponse{}, err
 	}
 
-	svcDetails := domain.ServiceListResponse {}
+	svcDetails := types.ServiceListResponse {}
 
 	err = json.Unmarshal(response, &svcDetails)
 
 	if err != nil {
 
-		return domain.ServiceListResponse{}, err
+		return types.ServiceListResponse{}, err
 	}
 
 	return svcDetails, nil
 }
 
-func (client *clientImpl) GetPrices(serviceId int) (domain.ServicePriceResponse, error) {
+func (client *clientImpl) GetPrices(serviceId int) (types.ServicePriceResponse, error) {
 
 	url := fmt.Sprintf("%s/service/%d/prices", client.baseUrl, serviceId)
 
@@ -94,26 +94,26 @@ func (client *clientImpl) GetPrices(serviceId int) (domain.ServicePriceResponse,
 
 	if err != nil {
 
-		return domain.ServicePriceResponse{}, err
+		return types.ServicePriceResponse{}, err
 	}
 
-	svcPriceResponse := domain.ServicePriceResponse{}
+	svcPriceResponse := types.ServicePriceResponse{}
 
 	err = json.Unmarshal(response, &svcPriceResponse)
 
 	if err != nil {
 
-		return domain.ServicePriceResponse{}, err
+		return types.ServicePriceResponse{}, err
 	}
 
 	return svcPriceResponse, nil
 }
 
-func (client *clientImpl) NegotiatePrice(serviceId, priceId, numberOfUnits int) (domain.TotalPriceResponse, error) {
+func (client *clientImpl) NegotiatePrice(serviceId, priceId, numberOfUnits int) (types.TotalPriceResponse, error) {
 
 	url := fmt.Sprintf("%s/service/%d/requestTotal", client.baseUrl, serviceId)
 
-	req := domain.TotalPriceRequest{
+	req := types.TotalPriceRequest{
 		ClientID: client.clientId,
 		SelectedNumberOfUnits: numberOfUnits,
 		SelectedPriceId: priceId,
@@ -123,33 +123,33 @@ func (client *clientImpl) NegotiatePrice(serviceId, priceId, numberOfUnits int) 
 
 	if err != nil {
 
-		return domain.TotalPriceResponse{}, err
+		return types.TotalPriceResponse{}, err
 	}
 
 	bytesResp, err := client.postJSON(url, jsonReq)
 
 	if err != nil {
 
-		return domain.TotalPriceResponse{}, err
+		return types.TotalPriceResponse{}, err
 	}
 
-	priceResp := domain.TotalPriceResponse{}
+	priceResp := types.TotalPriceResponse{}
 
 	err = json.Unmarshal(bytesResp, &priceResp)
 
 	if err != nil {
 
-		return domain.TotalPriceResponse{}, err
+		return types.TotalPriceResponse{}, err
 	}
 
 	return priceResp, nil
 }
 
-func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientToken string) (domain.PaymentResponse, error) {
+func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientToken string) (types.PaymentResponse, error) {
 
 	url := fmt.Sprintf("%s/payment", client.baseUrl)
 
-	requestBody := domain.PaymentRequest{
+	requestBody := types.PaymentRequest{
 		ClientID:clientId,
 		ClientToken: clientToken,
 		PaymentReferenceID: paymentReferenceId,
@@ -159,23 +159,23 @@ func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientTok
 
 	if err != nil {
 
-		return domain.PaymentResponse{}, err
+		return types.PaymentResponse{}, err
 	}
 
 	byteResp, err := client.postJSON(url, jsonBody)
 
 	if err != nil {
 
-		return domain.PaymentResponse{}, err
+		return types.PaymentResponse{}, err
 	}
 
-	paymentResponse := domain.PaymentResponse{}
+	paymentResponse := types.PaymentResponse{}
 
 	err = json.Unmarshal(byteResp, &paymentResponse)
 
 	if err != nil {
 
-		return domain.PaymentResponse{}, err
+		return types.PaymentResponse{}, err
 	}
 
 	return paymentResponse, nil

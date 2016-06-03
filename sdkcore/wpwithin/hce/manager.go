@@ -1,7 +1,7 @@
 package hce
-import "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+import "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 
 type Manager struct {
 
-	HCECard *domain.HCECard
+	HCECard *types.HCECard
 }

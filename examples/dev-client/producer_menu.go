@@ -1,7 +1,7 @@
 package main
 import (
 "fmt"
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 func mBroadcast() {
@@ -56,12 +56,12 @@ func mStopBroadcast() {
 
 func mCarWashDemoProducer() {
 
-	roboWash, _ := domain.NewService()
+	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
 	roboWash.Description = "Car washed by robot"
 	roboWash.Id = 1
 
-	washPriceCar := domain.Price{
+	washPriceCar := types.Price{
 
 		ServiceID:roboWash.Id,
 		UnitID:1,
@@ -71,7 +71,7 @@ func mCarWashDemoProducer() {
 		PricePerUnit:500,
 	}
 
-	washPriceSUV := domain.Price{
+	washPriceSUV := types.Price{
 
 		ServiceID:roboWash.Id,
 		UnitID:1,
@@ -85,12 +85,12 @@ func mCarWashDemoProducer() {
 	roboWash.AddPrice(washPriceSUV)
 	sdk.AddService(roboWash)
 
-	roboAir, _ := domain.NewService()
+	roboAir, _ := types.NewService()
 	roboAir.Name = "RoboAir"
 	roboAir.Description = "Car tyre pressure checked and topped up by robot"
 	roboAir.Id = 2
 
-	airSinglePrice := domain.Price{
+	airSinglePrice := types.Price{
 		ServiceID: roboAir.Id,
 		UnitID: 1,
 		ID: 1,
@@ -99,7 +99,7 @@ func mCarWashDemoProducer() {
 		PricePerUnit:25,
 	}
 
-	airFourPrice := domain.Price{
+	airFourPrice := types.Price{
 		ServiceID: roboAir.Id,
 		UnitID: 2,
 		ID: 2,

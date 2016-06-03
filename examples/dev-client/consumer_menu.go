@@ -3,7 +3,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 func mScanService() {
@@ -26,7 +26,7 @@ func mScanService() {
 		return
 	}
 
-	card := domain.HCECard{
+	card := types.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",

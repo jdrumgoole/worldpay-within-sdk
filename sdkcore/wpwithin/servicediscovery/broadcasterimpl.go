@@ -4,7 +4,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"time"
 	"encoding/json"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 type broadcasterImpl struct {
@@ -16,7 +16,7 @@ type broadcasterImpl struct {
 	udpProtocol string
 }
 
-func (bcast *broadcasterImpl) StartBroadcast(msg domain.ServiceMessage, timeoutMillis int) (chan bool, error) {
+func (bcast *broadcasterImpl) StartBroadcast(msg types.ServiceMessage, timeoutMillis int) (chan bool, error) {
 
 	log.Debug("Start svc broadcast")
 

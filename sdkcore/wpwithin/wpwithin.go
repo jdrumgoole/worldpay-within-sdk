@@ -1,6 +1,6 @@
 package wpwithin
 import (
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
@@ -22,20 +22,20 @@ const (
 
 type WPWithin interface {
 
-	AddService(service *domain.Service) error
-	RemoveService(service *domain.Service) error
-	InitHCE(hceCard domain.HCECard) error
+	AddService(service *types.Service) error
+	RemoveService(service *types.Service) error
+	InitHCE(hceCard types.HCECard) error
 	InitHTE(merchantClientKey, merchantServiceKey string) error
 	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error
 	InitProducer() (chan bool, error)
-	GetDevice() *domain.Device
+	GetDevice() *types.Device
 	StartServiceBroadcast(timeoutMillis int) error
 	StopServiceBroadcast()
-	ServiceDiscovery(timeoutMillis int) ([]domain.ServiceMessage, error)
-	RequestServices() ([]domain.ServiceDetails, error)
-	GetSvcPrices(serviceId int) ([]domain.Price, error)
-	SelectSvc(serviceId, numberOfUnits, priceId int) (domain.TotalPriceResponse, error)
-	MakePayment(payRequest domain.TotalPriceResponse) (domain.PaymentResponse, error)
+	ServiceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error)
+	RequestServices() ([]types.ServiceDetails, error)
+	GetSvcPrices(serviceId int) ([]types.Price, error)
+	SelectSvc(serviceId, numberOfUnits, priceId int) (types.TotalPriceResponse, error)
+	MakePayment(payRequest types.TotalPriceResponse) (types.PaymentResponse, error)
 
 }
 
@@ -120,7 +120,7 @@ func Initialise(name, description string) (WPWithin, error) {
 		return &wpWithinImpl{}, err
 	}
 
-	device, err := domain.NewDevice(name, description, deviceGUID, deviceAddress.String(), "GBP")
+	device, err := types.NewDevice(name, description, deviceGUID, deviceAddress.String(), "GBP")
 
 	if err != nil {
 
@@ -167,11 +167,11 @@ func Initialise(name, description string) (WPWithin, error) {
 	return wp, nil
 }
 
-func (wp *wpWithinImpl) AddService(service *domain.Service) error {
+func (wp *wpWithinImpl) AddService(service *types.Service) error {
 
 	if wp.core.Device.Services == nil {
 
-		wp.core.Device.Services = make(map[int]*domain.Service, 0)
+		wp.core.Device.Services = make(map[int]*types.Service, 0)
 	}
 
 	wp.core.Device.Services[service.Id] = service
@@ -179,7 +179,7 @@ func (wp *wpWithinImpl) AddService(service *domain.Service) error {
 	return nil
 }
 
-func (wp *wpWithinImpl) RemoveService(service *domain.Service) error {
+func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 
 	if wp.core.Device.Services != nil {
 
@@ -219,14 +219,14 @@ func (wp *wpWithinImpl) InitProducer() (chan bool, error) {
 	return done, nil
 }
 
-func (wp *wpWithinImpl) GetDevice() *domain.Device {
+func (wp *wpWithinImpl) GetDevice() *types.Device {
 
 	return wp.core.Device
 }
 
-func (wp *wpWithinImpl) InitHCE(hceCardCredential domain.HCECard) error {
+func (wp *wpWithinImpl) InitHCE(hceCardCredential types.HCECard) error {
 
-	cred := new(domain.HCECard)
+	cred := new(types.HCECard)
 	cred.FirstName = hceCardCredential.FirstName
 	cred.LastName = hceCardCredential.LastName
 	cred.ExpMonth = hceCardCredential.ExpMonth
@@ -243,7 +243,7 @@ func (wp *wpWithinImpl) InitHCE(hceCardCredential domain.HCECard) error {
 func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 
 	// Setup message that is broadcast over network
-	msg := domain.ServiceMessage{
+	msg := types.ServiceMessage{
 
 		DeviceDescription: wp.core.Device.Description,
 		Hostname: wp.core.HTE.IPv4Address,
@@ -270,9 +270,9 @@ func (wp *wpWithinImpl) StopServiceBroadcast() {
 	wp.core.SvcBroadcaster.StopBroadcast()
 }
 
-func (wp *wpWithinImpl) ServiceDiscovery(timeoutMillis int) ([]domain.ServiceMessage, error) {
+func (wp *wpWithinImpl) ServiceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error) {
 
-	svcResults := make([]domain.ServiceMessage, 0)
+	svcResults := make([]types.ServiceMessage, 0)
 
 	scanResult := wp.core.SvcScanner.ScanForServices(timeoutMillis)
 
@@ -294,9 +294,9 @@ func (wp *wpWithinImpl) ServiceDiscovery(timeoutMillis int) ([]domain.ServiceMes
 	return svcResults, nil
 }
 
-func (wp *wpWithinImpl) GetSvcPrices(serviceId int) ([]domain.Price, error) {
+func (wp *wpWithinImpl) GetSvcPrices(serviceId int) ([]types.Price, error) {
 
-	result := make([]domain.Price, 0)
+	result := make([]types.Price, 0)
 
 	priceResponse, err := wp.core.HTEClient.GetPrices(serviceId)
 
@@ -314,20 +314,20 @@ func (wp *wpWithinImpl) GetSvcPrices(serviceId int) ([]domain.Price, error) {
 	return result, nil
 }
 
-func (wp *wpWithinImpl) SelectSvc(serviceId, numberOfUnits, priceId int) (domain.TotalPriceResponse, error) {
+func (wp *wpWithinImpl) SelectSvc(serviceId, numberOfUnits, priceId int) (types.TotalPriceResponse, error) {
 
 	tpr, err := wp.core.HTEClient.NegotiatePrice(serviceId, priceId, numberOfUnits)
 
 	return tpr, err
 }
 
-func (wp *wpWithinImpl) MakePayment(request domain.TotalPriceResponse) (domain.PaymentResponse, error) {
+func (wp *wpWithinImpl) MakePayment(request types.TotalPriceResponse) (types.PaymentResponse, error) {
 
 	token, err := wp.core.Psp.GetToken(wp.core.HCE.HCECard, false)
 
 	if err != nil {
 
-		return domain.PaymentResponse{}, err
+		return types.PaymentResponse{}, err
 	}
 
 	paymentResponse, err := wp.core.HTEClient.MakeHtePayment(request.PaymentReferenceID, request.ClientID, token)
@@ -335,9 +335,9 @@ func (wp *wpWithinImpl) MakePayment(request domain.TotalPriceResponse) (domain.P
 	return paymentResponse, err
 }
 
-func (wp *wpWithinImpl) RequestServices() ([]domain.ServiceDetails, error) {
+func (wp *wpWithinImpl) RequestServices() ([]types.ServiceDetails, error) {
 
-	result := make([]domain.ServiceDetails, 0)
+	result := make([]types.ServiceDetails, 0)
 
 	serviceResponse, err := wp.core.HTEClient.DiscoverServices()
 

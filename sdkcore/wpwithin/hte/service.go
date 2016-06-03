@@ -3,7 +3,7 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
 )
 
@@ -27,7 +27,7 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func NewService(device *domain.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential, orderManager *OrderManager) (*Service, error) {
+func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential, orderManager *OrderManager) (*Service, error) {
 
 	service := &Service{}
 

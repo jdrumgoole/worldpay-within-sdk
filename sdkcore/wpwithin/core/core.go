@@ -4,12 +4,12 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 type Core struct {
 
-	Device *domain.Device
+	Device *types.Device
 	Psp psp.Psp
 	SvcBroadcaster servicediscovery.Broadcaster
 	SvcScanner servicediscovery.Scanner

@@ -3,7 +3,7 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/domain"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 func mGetDeviceInfo() {
@@ -23,7 +23,7 @@ func mInitDefaultDevice() {
 
 	_sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
 
-	card := domain.HCECard{
+	card := types.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
@@ -69,7 +69,7 @@ func mCarWashDemoConsumer() {
 		fmt.Println(err)
 	}
 
-	card := domain.HCECard{
+	card := types.HCECard{
 
 		FirstName:"Bilbo",
 		LastName:"Baggins",
