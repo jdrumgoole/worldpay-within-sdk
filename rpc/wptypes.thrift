@@ -8,6 +8,7 @@
 
 namespace csharp wptypes
 namespace java com.worldpay.innovation.wpwithin.rpc.types
+namespace go worldpay_within.wpwithin.rpc.types
 
 exception Error {
 	
