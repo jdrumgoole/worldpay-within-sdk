@@ -29,10 +29,10 @@ type WPWithin interface {
 	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error
 	InitProducer() (chan bool, error)
 	GetDevice() *domain.Device
-	StartSvcBroadcast(timeoutMillis int) error
-	StopSvcBroadcast()
-	ScanServices(timeoutMillis int) ([]servicediscovery.BroadcastMessage, error)
-	DiscoverServices() ([]hte.ServiceDetails, error)
+	StartServiceBroadcast(timeoutMillis int) error
+	StopServiceBroadcast()
+	ServiceDiscovery(timeoutMillis int) ([]servicediscovery.BroadcastMessage, error)
+	RequestServices() ([]hte.ServiceDetails, error)
 	GetSvcPrices(serviceId int) ([]domain.Price, error)
 	SelectSvc(serviceId, numberOfUnits, priceId int) (hte.TotalPriceResponse, error)
 	MakePayment(payRequest hte.TotalPriceResponse) (hte.PaymentResponse, error)
