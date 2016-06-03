@@ -294,7 +294,7 @@ func (wp *wpWithinImpl) ServiceDiscovery(timeoutMillis int) ([]types.ServiceMess
 	return svcResults, nil
 }
 
-func (wp *wpWithinImpl) GetSvcPrices(serviceId int) ([]types.Price, error) {
+func (wp *wpWithinImpl) GetServicePrices(serviceId int) ([]types.Price, error) {
 
 	result := make([]types.Price, 0)
 
@@ -314,7 +314,7 @@ func (wp *wpWithinImpl) GetSvcPrices(serviceId int) ([]types.Price, error) {
 	return result, nil
 }
 
-func (wp *wpWithinImpl) SelectSvc(serviceId, numberOfUnits, priceId int) (types.TotalPriceResponse, error) {
+func (wp *wpWithinImpl) SelectService(serviceId, numberOfUnits, priceId int) (types.TotalPriceResponse, error) {
 
 	tpr, err := wp.core.HTEClient.NegotiatePrice(serviceId, priceId, numberOfUnits)
 

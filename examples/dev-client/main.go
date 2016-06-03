@@ -619,7 +619,7 @@ func testDiscoveryAndNegotiation() {
 
 					fmt.Printf("%d - %s\n", svc.ServiceID, svc.ServiceDescription)
 
-					prices, err := sdk.GetSvcPrices(svc.ServiceID)
+					prices, err := sdk.GetServicePrices(svc.ServiceID)
 
 					if err != nil {
 
@@ -631,7 +631,7 @@ func testDiscoveryAndNegotiation() {
 
 							fmt.Printf("(%d) %s @ %d, %s (Unit id = %d)\n", price.ID, price.Description, price.PricePerUnit, price.UnitDescription, price.UnitID)
 
-							tpr, err := sdk.SelectSvc(price.ServiceID, 2, price.ID)
+							tpr, err := sdk.SelectService(price.ServiceID, 2, price.ID)
 
 							if err != nil {
 

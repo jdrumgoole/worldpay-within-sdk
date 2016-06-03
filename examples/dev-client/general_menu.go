@@ -128,7 +128,7 @@ func mCarWashDemoConsumer() {
 
 					fmt.Printf("%d - %s\n", svcDetails.ServiceID, svcDetails.ServiceDescription)
 
-					prices, err := sdk.GetSvcPrices(svcDetails.ServiceID)
+					prices, err := sdk.GetServicePrices(svcDetails.ServiceID)
 
 					if err != nil {
 
@@ -142,7 +142,7 @@ func mCarWashDemoConsumer() {
 
 							fmt.Printf("(%d) %s @ %d, %s (Unit id = %d)\n", price.ID, price.Description, price.PricePerUnit, price.UnitDescription, price.UnitID)
 
-							tpr, err := sdk.SelectSvc(price.ServiceID, 2, price.ID)
+							tpr, err := sdk.SelectService(price.ServiceID, 2, price.ID)
 
 							if err != nil {
 
