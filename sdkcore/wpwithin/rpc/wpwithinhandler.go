@@ -110,12 +110,12 @@ func (wp *WPWithinHandler) InitProducer() (err error) {
 
 	log.Debug("RPC.WPWithinHandler.InitProducer()")
 
-	_, err = wp.wpwithin.InitProducer()
 
-	if err != nil {
+	go func(){
 
-		return err
-	}
+		wp.wpwithin.InitProducer()
+
+	}()
 
 	return nil
 }
