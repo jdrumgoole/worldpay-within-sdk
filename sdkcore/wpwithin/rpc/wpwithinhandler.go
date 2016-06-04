@@ -25,6 +25,24 @@ func NewWPWithinHandler(wpWithin wpwithin.WPWithin) *WPWithinHandler {
 	return result
 }
 
+func (wp *WPWithinHandler) Setup(name, description string) (err error) {
+
+	log.Debug("Begin RPC.WPWithinHandler.Setup()")
+
+	wpw, err := wpwithin.Initialise(name, description)
+
+	if err != nil {
+
+		return err
+	}
+
+	wp.wpwithin = wpw
+
+	log.Debug("End RPC.WPWithinHandler.Setup()")
+
+	return nil
+}
+
 func (wp *WPWithinHandler) AddService(svc *wpthrift_types.Service) (err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.AddService()")
