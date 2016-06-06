@@ -1,5 +1,7 @@
 # worldpay-within-sdk
-Worldpay Within SDK to allow payments within IoT. Written in GoLang.
+Worldpay Within SDK to allow payments within IoT.
+
+The core of this SDK is written in Go with a native Go interface. Along with the native Go interface is an RPC layer (Apache Thrift) to allow communication through other languages. It is intended that we will develop a number of complementary wrapper libraries for other languages which should include C#.NET, Java, Python at a minimum.
 
 <h3>Install</h3>
 <ol>
@@ -9,9 +11,24 @@ Worldpay Within SDK to allow payments within IoT. Written in GoLang.
 <li>Get the dependencies; go get github.com/Sirupsen/logrus</li>
 </ol>
 
-<h3>Logging</h3>
-<p>Now by simply using the following code;</p>
-<code>log.SetSecureSocketsServer(true)</code>
-<p>You can add a web server to your application, that will send the logs to a secure socket which can be viewed in a web browser on the same network.</p>
+# Initial pre-alpha release - June 6, 2016
 
-<h3>Next steps</h3>
+<ol>
+<li>Core SDK somewhat complete but not 100%. No service handover (begin/end)</li>
+<li>Thrift definition of SDK service and message types</li>
+<li>Basic Java program demonstrating RPC function</li>
+<li>RPC Agent tool to enable starting the RPC from command line and programmatically. All options exposed via CLI flags. use -h for usage.</li>
+<li>C# namespace TBD (A.Brodie)</li>
+<li>BUG: There is an issue with the int->price map in the Thrift services definition (Pointer/Value error in Go). This has been disabled for now.</li>
+<li>Only binary transport works in Java/Go RPC example. Will investigate others.</li>
+<li>Added a semi implemented console application (dev-client) which shows the usage of the SDK in Go. This is probably the best documentation for now :)</li>
+</ol>
+
+# Next steps
+<ol>
+<li>Document, document, document...</li>
+<li>Will programatically add feedback Mustafa Kasmani, Andy Brodie to start discussion on features, security concerns etc</li>
+<li>Did I already say documentation - need to convert Architecture document to HTML/XML based format. Also need to comment Go core and auto generate via GoDoc.</li>
+<li>Andy Brodie will be kindly developing a C# wrapper library via the RPC interface</li>
+<li>Conor H to convert the reference Java application into a wrapper library.</li>
+</ol>
