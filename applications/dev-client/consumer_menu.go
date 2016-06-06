@@ -1,12 +1,14 @@
 package main
+
 import (
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-func mScanService() {
+func mScanService() error {
 
 	log.Debug("testDiscoveryAndNegotiation")
 
@@ -14,81 +16,76 @@ func mScanService() {
 
 	if err != nil {
 
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	err = sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
 
 	if err != nil {
 
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	card := types.HCECard{
 
-		FirstName:"Bilbo",
-		LastName:"Baggins",
-		ExpMonth:11,
-		ExpYear:2018,
-		CardNumber:"5555555555554444",
-		Type:"Card",
-		Cvc:"113",
+		FirstName:  "Bilbo",
+		LastName:   "Baggins",
+		ExpMonth:   11,
+		ExpYear:    2018,
+		CardNumber: "5555555555554444",
+		Type:       "Card",
+		Cvc:        "113",
 	}
 
 	err = sdk.InitHCE(card)
 
 	if err != nil {
 
-		fmt.Printf("%q\n", err.Error())
-		return
+		return err
 	}
 
 	log.Debug("pre scan for services")
 	services, err := sdk.ServiceDiscovery(20000)
 	log.Debug("end scan for services")
 
-
 	if err != nil {
 
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	for _, svc := range services {
 
 		fmt.Printf("(%s:%d/%s) - %s", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
 	}
-
+	return nil
 }
 
-func mDefaultHCECredential() {
+func mDefaultHCECredential() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mDiscoverSvcs() {
+func mDiscoverSvcs() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mGetSvcPrices() {
+func mGetSvcPrices() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mSelectService() {
+func mSelectService() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mMakePayment() {
+func mMakePayment() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mConsumerStatus() {
+func mConsumerStatus() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }

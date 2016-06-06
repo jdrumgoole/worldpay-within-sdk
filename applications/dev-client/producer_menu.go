@@ -1,10 +1,12 @@
 package main
+
 import (
-"fmt"
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"errors"
+	"fmt"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-func mBroadcast() {
+func mBroadcast() error {
 
 	fmt.Print("Broadcast timeout in milliseconds: ")
 	var input int
@@ -12,49 +14,78 @@ func mBroadcast() {
 
 	if err != nil {
 
-		fmt.Println(err)
-		return
+		return err
 	}
+
+	return nil
 }
 
-func mProducerStatus() {
+func mProducerStatus() error {
 
 	// Show all services
 	// Show all prices
 	// Status of broadcast
+
+	return errors.New("Not implemented yet..")
 }
 
-func mDefaultProducer() {
+func mDefaultProducer() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mNewProducer() {
+func mNewProducer() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mDefaultHTECredentials() {
+func mDefaultHTECredentials() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mNewHTECredentials() {
+func mNewHTECredentials() error {
 
-	fmt.Println("Not implemented yet..")
+	fmt.Print("Merchant Client Key: ")
+	var merchantClientKey string
+	_, err := fmt.Scanf("%s", &merchantClientKey)
+
+	if err != nil {
+
+		return err
+	}
+
+	fmt.Print("Merchant Service Key: ")
+	var merchantServiceKey string
+	_, err = fmt.Scanf("%s", &merchantServiceKey)
+
+	if err != nil {
+
+		return err
+	}
+
+	if sdk != nil {
+
+		err = sdk.InitHTE(merchantClientKey, merchantServiceKey)
+	} else {
+
+		err = errors.New("Error: Must initialise the device first")
+	}
+
+	return err
 }
 
-func mStartBroadcast() {
+func mStartBroadcast() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mStopBroadcast() {
+func mStopBroadcast() error {
 
-	fmt.Println("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mCarWashDemoProducer() {
+func mCarWashDemoProducer() error {
 
 	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
@@ -63,22 +94,22 @@ func mCarWashDemoProducer() {
 
 	washPriceCar := types.Price{
 
-		ServiceID:roboWash.Id,
-		UnitID:1,
-		ID:1,
-		Description:"Car wash",
-		UnitDescription:"Single wash",
-		PricePerUnit:500,
+		ServiceID:       roboWash.Id,
+		UnitID:          1,
+		ID:              1,
+		Description:     "Car wash",
+		UnitDescription: "Single wash",
+		PricePerUnit:    500,
 	}
 
 	washPriceSUV := types.Price{
 
-		ServiceID:roboWash.Id,
-		UnitID:1,
-		ID:2,
-		Description:"SUV Wash",
-		UnitDescription:"Single wash",
-		PricePerUnit:650,
+		ServiceID:       roboWash.Id,
+		UnitID:          1,
+		ID:              2,
+		Description:     "SUV Wash",
+		UnitDescription: "Single wash",
+		PricePerUnit:    650,
 	}
 
 	roboWash.AddPrice(washPriceCar)
@@ -91,21 +122,21 @@ func mCarWashDemoProducer() {
 	roboAir.Id = 2
 
 	airSinglePrice := types.Price{
-		ServiceID: roboAir.Id,
-		UnitID: 1,
-		ID: 1,
-		Description: "Measure and adjust pressure",
-		UnitDescription:"Tyre",
-		PricePerUnit:25,
+		ServiceID:       roboAir.Id,
+		UnitID:          1,
+		ID:              1,
+		Description:     "Measure and adjust pressure",
+		UnitDescription: "Tyre",
+		PricePerUnit:    25,
 	}
 
 	airFourPrice := types.Price{
-		ServiceID: roboAir.Id,
-		UnitID: 2,
-		ID: 2,
-		Description: "Measure and adjust pressure - four tyres for the price of three",
-		UnitDescription:"4 Tyre",
-		PricePerUnit:airSinglePrice.PricePerUnit * 3,
+		ServiceID:       roboAir.Id,
+		UnitID:          2,
+		ID:              2,
+		Description:     "Measure and adjust pressure - four tyres for the price of three",
+		UnitDescription: "4 Tyre",
+		PricePerUnit:    airSinglePrice.PricePerUnit * 3,
 	}
 
 	roboAir.AddPrice(airSinglePrice)
@@ -114,25 +145,29 @@ func mCarWashDemoProducer() {
 
 	prodDone := make(chan bool)
 
-	go func() {
+	go func() error {
 
 		_, err := sdk.InitProducer()
 
 		if err != nil {
 
-			fmt.Printf(err.Error())
-
-			return
+			return err
 		}
+
+		return nil
 	}()
 
 	bcastDone := make(chan bool)
 
-	go func() {
+	go func() error {
 
 		sdk.StartServiceBroadcast(20000)
+
+		return nil
 	}()
 
 	<-prodDone
 	<-bcastDone
+
+	return nil
 }
