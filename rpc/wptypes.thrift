@@ -6,7 +6,7 @@
 #
 #############################################
 
-namespace csharp wptypes
+namespace csharp worldpaywithin.rpc.types
 namespace java com.worldpay.innovation.wpwithin.rpc.types
 namespace go wpthrift_types
 
