@@ -84,7 +84,7 @@ func (svc *ServiceImpl) Start() error {
 	processor := wpthrift.NewWPWithinProcessor(handler)
 	server := thrift.NewTSimpleServer4(processor, transport, svc.transportFactory, svc.protocolFactory)
 
-	fmt.Printf("Starting the rpc server on...: %s", strAddr)
+	fmt.Printf("Starting the rpc server on...: %s\n", strAddr)
 
 	return server.Serve()
 }
