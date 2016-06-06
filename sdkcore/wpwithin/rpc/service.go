@@ -5,6 +5,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"crypto/tls"
+	"errors"
 )
 
 type ServiceImpl struct {
@@ -12,23 +13,54 @@ type ServiceImpl struct {
 	wpWithin wpwithin.WPWithin
 	transportFactory thrift.TTransportFactory
 	protocolFactory thrift.TProtocolFactory
-	addr string
+	host string
+	port int
 	secure bool
 }
 
-func NewService(transportFactory thrift.TTransportFactory, protocolFactory thrift.TProtocolFactory, addr string, secure bool, wpWithin wpwithin.WPWithin) (Service, error) {
+func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, error) {
+
+
+	var protocolFactory thrift.TProtocolFactory
+	switch config.Protocol {
+	case "compact":
+		protocolFactory = thrift.NewTCompactProtocolFactory()
+	case "simplejson":
+		protocolFactory = thrift.NewTSimpleJSONProtocolFactory()
+	case "json":
+		protocolFactory = thrift.NewTJSONProtocolFactory()
+	case "binary", "":
+		protocolFactory = thrift.NewTBinaryProtocolFactoryDefault()
+	default:
+		return nil, errors.New(fmt.Sprintf("Invalid protocol specified: %s\n", config.Protocol))
+	}
+
+	var transportFactory thrift.TTransportFactory
+	if config.Buffered {
+		transportFactory = thrift.NewTBufferedTransportFactory(config.BufferSize)
+	} else {
+		transportFactory = thrift.NewTTransportFactory()
+	}
+
+	if config.Framed {
+		transportFactory = thrift.NewTFramedTransportFactory(transportFactory)
+	}
+
 
 	result := new(ServiceImpl)
 	result.transportFactory = transportFactory
 	result.protocolFactory = protocolFactory
-	result.addr = addr
-	result.secure = secure
+	result.host = config.Host
+	result.port = config.Port
+	result.secure = config.Secure
 	result.wpWithin = wpWithin
 
 	return result, nil
 }
 
 func (svc *ServiceImpl) Start() error {
+
+	strAddr := fmt.Sprintf("%s:%d", svc.host, svc.port)
 
 	var transport thrift.TServerTransport
 	var err error
@@ -39,9 +71,9 @@ func (svc *ServiceImpl) Start() error {
 			} else {
 				return err
 			}
-			transport, err = thrift.NewTSSLServerSocket(svc.addr, cfg)
+			transport, err = thrift.NewTSSLServerSocket(strAddr, cfg)
 		} else {
-			transport, err = thrift.NewTServerSocket(svc.addr)
+			transport, err = thrift.NewTServerSocket(strAddr)
 		}
 
 	if err != nil {
@@ -52,7 +84,7 @@ func (svc *ServiceImpl) Start() error {
 	processor := wpthrift.NewWPWithinProcessor(handler)
 	server := thrift.NewTSimpleServer4(processor, transport, svc.transportFactory, svc.protocolFactory)
 
-	fmt.Printf("Starting the rpc server on...: %s", svc.addr)
+	fmt.Printf("Starting the rpc server on...: %s", strAddr)
 
 	return server.Serve()
 }
