@@ -19,8 +19,8 @@ struct Service {
 	
 	1: i32 id
 	2: string name
-	3: optional string description
-	4: optional map<i32, Price> prices
+	3:  string description
+	#4: optional map<i32, Price> prices  /* This should be optional now but these are stored as pointers and was causing an issue in Go - TODO CH - Conor to investigate and fix */
 }
 
 struct Price {
