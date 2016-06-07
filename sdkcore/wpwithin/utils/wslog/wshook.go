@@ -9,6 +9,9 @@ import (
 	"errors"
 )
 
+// A logrus hook to enable outputting logs to web browser via Web Socket
+// Websocket implementation by Kevin Gordon Worldpay
+
 type WSHook struct {
 
 	ip string
