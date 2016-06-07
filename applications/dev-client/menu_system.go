@@ -65,7 +65,7 @@ func promptContinue() bool {
 
 		fmt.Println("Please enter \"y\" or \"n\"")
 		return promptContinue()
-	} else if strings.Compare(cont, "y") == 0 || strings.Compare(cont, "y") == 0 {
+	} else if strings.EqualFold(cont, "y") {
 
 		return true
 	} else {
