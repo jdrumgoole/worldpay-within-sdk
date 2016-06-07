@@ -11,8 +11,6 @@ import (
 /*
 	A simple program to enable the WPWithin Core RPC interface.
 	The intention is that this program is called by language wrappers in order to gain RPC access to the core.
-	This application is hardcoded to only listen locally i.e. "localhost" and "127.0.0.1"
-	The port is configurable.
 */
 
 // Application exit codes
