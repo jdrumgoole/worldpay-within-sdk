@@ -7,24 +7,24 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-func mScanService() error {
+func mScanService() (int, error) {
 
 	log.Debug("testDiscoveryAndNegotiation")
 
-	if err := mInitDefaultDevice(); err != nil {
-		return err
+	if _, err := mInitDefaultDevice(); err != nil {
+		return 0, err
 	}
 
-	if err := mDefaultHTECredentials(); err != nil {
-		return err
+	if _, err := mDefaultHTECredentials(); err != nil {
+		return 0, err
 	}
 
-	if err := mDefaultHCECredential(); err != nil {
-		return err
+	if _, err := mDefaultHCECredential(); err != nil {
+		return 0, err
 	}
 
 	if sdk == nil {
-		return errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	log.Debug("pre scan for services")
@@ -32,17 +32,17 @@ func mScanService() error {
 	log.Debug("end scan for services")
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	for _, svc := range services {
 
 		fmt.Printf("(%s:%d/%s) - %s", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
 	}
-	return nil
+	return 0, nil
 }
 
-func mDefaultHCECredential() error {
+func mDefaultHCECredential() (int, error) {
 
 	card := types.HCECard{
 
@@ -56,33 +56,33 @@ func mDefaultHCECredential() error {
 	}
 
 	if sdk == nil {
-		return errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return sdk.InitHCE(card)
+	return 0, sdk.InitHCE(card)
 }
 
-func mDiscoverSvcs() error {
+func mDiscoverSvcs() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mGetSvcPrices() error {
+func mGetSvcPrices() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mSelectService() error {
+func mSelectService() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mMakePayment() error {
+func mMakePayment() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mConsumerStatus() error {
+func mConsumerStatus() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }

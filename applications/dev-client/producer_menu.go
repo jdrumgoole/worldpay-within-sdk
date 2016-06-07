@@ -8,7 +8,7 @@ import (
 
 var ERR_DEVICE_NOT_INITIALISED = "Error: Device not initialised"
 
-func mBroadcast() error {
+func mBroadcast() (int, error) {
 
 	fmt.Print("Broadcast timeout in milliseconds: ")
 	var input int
@@ -16,48 +16,48 @@ func mBroadcast() error {
 
 	if err != nil {
 
-		return err
+		return 0, err
 	}
 
-	return nil
+	return 0, nil
 }
 
-func mProducerStatus() error {
+func mProducerStatus() (int, error) {
 
 	// Show all services
 	// Show all prices
 	// Status of broadcast
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mDefaultProducer() error {
+func mDefaultProducer() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mNewProducer() error {
+func mNewProducer() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mDefaultHTECredentials() error {
+func mDefaultHTECredentials() (int, error) {
 
 	if sdk == nil {
-		return errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
+	return 0, sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
 }
 
-func mNewHTECredentials() error {
+func mNewHTECredentials() (int, error) {
 
 	fmt.Print("Merchant Client Key: ")
 	var merchantClientKey string
 	_, err := fmt.Scanf("%s", &merchantClientKey)
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	fmt.Print("Merchant Service Key: ")
@@ -65,30 +65,30 @@ func mNewHTECredentials() error {
 	_, err = fmt.Scanf("%s", &merchantServiceKey)
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	if sdk == nil {
-		return errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return sdk.InitHTE(merchantClientKey, merchantServiceKey)
+	return 0, sdk.InitHTE(merchantClientKey, merchantServiceKey)
 }
 
-func mStartBroadcast() error {
+func mStartBroadcast() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mStopBroadcast() error {
+func mStopBroadcast() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mCarWashDemoProducer() error {
+func mCarWashDemoProducer() (int, error) {
 
 	if sdk == nil {
-		return errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	roboWash, _ := types.NewService()
@@ -121,7 +121,7 @@ func mCarWashDemoProducer() error {
 
 	if err := sdk.AddService(roboWash); err != nil {
 
-		return err
+		return 0, err
 	}
 
 	roboAir, _ := types.NewService()
@@ -151,7 +151,7 @@ func mCarWashDemoProducer() error {
 	roboAir.AddPrice(airFourPrice)
 	if err := sdk.AddService(roboAir); err != nil {
 
-		return err
+		return 0, err
 	}
 
 	prodDone := make(chan bool)
@@ -183,5 +183,5 @@ func mCarWashDemoProducer() error {
 	<-prodDone
 	<-bcastDone
 
-	return nil
+	return 0, nil
 }

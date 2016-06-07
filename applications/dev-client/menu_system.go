@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	"strconv"
 	"strings"
 )
 
@@ -12,7 +13,7 @@ var menuItems []MenuItem
 
 type MenuItem struct {
 	Label  string
-	Action func() error
+	Action func() (int, error)
 }
 
 func doUI() {
@@ -47,12 +48,14 @@ func doUI() {
 	menuItems = append(menuItems, MenuItem{"Select service", mSelectService})
 	menuItems = append(menuItems, MenuItem{"Make payment", mMakePayment})
 	menuItems = append(menuItems, MenuItem{"Consumer status", mConsumerStatus})
+	menuItems = append(menuItems, MenuItem{"--------------------------------------------------", mInvalidSelection})
+	menuItems = append(menuItems, MenuItem{"Exit", mQuit})
 
-	renderMenu(false)
+	renderMenu()
 }
-func mInvalidSelection() error {
+func mInvalidSelection() (int, error) {
 
-	return errors.New("*** Invalid menu selection - please choose another item ***")
+	return 0, errors.New("*** Invalid menu selection - please choose another item ***")
 }
 
 func promptContinue() bool {
@@ -74,16 +77,17 @@ func promptContinue() bool {
 	}
 }
 
-func renderMenu(prompt bool) {
+func renderMenu() {
 
-	if prompt {
+	/*
+		if prompt {
 
-		if !promptContinue() {
+			if !promptContinue() {
 
-			mQuit()
-			return
-		}
-	}
+				mQuit()
+				return
+			}
+		}*/
 
 	fmt.Println("----------------------------- Worldpay Within SDK Client ----------------------------")
 
@@ -95,21 +99,39 @@ func renderMenu(prompt bool) {
 	fmt.Println("-------------------------------------------------------------------------------------")
 
 	fmt.Print("Please select choice: ")
-	var input int
-	_, err := fmt.Scanln(&input)
+	var input string
 
-	if err != nil {
+	if _, err := fmt.Scanln(&input); err != nil {
 
 		fmt.Printf("Selection error: %q\n", err.Error())
-		renderMenu(true)
+		renderMenu()
+		return
 	}
 
-	if err := menuItems[input].Action(); err != nil {
+	inputInt, err := strconv.Atoi(input)
+
+	if err != nil {
+		fmt.Println("Please type an integer choice!")
+		renderMenu()
+		return
+	}
+
+	if inputInt >= len(menuItems) {
+		fmt.Println("Index out of bounds!")
+		renderMenu()
+		return
+	}
+
+	var exitCode int
+
+	if exitCode, err = menuItems[inputInt].Action(); err != nil {
 
 		fmt.Println(err.Error())
 	}
 
-	renderMenu(true)
+	if exitCode != 1 {
+		renderMenu()
+	}
 }
 
 func setUp() {
@@ -117,8 +139,9 @@ func setUp() {
 	fmt.Println("Setup")
 }
 
-func mQuit() {
+func mQuit() (int, error) {
 
 	fmt.Println("")
 	fmt.Println("Goodbye...")
+	return 1, nil
 }

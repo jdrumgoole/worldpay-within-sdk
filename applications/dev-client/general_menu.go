@@ -8,26 +8,26 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 )
 
-func mGetDeviceInfo() error {
+func mGetDeviceInfo() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mInitDefaultDevice() error {
+func mInitDefaultDevice() (int, error) {
 
 	_sdk, err := wpwithin.Initialise("conorhwp-macbook", "Conor H WP - Raspberry Pi")
 
 	if err != nil {
 
-		return err
+		return 0, err
 	}
 
 	sdk = _sdk
 
-	return nil
+	return 0, nil
 }
 
-func mInitNewDevice() error {
+func mInitNewDevice() (int, error) {
 
 	fmt.Print("Name of device: ")
 	var nameOfDevice string
@@ -35,7 +35,7 @@ func mInitNewDevice() error {
 
 	if err != nil {
 
-		return err
+		return 0, err
 	}
 
 	fmt.Print("Description: ")
@@ -44,35 +44,39 @@ func mInitNewDevice() error {
 
 	if err != nil {
 
-		return err
+		return 0, err
 	}
 
 	_sdk, err := wpwithin.Initialise(nameOfDevice, description)
 
 	if err != nil {
 
-		return err
+		return 0, err
 	}
 
 	sdk = _sdk
 
-	return nil
+	return 0, err
 }
 
-func mCarWashDemoConsumer() error {
+func mCarWashDemoConsumer() (int, error) {
 
 	log.Debug("testDiscoveryAndNegotiation")
 
-	if err := mInitDefaultDevice(); err != nil {
-		return err
+	if _, err := mInitDefaultDevice(); err != nil {
+		return 0, err
 	}
 
-	if err := mDefaultHTECredentials(); err != nil {
-		return err
+	if _, err := mDefaultHTECredentials(); err != nil {
+		return 0, err
 	}
 
-	if err := mDefaultHCECredential(); err != nil {
-		return err
+	if _, err := mDefaultHCECredential(); err != nil {
+		return 0, err
+	}
+
+	if sdk == nil {
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	log.Debug("pre scan for services")
@@ -81,7 +85,7 @@ func mCarWashDemoConsumer() error {
 
 	if err != nil {
 
-		return err
+		return 0, err
 	}
 
 	if len(services) >= 1 {
@@ -95,7 +99,7 @@ func mCarWashDemoConsumer() error {
 
 		if err != nil {
 
-			return err
+			return 0, err
 		}
 
 		log.Debug("Client created..")
@@ -104,7 +108,7 @@ func mCarWashDemoConsumer() error {
 
 		if err != nil {
 
-			return err
+			return 0, err
 		}
 
 		if len(serviceDetails) >= 1 {
@@ -117,7 +121,7 @@ func mCarWashDemoConsumer() error {
 
 			if err != nil {
 
-				return err
+				return 0, err
 			}
 
 			fmt.Printf("------- Prices -------\n")
@@ -131,7 +135,7 @@ func mCarWashDemoConsumer() error {
 
 				if err != nil {
 
-					return err
+					return 0, err
 				}
 
 				fmt.Println("#Begin Request#")
@@ -146,7 +150,7 @@ func mCarWashDemoConsumer() error {
 
 				if err != nil {
 
-					return err
+					return 0, err
 				}
 
 				fmt.Printf("Payment of %d made successfully\n", payResp.TotalPaid)
@@ -156,31 +160,31 @@ func mCarWashDemoConsumer() error {
 			}
 		}
 	}
-	return nil
+	return 0, nil
 }
 
-func mResetSessionState() error {
+func mResetSessionState() (int, error) {
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mLoadConfig() error {
+func mLoadConfig() (int, error) {
 
 	// Ask user for path to config file
 	// (And password if secured)
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mReadConfig() error {
+func mReadConfig() (int, error) {
 
 	// Print out loaded configuration
 	// Print out the path to file that was loaded (Need to keep reference during load stage)
 
-	return errors.New("Not implemented yet..")
+	return 0, errors.New("Not implemented yet..")
 }
 
-func mStartRPCService() error {
+func mStartRPCService() (int, error) {
 
 	config := rpc.Configuration{
 		Protocol:   "binary",
@@ -196,13 +200,13 @@ func mStartRPCService() error {
 
 	if err != nil {
 
-		return err
+		return 0, err
 	}
 
 	if err := rpc.Start(); err != nil {
 
-		return err
+		return 0, err
 	}
 
-	return nil
+	return 0, nil
 }
