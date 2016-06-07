@@ -79,16 +79,6 @@ func promptContinue() bool {
 
 func renderMenu() {
 
-	/*
-		if prompt {
-
-			if !promptContinue() {
-
-				mQuit()
-				return
-			}
-		}*/
-
 	fmt.Println("----------------------------- Worldpay Within SDK Client ----------------------------")
 
 	for i, item := range menuItems {
