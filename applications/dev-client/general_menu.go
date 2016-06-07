@@ -6,7 +6,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 func mGetDeviceInfo() error {
@@ -23,34 +22,12 @@ func mInitDefaultDevice() error {
 		return err
 	}
 
-	_sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
-
-	card := types.HCECard{
-
-		FirstName:  "Bilbo",
-		LastName:   "Baggins",
-		ExpMonth:   11,
-		ExpYear:    2018,
-		CardNumber: "5555555555554444",
-		Type:       "Card",
-		Cvc:        "113",
-	}
-
-	err = _sdk.InitHCE(card)
-
-	if err != nil {
-
-		return err
-	}
-
 	sdk = _sdk
 
 	return nil
 }
 
 func mInitNewDevice() error {
-
-	//fmt.Println("Not implemented yet..")
 
 	fmt.Print("Name of device: ")
 	var nameOfDevice string
@@ -86,35 +63,15 @@ func mCarWashDemoConsumer() error {
 
 	log.Debug("testDiscoveryAndNegotiation")
 
-	sdk, err := wpwithin.Initialise("conorhwp-macbook", "Conor H WP - Raspberry Pi")
-
-	if err != nil {
-
+	if err := mInitDefaultDevice(); err != nil {
 		return err
 	}
 
-	err = sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
-
-	if err != nil {
-
+	if err := mDefaultHTECredentials(); err != nil {
 		return err
 	}
 
-	card := types.HCECard{
-
-		FirstName:  "Bilbo",
-		LastName:   "Baggins",
-		ExpMonth:   11,
-		ExpYear:    2018,
-		CardNumber: "5555555555554444",
-		Type:       "Card",
-		Cvc:        "113",
-	}
-
-	err = sdk.InitHCE(card)
-
-	if err != nil {
-
+	if err := mDefaultHCECredential(); err != nil {
 		return err
 	}
 

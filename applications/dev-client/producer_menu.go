@@ -6,6 +6,8 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
+var ERR_DEVICE_NOT_INITIALISED = "Error: Device not initialised"
+
 func mBroadcast() error {
 
 	fmt.Print("Broadcast timeout in milliseconds: ")
@@ -41,7 +43,11 @@ func mNewProducer() error {
 
 func mDefaultHTECredentials() error {
 
-	return errors.New("Not implemented yet..")
+	if sdk == nil {
+		return errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
+
+	return sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
 }
 
 func mNewHTECredentials() error {
@@ -51,7 +57,6 @@ func mNewHTECredentials() error {
 	_, err := fmt.Scanf("%s", &merchantClientKey)
 
 	if err != nil {
-
 		return err
 	}
 
@@ -60,19 +65,14 @@ func mNewHTECredentials() error {
 	_, err = fmt.Scanf("%s", &merchantServiceKey)
 
 	if err != nil {
-
 		return err
 	}
 
-	if sdk != nil {
-
-		err = sdk.InitHTE(merchantClientKey, merchantServiceKey)
-	} else {
-
-		err = errors.New("Error: Must initialise the device first")
+	if sdk == nil {
+		return errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return err
+	return sdk.InitHTE(merchantClientKey, merchantServiceKey)
 }
 
 func mStartBroadcast() error {
@@ -86,6 +86,10 @@ func mStopBroadcast() error {
 }
 
 func mCarWashDemoProducer() error {
+
+	if sdk == nil {
+		return errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
 
 	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
@@ -114,7 +118,11 @@ func mCarWashDemoProducer() error {
 
 	roboWash.AddPrice(washPriceCar)
 	roboWash.AddPrice(washPriceSUV)
-	sdk.AddService(roboWash)
+
+	if err := sdk.AddService(roboWash); err != nil {
+
+		return err
+	}
 
 	roboAir, _ := types.NewService()
 	roboAir.Name = "RoboAir"
@@ -141,7 +149,10 @@ func mCarWashDemoProducer() error {
 
 	roboAir.AddPrice(airSinglePrice)
 	roboAir.AddPrice(airFourPrice)
-	sdk.AddService(roboAir)
+	if err := sdk.AddService(roboAir); err != nil {
+
+		return err
+	}
 
 	prodDone := make(chan bool)
 
@@ -161,7 +172,10 @@ func mCarWashDemoProducer() error {
 
 	go func() error {
 
-		sdk.StartServiceBroadcast(20000)
+		if err := sdk.StartServiceBroadcast(20000); err != nil {
+
+			return err
+		}
 
 		return nil
 	}()

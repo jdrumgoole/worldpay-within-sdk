@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
@@ -12,36 +11,20 @@ func mScanService() error {
 
 	log.Debug("testDiscoveryAndNegotiation")
 
-	sdk, err := wpwithin.Initialise("conorhwp-macbook", "Conor H WP - Raspberry Pi")
-
-	if err != nil {
-
+	if err := mInitDefaultDevice(); err != nil {
 		return err
 	}
 
-	err = sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
-
-	if err != nil {
-
+	if err := mDefaultHTECredentials(); err != nil {
 		return err
 	}
 
-	card := types.HCECard{
-
-		FirstName:  "Bilbo",
-		LastName:   "Baggins",
-		ExpMonth:   11,
-		ExpYear:    2018,
-		CardNumber: "5555555555554444",
-		Type:       "Card",
-		Cvc:        "113",
+	if err := mDefaultHCECredential(); err != nil {
+		return err
 	}
 
-	err = sdk.InitHCE(card)
-
-	if err != nil {
-
-		return err
+	if sdk == nil {
+		return errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	log.Debug("pre scan for services")
@@ -49,7 +32,6 @@ func mScanService() error {
 	log.Debug("end scan for services")
 
 	if err != nil {
-
 		return err
 	}
 
@@ -62,7 +44,22 @@ func mScanService() error {
 
 func mDefaultHCECredential() error {
 
-	return errors.New("Not implemented yet..")
+	card := types.HCECard{
+
+		FirstName:  "Bilbo",
+		LastName:   "Baggins",
+		ExpMonth:   11,
+		ExpYear:    2018,
+		CardNumber: "5555555555554444",
+		Type:       "Card",
+		Cvc:        "113",
+	}
+
+	if sdk == nil {
+		return errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
+
+	return sdk.InitHCE(card)
 }
 
 func mDiscoverSvcs() error {

@@ -85,7 +85,7 @@ func renderMenu(prompt bool) {
 		}
 	}
 
-	fmt.Println("------------------------------Worldpay With SDK Client ------------------------------")
+	fmt.Println("----------------------------- Worldpay Within SDK Client ----------------------------")
 
 	for i, item := range menuItems {
 
