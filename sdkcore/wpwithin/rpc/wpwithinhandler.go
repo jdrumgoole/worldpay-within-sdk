@@ -124,7 +124,12 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.GetDevice()")
 
-	device := wp.wpwithin.GetDevice()
+	device, err := wp.wpwithin.GetDevice()
+
+	if err != nil {
+
+		return nil, err
+	}
 
 	result := &wpthrift_types.Device {
 

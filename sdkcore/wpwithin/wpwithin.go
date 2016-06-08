@@ -7,6 +7,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/core"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/fsm"
 )
 
 const (
@@ -28,9 +29,9 @@ type WPWithin interface {
 	InitHTE(merchantClientKey, merchantServiceKey string) error
 	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error
 	InitProducer() (chan bool, error)
-	GetDevice() *types.Device
+	GetDevice() (*types.Device, error)
 	StartServiceBroadcast(timeoutMillis int) error
-	StopServiceBroadcast()
+	StopServiceBroadcast() error
 	ServiceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error)
 	RequestServices() ([]types.ServiceDetails, error)
 	GetServicePrices(serviceId int) ([]types.Price, error)
@@ -40,6 +41,11 @@ type WPWithin interface {
 }
 
 func (wp *wpWithinImpl) InitHTE(merchantClientKey, merchantServiceKey string) error {
+
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_INIT_HTE)); err != nil {
+
+		return err
+	}
 
 	// Set up PSP
 	psp, err := onlineworldpay.New(merchantClientKey, merchantServiceKey, WP_ONLINE_API_ENDPOINT)
@@ -89,6 +95,12 @@ func Initialise(name, description string) (WPWithin, error) {
 
 		return &wpWithinImpl{}, err
 	}
+
+	// Setup Finite State Machine
+
+	core.FSM, _ = fsm.Init(fsm.DEV_READY)
+	core.FSMHelper = fsm.NewSDKHelper()
+
 
 	// Add core and device to WPWithin SDK Implementation
 	wp := &wpWithinImpl{}
@@ -169,6 +181,11 @@ func Initialise(name, description string) (WPWithin, error) {
 
 func (wp *wpWithinImpl) AddService(service *types.Service) error {
 
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_ADD_SVC)); err != nil {
+
+		return err
+	}
+
 	if wp.core.Device.Services == nil {
 
 		wp.core.Device.Services = make(map[int]*types.Service, 0)
@@ -181,6 +198,11 @@ func (wp *wpWithinImpl) AddService(service *types.Service) error {
 
 func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_REMOVE_SVC)); err != nil {
+
+		return err
+	}
+
 	if wp.core.Device.Services != nil {
 
 		delete(wp.core.Device.Services, service.Id)
@@ -190,6 +212,11 @@ func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 }
 
 func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error {
+
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_INIT_CONSUMER)); err != nil {
+
+		return err
+	}
 
 	// Setup HTE Client
 
@@ -207,6 +234,11 @@ func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, ur
 
 func (wp *wpWithinImpl) InitProducer() (chan bool, error) {
 
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_INIT_PRODUCER)); err != nil {
+
+		return nil, err
+	}
+
 	err := wp.core.HTE.Start()
 
 	if err != nil {
@@ -219,12 +251,22 @@ func (wp *wpWithinImpl) InitProducer() (chan bool, error) {
 	return done, nil
 }
 
-func (wp *wpWithinImpl) GetDevice() *types.Device {
+func (wp *wpWithinImpl) GetDevice() (*types.Device, error) {
 
-	return wp.core.Device
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_GET_DEVICE)); err != nil {
+
+		return nil, err
+	}
+
+	return wp.core.Device, nil
 }
 
 func (wp *wpWithinImpl) InitHCE(hceCardCredential types.HCECard) error {
+
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_INIT_HCE)); err != nil {
+
+		return err
+	}
 
 	cred := new(types.HCECard)
 	cred.FirstName = hceCardCredential.FirstName
@@ -241,6 +283,11 @@ func (wp *wpWithinImpl) InitHCE(hceCardCredential types.HCECard) error {
 }
 
 func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
+
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_START_SVC_BROADCAST)); err != nil {
+
+		return err
+	}
 
 	// Setup message that is broadcast over network
 	msg := types.ServiceMessage{
@@ -265,12 +312,22 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 	return nil
 }
 
-func (wp *wpWithinImpl) StopServiceBroadcast() {
+func (wp *wpWithinImpl) StopServiceBroadcast() error {
 
-	wp.core.SvcBroadcaster.StopBroadcast()
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_STOP_SVC_BROADCAST)); err != nil {
+
+		return err
+	}
+
+	return wp.core.SvcBroadcaster.StopBroadcast()
 }
 
 func (wp *wpWithinImpl) ServiceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error) {
+
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_SVC_DISCOVERY)); err != nil {
+
+		return nil, err
+	}
 
 	svcResults := make([]types.ServiceMessage, 0)
 
@@ -296,6 +353,11 @@ func (wp *wpWithinImpl) ServiceDiscovery(timeoutMillis int) ([]types.ServiceMess
 
 func (wp *wpWithinImpl) GetServicePrices(serviceId int) ([]types.Price, error) {
 
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_GET_SVC_PRICES)); err != nil {
+
+		return nil, err
+	}
+
 	result := make([]types.Price, 0)
 
 	priceResponse, err := wp.core.HTEClient.GetPrices(serviceId)
@@ -316,12 +378,22 @@ func (wp *wpWithinImpl) GetServicePrices(serviceId int) ([]types.Price, error) {
 
 func (wp *wpWithinImpl) SelectService(serviceId, numberOfUnits, priceId int) (types.TotalPriceResponse, error) {
 
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_SELECT_SVC)); err != nil {
+
+		return types.TotalPriceResponse{}, err
+	}
+
 	tpr, err := wp.core.HTEClient.NegotiatePrice(serviceId, priceId, numberOfUnits)
 
 	return tpr, err
 }
 
 func (wp *wpWithinImpl) MakePayment(request types.TotalPriceResponse) (types.PaymentResponse, error) {
+
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_MAKE_PAYMENT)); err != nil {
+
+		return types.PaymentResponse{}, err
+	}
 
 	token, err := wp.core.Psp.GetToken(wp.core.HCE.HCECard, false)
 
@@ -336,6 +408,11 @@ func (wp *wpWithinImpl) MakePayment(request types.TotalPriceResponse) (types.Pay
 }
 
 func (wp *wpWithinImpl) RequestServices() ([]types.ServiceDetails, error) {
+
+	if err := wp.core.FSM.Transition(wp.core.FSMHelper.Input(fsm.INPUT_REQ_SVCS)); err != nil {
+
+		return nil, err
+	}
 
 	result := make([]types.ServiceDetails, 0)
 

@@ -20,6 +20,8 @@ func main() {
 
 	initLog()
 
+//	testFSM()
+
 //	testWPPay()
 
 //	testWPTokenise()
@@ -75,7 +77,14 @@ func testUUID() {
 		return
 	}
 
-	fmt.Printf("UID: %s", device.GetDevice().Uid)
+	dev, err := device.GetDevice()
+
+	if err != nil {
+
+		fmt.Println(err.Error())
+	}
+
+	fmt.Printf("UID: %s", dev.Uid)
 
 }
 
@@ -694,4 +703,49 @@ func doWebSocketLogger() {
 	time.Sleep(time.Duration(10) * time.Second)
 
 	log.Debug("This is debug :)")
+}
+
+func testFSM() {
+
+	sdk, _ := wpwithin.Initialise("Conor-Macbook", "Macbook Pro laptop computer")
+
+	svc, _ := types.NewService()
+
+	price1 := types.Price{
+
+		UnitID:1,
+		ID:123,
+		Description:"dasd",
+		UnitDescription:"sadas",
+		PricePerUnit:21,
+
+	}
+
+	svc.AddPrice(price1)
+
+	err := sdk.InitHTE("123456", "5432")
+
+	if err != nil {
+
+		fmt.Println("Failed to init producer..")
+		fmt.Println(err)
+	}
+
+	_, err = sdk.InitProducer()
+
+	if err != nil {
+
+		fmt.Println("Failed to init producer..")
+		fmt.Println(err)
+	}
+
+	err = sdk.AddService(svc)
+
+	if err != nil {
+
+		fmt.Println(err.Error())
+	} else {
+
+		fmt.Println("Added service..")
+	}
 }

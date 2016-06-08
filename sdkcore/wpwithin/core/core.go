@@ -5,6 +5,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/fsm"
 )
 
 type Core struct {
@@ -17,6 +18,8 @@ type Core struct {
 	HCE *hce.Manager
 	OrderManager *hte.OrderManager
 	HTEClient hte.Client
+	FSM *fsm.FSM
+	FSMHelper fsm.SDKHelper
 }
 
 func New() (*Core, error) {
