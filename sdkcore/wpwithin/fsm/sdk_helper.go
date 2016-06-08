@@ -1,0 +1,61 @@
+package fsm
+import "github.com/ryanfaerman/fsm"
+
+/* INPUTS */
+
+type Input string
+
+const (
+
+	INPUT_ADD_SVC Input = "ADD_SERVICE"
+	INPUT_REMOVE_SVC Input = "REMOVE_SERVICE"
+	INPUT_INIT_HCE Input = "INIT_HCE"
+	INPUT_INIT_HTE Input = "INIT_HTE"
+	INPUT_INIT_CONSUMER Input = "INIT_CONSUMER"
+	INPUT_INIT_PRODUCER Input = "INIT_PRODUCER"
+	INPUT_GET_DEVICE Input = "GET_DEVICE"
+	INPUT_START_SVC_BROADCAST Input = "START_SERVICE_BROADCAST"
+	INPUT_STOP_SVC_BROADCAST Input = "STOP_SERVICE_BROADCAST"
+	INPUT_SVC_DISCOVERY Input = "SERVICE_DISCOVERY"
+	INPUT_REQ_SVCS Input = "REQUEST_SERVICES"
+	INPUT_GET_SVC_PRICES Input = "GET_SERVICE_PRICES"
+	INPUT_SELECT_SVC Input = "SELECT_SERVICE"
+	INPUT_MAKE_PAYMENT Input = "MAKE_PAYMENT"
+	INPUT_PAYMENT_SUCCESS Input = "PAYMENT_SUCCESS"
+)
+
+type SDKHelper struct {
+
+	inputMap map[Input]fsm.State
+}
+
+func NewSDKHelper() SDKHelper {
+
+	result := SDKHelper{}
+	inputMap := make(map[Input]fsm.State)
+
+	inputMap[INPUT_ADD_SVC] = PRO_READY
+	inputMap[INPUT_REMOVE_SVC] = PRO_READY
+	inputMap[INPUT_INIT_HCE] = CON_READY
+	inputMap[INPUT_INIT_HTE] = PRO_READY
+	inputMap[INPUT_INIT_CONSUMER] = CON_READY
+	inputMap[INPUT_INIT_PRODUCER] = PRO_READY
+	inputMap[INPUT_GET_DEVICE] = DEV_READY
+	inputMap[INPUT_START_SVC_BROADCAST] = PRO_BROADCAST
+	inputMap[INPUT_STOP_SVC_BROADCAST] = PRO_READY
+	inputMap[INPUT_SVC_DISCOVERY] = CON_DISCOVER_DEV
+	inputMap[INPUT_REQ_SVCS] = CON_REQ_SVC
+	inputMap[INPUT_GET_SVC_PRICES] = CON_SVC_AVAILABLE
+	inputMap[INPUT_SELECT_SVC] = CON_SEL_SVC
+	inputMap[INPUT_MAKE_PAYMENT] = CON_AWAIT_PAYMENT
+	inputMap[INPUT_PAYMENT_SUCCESS] = CON_PAYMENT_ACCEPTED
+
+	result.inputMap = inputMap
+
+	return result
+}
+
+func (helper SDKHelper) Input(input Input) fsm.State {
+
+	return helper.inputMap[input]
+}
