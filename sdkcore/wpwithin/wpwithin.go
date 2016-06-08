@@ -39,44 +39,6 @@ type WPWithin interface {
 
 }
 
-func (wp *wpWithinImpl) InitHTE(merchantClientKey, merchantServiceKey string) error {
-
-	// Set up PSP
-	psp, err := onlineworldpay.New(merchantClientKey, merchantServiceKey, WP_ONLINE_API_ENDPOINT)
-
-	if err != nil {
-
-		return err
-	}
-
-	wp.core.Psp = psp
-
-	// Set up HTE service
-
-	hteCredential, err := hte.NewHTECredential(merchantClientKey, merchantServiceKey)
-
-	if err != nil {
-
-		return err
-	}
-
-	hte, err := hte.NewService(wp.core.Device, psp, wp.core.Device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential, wp.core.OrderManager)
-
-	if err != nil {
-
-		return err
-	}
-
-	wp.core.HTE = hte
-
-	return nil
-}
-
-type wpWithinImpl struct {
-
-	core *core.Core
-}
-
 func Initialise(name, description string) (WPWithin, error) {
 
 	var err error
@@ -165,6 +127,44 @@ func Initialise(name, description string) (WPWithin, error) {
 	core.HCE = &hce.Manager{}
 
 	return wp, nil
+}
+
+func (wp *wpWithinImpl) InitHTE(merchantClientKey, merchantServiceKey string) error {
+
+	// Set up PSP
+	psp, err := onlineworldpay.New(merchantClientKey, merchantServiceKey, WP_ONLINE_API_ENDPOINT)
+
+	if err != nil {
+
+		return err
+	}
+
+	wp.core.Psp = psp
+
+	// Set up HTE service
+
+	hteCredential, err := hte.NewHTECredential(merchantClientKey, merchantServiceKey)
+
+	if err != nil {
+
+		return err
+	}
+
+	hte, err := hte.NewService(wp.core.Device, psp, wp.core.Device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential, wp.core.OrderManager)
+
+	if err != nil {
+
+		return err
+	}
+
+	wp.core.HTE = hte
+
+	return nil
+}
+
+type wpWithinImpl struct {
+
+	core *core.Core
 }
 
 func (wp *wpWithinImpl) AddService(service *types.Service) error {
