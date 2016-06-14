@@ -1,6 +1,7 @@
 package hte
 import "errors"
 
+// HTE Credentials
 type Credential struct {
 
 	MerchantClientKey string

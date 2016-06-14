@@ -12,12 +12,19 @@ import (
 
 const (
 
+	// The amount of time to sleep between sending each broadcast message (Milliseconds)
 	BROADCAST_STEP_SLEEP = 5000
+	// The port to broadcast messages on
 	BROADCAST_PORT = 8980
+	// HTE REST API Url prefix - can be empty
 	HTE_SVC_URL_PREFIX = ""
+	// Path to store devie UUID once created
 	UUID_FILE_PATH = "uuid.txt"
+	// Port that the HTE REST API listens on
 	HTE_SVC_PORT = 8080
+	// Worldpay online API endpoint
 	WP_ONLINE_API_ENDPOINT = "https://api.worldpay.com/v1"
+	// HTE REST API Scheme typically http:// or https://
 	HTE_CLIENT_SCHEME = "http://"
 )
 

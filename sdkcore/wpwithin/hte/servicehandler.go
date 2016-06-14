@@ -13,6 +13,7 @@ import (
 	"strings"
 )
 
+// Coordinate requests between RPC interface and internal SDK interface
 type ServiceHandler struct {
 
 	device *types.Device
@@ -21,6 +22,7 @@ type ServiceHandler struct {
 	orderManager OrderManager
 }
 
+// Create a new Service Handler
 func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential, orderManager OrderManager) *ServiceHandler {
 
 	result := &ServiceHandler{
@@ -33,7 +35,7 @@ func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential
 	return result
 }
 
-// List all the services available from this thing
+// List all the services available on the current device
 func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Request) {
 
 	// GET
@@ -63,6 +65,7 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 	returnMessage(w, http.StatusOK, response)
 }
 
+// List all the price variants for a specified service
 func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request) {
 
 	// GET
@@ -110,6 +113,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// Get the total price for a current service selection
 func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Request) {
 
 	// POST
@@ -236,6 +240,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+// Make a payment for a service
 func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 	// POST
@@ -331,6 +336,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Begin delivery of a purchased service
 func (srv *ServiceHandler) ServiceDeliveryBegin(w http.ResponseWriter, r *http.Request) {
 
 	// POST
@@ -338,6 +344,7 @@ func (srv *ServiceHandler) ServiceDeliveryBegin(w http.ResponseWriter, r *http.R
 	returnMessage(w, 200, "Service delivery begin")
 }
 
+// End delivery of a purchased service
 func (srv *ServiceHandler) ServiceDeliveryEnd(w http.ResponseWriter, r *http.Request) {
 
 	// POST
@@ -345,6 +352,7 @@ func (srv *ServiceHandler) ServiceDeliveryEnd(w http.ResponseWriter, r *http.Req
 	returnMessage(w, 200, "Service delivery end")
 }
 
+// Helper function for returning HTTP responses
 func returnMessage(w http.ResponseWriter, statusCode int, message interface{}) {
 
 	w.Header().Set("Content-Type", "application/json;charset=UTF-8")

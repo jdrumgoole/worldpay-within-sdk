@@ -4,6 +4,7 @@ import (
 	"errors"
 )
 
+// Concrete implementation of order manager.. uses an in memory persistence for orders
 type OrderManagerImpl struct {
 
 	orders map[string]types.Order
