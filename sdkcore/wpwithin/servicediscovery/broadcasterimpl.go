@@ -1,6 +1,5 @@
 package servicediscovery
 import (
-	"net"
 	log "github.com/Sirupsen/logrus"
 	"time"
 	"encoding/json"
@@ -11,16 +10,16 @@ type broadcasterImpl struct {
 
 	run bool
 	stepSleep int
-	host net.IP
+	host string
 	port int
-	udpProtocol string
+	comm Communicator
 }
 
 func (bcast *broadcasterImpl) StartBroadcast(msg types.ServiceMessage, timeoutMillis int) error {
 
 	log.Debug("Start svc broadcast")
 
-	var udpConn *net.UDPConn
+	var conn Connection
 
 	// Enable broadcaster to run
 	bcast.run = true
@@ -34,11 +33,8 @@ func (bcast *broadcasterImpl) StartBroadcast(msg types.ServiceMessage, timeoutMi
 
 		log.Debug("Broadcasting..")
 
-		BROADCAST_IPv4 := bcast.host
-		conn, err := net.DialUDP(bcast.udpProtocol, nil, &net.UDPAddr{
-			IP:   BROADCAST_IPv4,
-			Port: int(bcast.port),
-		})
+		_conn, err := bcast.comm.Connect(bcast.host, int(bcast.port))
+		conn = _conn
 
 		if err != nil {
 
@@ -75,9 +71,9 @@ func (bcast *broadcasterImpl) StartBroadcast(msg types.ServiceMessage, timeoutMi
 	}
 
 	// Clean up connection if still active
-	if udpConn != nil {
+	if conn != nil {
 
-		err := udpConn.Close()
+		err := conn.Close()
 
 		if err != nil {
 
