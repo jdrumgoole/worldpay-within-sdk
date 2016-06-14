@@ -154,6 +154,11 @@ func mCarWashDemoProducer() (int, error) {
 		return 0, err
 	}
 
+	if err := sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793"); err != nil {
+
+		return 0, err
+	}
+
 	prodDone := make(chan bool)
 
 	go func() error {

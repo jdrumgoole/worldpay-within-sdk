@@ -20,6 +20,8 @@ func main() {
 
 	initLog()
 
+	fsmClosure()
+
 //	testFSM()
 
 //	testWPPay()
@@ -48,7 +50,7 @@ func main() {
 
 //	testDiscoveryAndNegotiation()
 
-	doUI()
+//	doUI()
 
 //	doWebSocketLogger()
 }
@@ -180,7 +182,7 @@ func testWPPay() {
 
 func testDiscovery() {
 
-//	sdk, _ := wpwithin.Initialise("Conor-Macbook", "Macbook Pro laptop computer", hteCred)
+//	sdk, _ := wpwithin.Initialise("Conor-Macbook", "Macbook Pro laptop computer")
 //
 //	sdk.InitConsumer()
 //
@@ -721,22 +723,13 @@ func testFSM() {
 
 	}
 
-	svc.AddPrice(price1)
-
-	err := sdk.InitHTE("123456", "5432")
+	err := svc.AddPrice(price1)
 
 	if err != nil {
 
-		fmt.Println("Failed to init producer..")
+		fmt.Println("Failed to add price..")
 		fmt.Println(err)
-	}
-
-	_, err = sdk.InitProducer()
-
-	if err != nil {
-
-		fmt.Println("Failed to init producer..")
-		fmt.Println(err)
+		return
 	}
 
 	err = sdk.AddService(svc)
@@ -747,5 +740,27 @@ func testFSM() {
 	} else {
 
 		fmt.Println("Added service..")
+
 	}
+	return
+	_, err = sdk.InitProducer()
+
+	if err != nil {
+
+		fmt.Println("Failed to init producer..")
+		fmt.Println(err)
+	}
+
+	err = sdk.InitHTE("123456", "5432")
+
+	if err != nil {
+
+		fmt.Println("Failed to init hte..")
+		fmt.Println(err)
+	}
+}
+
+func fsmClosure() {
+
+
 }
