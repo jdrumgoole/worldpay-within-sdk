@@ -6,6 +6,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
+// TODO: put this somewhere sensible
 var ERR_DEVICE_NOT_INITIALISED = "Error: Device not initialised"
 
 func mBroadcast() (int, error) {
@@ -87,8 +88,12 @@ func mStopBroadcast() (int, error) {
 
 func mCarWashDemoProducer() (int, error) {
 
-	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+	if _, err := mInitDefaultDevice(); err != nil {
+		return 0, err
+	}
+
+	if _, err := mDefaultHTECredentials(); err != nil {
+		return 0, err
 	}
 
 	roboWash, _ := types.NewService()

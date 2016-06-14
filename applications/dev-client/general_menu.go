@@ -8,14 +8,37 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 )
 
+// TODO: put these somewhere sensible
+var DEFAULT_DEVICE_NAME = "conorhwp-macbook"
+var DEFAULT_DEVICE_DESCRIPTION = "Conor H WP - Raspberry Pi"
+
 func mGetDeviceInfo() (int, error) {
 
-	return 0, errors.New("Not implemented yet..")
+	//return 0, errors.New("Not implemented yet..")
+
+	if sdk == nil {
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
+
+	fmt.Printf("Uid of device: %s\n", sdk.GetDevice().Uid)
+	fmt.Printf("Name of device: %s\n", sdk.GetDevice().Name)
+	fmt.Printf("Description: %s\n", sdk.GetDevice().Description)
+	fmt.Printf("Services: \n")
+
+	// TODO: need a way to test this...
+	for no, service := range sdk.GetDevice().Services {
+		fmt.Printf("   %i: %i %s %s\n", no, service.Id, service.Name, service.Description)
+	}
+
+	fmt.Printf("IPv4Address: %s\n", sdk.GetDevice().IPv4Address)
+	fmt.Printf("CurrencyCode: %s\n", sdk.GetDevice().CurrencyCode)
+
+	return 0, nil
 }
 
 func mInitDefaultDevice() (int, error) {
 
-	_sdk, err := wpwithin.Initialise("conorhwp-macbook", "Conor H WP - Raspberry Pi")
+	_sdk, err := wpwithin.Initialise(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION)
 
 	if err != nil {
 
