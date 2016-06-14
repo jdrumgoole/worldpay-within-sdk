@@ -6,8 +6,14 @@ func NewScanner(port, stepSleep int) (Scanner, error) {
 	result := &scannerImpl{
 		run: false,
 		stepSleep: stepSleep,
-		port: port,
-		udpProtocol: "udp4",
+	}
+
+	if comm, err := NewUDPComm(port, "udp4"); err != nil {
+
+		return nil, err
+	} else {
+
+		result.comm = comm
 	}
 
 	return result, nil

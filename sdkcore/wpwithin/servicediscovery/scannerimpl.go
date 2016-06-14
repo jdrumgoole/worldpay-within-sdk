@@ -1,7 +1,6 @@
 package servicediscovery
 import (
 	"fmt"
-	"net"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -12,15 +11,14 @@ import (
 type scannerImpl struct {
 
 	run bool /* Used to stop scanning before timeout */
-	stepSleep int /* Time to sleep before UDP reads */
-	port int
-	udpProtocol string
+	stepSleep int /* Time to sleep before connection reads */
+	comm Communicator
 }
 
 func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.ServiceMessage, error) {
 
 	/*
-		This function works by setting up a UDP broadcast listener, returning a result object which includes a channel
+		This function works by setting up a connection broadcast listener, returning a result object which includes a channel
 		informing when scanning is finished.
 		Inside the result is an error object and also a list of scanned services
 		Error is != nil if there was a problem
@@ -35,18 +33,16 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 	timeoutTime := time.Now().Add(time.Duration(timeout) * time.Millisecond)
 	timedOut := false
 
-	// UDP Broadcast discovery
-	srvAddr := &net.UDPAddr{
-		IP: net.IPv4allrouter,
-		Port:scanner.port,
-	}
+	var srvConn Connection
 
 	// Reading incoming messages - 2kb buffer
 	buf := make([]byte, 2048)
 
 	for scanner.run && !timedOut {
 
-		srvConn, err := net.ListenUDP(scanner.udpProtocol, srvAddr)
+		_srvConn, err := scanner.comm.Listen()
+		srvConn = _srvConn
+
 		if err != nil {
 
 			scanner.run = false
@@ -55,10 +51,10 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 		// Defer closing connection in go routine instead of main routine as it will be closed before the go routine starts.
 		defer srvConn.Close()
 
-		// Wait for incoming UDP message
-		srvConn.SetReadDeadline(time.Now().Add(time.Duration(scanner.stepSleep) * time.Millisecond))
+		// Wait for incoming message
+		srvConn.SetProperty("ReadDeadLine", time.Now().Add(time.Duration(scanner.stepSleep) * time.Millisecond))
 
-		nRecv, addrRecv,err := srvConn.ReadFromUDP(buf)
+		nRecv, addrRecv, err := srvConn.Read(buf)
 
 		if err != nil {
 
@@ -67,7 +63,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 
 		if nRecv > 0 { /* Did we actually receive any data? */
 
-			log.Debugf("Did receive UDP message from %s: %s", addrRecv.String(), string(buf[0:nRecv]))
+			log.Debugf("Did receive message from %s: %s", addrRecv, string(buf[0:nRecv]))
 
 			var msg types.ServiceMessage
 
@@ -78,7 +74,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 			if err != nil {
 
 				// This is not neccessarily an error - could be a message from another source (ignore)
-				log.WithFields(log.Fields{"Error: ": fmt.Sprintf("Err: %q", err.Error())}).Error("Did not decode UDP message")
+				log.WithFields(log.Fields{"Error: ": fmt.Sprintf("Err: %q", err.Error())}).Error("Did not decode message")
 			} else {
 
 				log.Infof("Did decode broadcast message: %#v", msg)
