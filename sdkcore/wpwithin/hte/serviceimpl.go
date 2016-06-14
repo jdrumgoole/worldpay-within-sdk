@@ -57,7 +57,7 @@ func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, 
 
 func (service *ServiceImpl) Start() error {
 
-	return http.ListenAndServe(fmt.Sprintf(":%d", service.Port), service.router)
+	return http.ListenAndServe(fmt.Sprintf(":%d", service.Port()), service.router)
 }
 
 func (srv *ServiceImpl) setupRoutes() {
