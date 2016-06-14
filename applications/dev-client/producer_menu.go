@@ -186,34 +186,17 @@ func mCarWashDemoProducer() (int, error) {
 		return 0, err
 	}
 
-	prodDone := make(chan bool)
+	_, err := sdk.InitProducer()
 
-	go func() error {
+	if err != nil {
 
-		_, err := sdk.InitProducer()
+		return 0, err
+	}
 
-		if err != nil {
+	if err := sdk.StartServiceBroadcast(20000); err != nil {
 
-			return err
-		}
-
-		return nil
-	}()
-
-	bcastDone := make(chan bool)
-
-	go func() error {
-
-		if err := sdk.StartServiceBroadcast(20000); err != nil {
-
-			return err
-		}
-
-		return nil
-	}()
-
-	<-prodDone
-	<-bcastDone
+		return 0, err
+	}
 
 	return 0, nil
 }

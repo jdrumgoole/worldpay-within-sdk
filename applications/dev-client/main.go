@@ -515,29 +515,21 @@ func testHTEandBroadcast() {
 	roboAir.AddPrice(airFourPrice)
 	sdk.AddService(roboAir)
 
-	prodDone := make(chan bool)
+	_, err := sdk.InitProducer()
 
-	go func() {
+	if err != nil {
 
-		_, err := sdk.InitProducer()
+		fmt.Printf(err.Error())
 
-		if err != nil {
+		return
+	}
 
-			fmt.Printf(err.Error())
+	bCastErr := sdk.StartServiceBroadcast(20000)
 
-			return
-		}
-	}()
+	if bCastErr != nil {
 
-	bcastDone := make(chan bool)
-
-	go func() {
-
-		sdk.StartServiceBroadcast(20000)
-	}()
-
-	<-prodDone
-	<-bcastDone
+		fmt.Println(bCastErr.Error())
+	}
 
 	fmt.Printf("End.")
 }

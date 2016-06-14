@@ -7,6 +7,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/core"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay"
+	"time"
 )
 
 const (
@@ -207,16 +208,29 @@ func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, ur
 
 func (wp *wpWithinImpl) InitProducer() (chan bool, error) {
 
-	err := wp.core.HTE.Start()
+	// Error channel allows us to get the error out of the go routine
+	chStartResult := make(chan error)
+	var startErr error
 
-	if err != nil {
+	go func() {
 
-		return nil, err
+		chStartResult <- wp.core.HTE.Start()
+
+	}()
+
+	// Receive the error from the channel or wait a predefined amount of time
+	// TODO CH : Fix this race condition
+	select {
+
+	case res := <-chStartResult:
+
+		startErr = res
+
+	case <-time.After(time.Millisecond * 750):
+
 	}
 
-	done := make(chan bool)
-
-	return done, nil
+	return nil, startErr
 }
 
 func (wp *wpWithinImpl) GetDevice() *types.Device {
@@ -252,17 +266,28 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 		PortNumber:wp.core.HTE.Port,
 	}
 
-	complete, err := wp.core.SvcBroadcaster.StartBroadcast(msg, timeoutMillis)
+	// Set up a channel to get the error out of the go routine
+	chBroadcastErr := make(chan error)
+	var errBroadcast error
 
-	if err != nil {
+	go func() {
 
-		return err
+		chBroadcastErr <- wp.core.SvcBroadcaster.StartBroadcast(msg, timeoutMillis)
+	}()
+
+	// Either get the error or wait a small amount of time to give the all clear.
+	// This is a race condition - ahhhh! TODO CH : Fix this
+	select {
+
+	case res := <- chBroadcastErr:
+
+		errBroadcast = res
+
+	case <- time.After(time.Millisecond * 750):
+
 	}
 
-	// Wait for broadcast to complete
-	<-complete
-
-	return nil
+	return errBroadcast
 }
 
 func (wp *wpWithinImpl) StopServiceBroadcast() {
