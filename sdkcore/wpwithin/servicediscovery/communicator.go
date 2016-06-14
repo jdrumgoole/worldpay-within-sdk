@@ -74,7 +74,7 @@ func (pc *UDPComm) Listen() (Connection, error) {
 func (pc *UDPComm) Connect(host string, port int) (Connection, error) {
 
 	_udpConn, err := net.DialUDP(pc.protocol, nil, &net.UDPAddr{
-		IP: []byte(host),
+		IP: net.ParseIP(host),
 		Port: port,
 	})
 
@@ -82,7 +82,7 @@ func (pc *UDPComm) Connect(host string, port int) (Connection, error) {
 		conn: _udpConn,
 	}
 
-	return nil, err
+	return pc.udpConn, err
 }
 
 func (conn *UDPConn) Read(b []byte) (int, string, error) {
