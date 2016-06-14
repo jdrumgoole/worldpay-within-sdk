@@ -18,10 +18,10 @@ type ServiceHandler struct {
 	device *types.Device
 	psp psp.Psp
 	credential *Credential
-	orderManager *OrderManager
+	orderManager OrderManager
 }
 
-func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential, orderManager *OrderManager) *ServiceHandler {
+func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential, orderManager OrderManager) *ServiceHandler {
 
 	result := &ServiceHandler{
 		device: device,

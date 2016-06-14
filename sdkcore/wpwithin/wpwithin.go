@@ -1,25 +1,15 @@
 package wpwithin
 import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hce"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/core"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay"
 	"time"
+	"errors"
+	"fmt"
 )
 
-const (
-
-	BROADCAST_STEP_SLEEP = 5000
-	BROADCAST_PORT = 8980
-	HTE_SVC_URL_PREFIX = ""
-	UUID_FILE_PATH = "uuid.txt"
-	HTE_SVC_PORT = 8080
-	WP_ONLINE_API_ENDPOINT = "https://api.worldpay.com/v1"
-	HTE_CLIENT_SCHEME = "http://"
-)
+// Factory to allow easy creation of
+var Factory core.SDKFactory
 
 type WPWithin interface {
 
@@ -37,112 +27,79 @@ type WPWithin interface {
 	GetServicePrices(serviceId int) ([]types.Price, error)
 	SelectService(serviceId, numberOfUnits, priceId int) (types.TotalPriceResponse, error)
 	MakePayment(payRequest types.TotalPriceResponse) (types.PaymentResponse, error)
-
 }
 
 func Initialise(name, description string) (WPWithin, error) {
 
-	var err error
+	if Factory == nil {
 
-	// Set up SDK core
+		_Factory, err := core.NewSDKFactory()
+		Factory = _Factory
 
-	core, err := core.New()
+		if err != nil {
 
-	if err != nil {
-
-		return &wpWithinImpl{}, err
+			return nil, errors.New(fmt.Sprintf("Unable to create SDK Factory: %q", err.Error()))
+		}
 	}
 
-	// Add core and device to WPWithin SDK Implementation
-	wp := &wpWithinImpl{}
-	wp.core = core
+	result := &wpWithinImpl{}
 
-	// Device setup
+	if core, err := core.NewCore(); err != nil {
 
-	var deviceGUID string
+		return result, err
 
-	if b, _ := utils.FileExists(UUID_FILE_PATH); b {
-
-		deviceGUID, err = utils.ReadLocalUUID(UUID_FILE_PATH)
 	} else {
 
-		deviceGUID, err = utils.NewUUID()
-
-		utils.WriteString(UUID_FILE_PATH, deviceGUID, true)
+		result.core = core
 	}
 
-	if err != nil {
+	if dev, err := Factory.GetDevice(name, description); err != nil {
 
-		return &wpWithinImpl{}, err
+		return result, err
+	} else {
+
+		result.core.Device = dev
 	}
 
-	deviceAddress, err := utils.ExternalIPv4()
+	if om, err := Factory.GetOrderManager(); err != nil {
 
-	if err != nil {
+		return result, err
 
-		return &wpWithinImpl{}, err
+	} else {
+
+		result.core.OrderManager = om;
 	}
 
-	device, err := types.NewDevice(name, description, deviceGUID, deviceAddress.String(), "GBP")
+	if bc, err := Factory.GetSvcBroadcaster(result.core.Device.IPv4Address); err != nil {
 
-	if err != nil {
+		return result, err
 
-		return &wpWithinImpl{}, err
+	} else {
+
+		result.core.SvcBroadcaster = bc
 	}
 
-	core.Device = device
+	if sc, err := Factory.GetSvcScanner(); err != nil {
 
-	// Setup Order Manager
+		return result, err
 
-	orderManager, err := hte.NewOrderManager()
+	} else {
 
-	if err != nil {
-
-		return &wpWithinImpl{}, err
+		result.core.SvcScanner = sc
 	}
 
-	core.OrderManager = orderManager
-
-	// Service broadcaster
-
-	svcBroadcaster, err := servicediscovery.NewBroadcaster(core.Device.IPv4Address, BROADCAST_PORT, BROADCAST_STEP_SLEEP)
-
-	if err != nil {
-
-		return &wpWithinImpl{}, err
-	}
-
-	core.SvcBroadcaster = svcBroadcaster
-
-	// Service scanner
-
-	svcScanner, err := servicediscovery.NewScanner(BROADCAST_PORT, BROADCAST_STEP_SLEEP)
-
-	if err != nil {
-
-		return &wpWithinImpl{}, err
-	}
-
-	core.SvcScanner = svcScanner
-
-	core.HCE = &hce.Manager{}
-
-	return wp, nil
+	return result, nil
 }
 
 func (wp *wpWithinImpl) InitHTE(merchantClientKey, merchantServiceKey string) error {
 
-	// Set up PSP
-	psp, err := onlineworldpay.New(merchantClientKey, merchantServiceKey, WP_ONLINE_API_ENDPOINT)
+	if psp, err := Factory.GetPSP(merchantClientKey, merchantServiceKey); err != nil {
 
-	if err != nil {
+		return errors.New(fmt.Sprintf("Unable to create psp", err.Error()))
+	} else {
 
-		return err
+		wp.core.Psp = psp
 	}
-
-	wp.core.Psp = psp
-
-	// Set up HTE service
 
 	hteCredential, err := hte.NewHTECredential(merchantClientKey, merchantServiceKey)
 
@@ -151,14 +108,14 @@ func (wp *wpWithinImpl) InitHTE(merchantClientKey, merchantServiceKey string) er
 		return err
 	}
 
-	hte, err := hte.NewService(wp.core.Device, psp, wp.core.Device.IPv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential, wp.core.OrderManager)
-
-	if err != nil {
+	if svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, hteCredential, wp.core.OrderManager); err != nil {
 
 		return err
-	}
 
-	wp.core.HTE = hte
+	} else {
+
+		wp.core.HTE = svc
+	}
 
 	return nil
 }
@@ -249,7 +206,7 @@ func (wp *wpWithinImpl) InitHCE(hceCardCredential types.HCECard) error {
 	cred.Type = hceCardCredential.Type
 	cred.Cvc = hceCardCredential.Cvc
 
-	wp.core.HCE.HCECard = cred
+	wp.core.HCECard = cred
 
 	return nil
 }
@@ -260,10 +217,10 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 	msg := types.ServiceMessage{
 
 		DeviceDescription: wp.core.Device.Description,
-		Hostname: wp.core.HTE.IPv4Address,
+		Hostname: wp.core.HTE.IPAddr(),
 		ServerID: wp.core.Device.Uid,
-		UrlPrefix: wp.core.HTE.UrlPrefix,
-		PortNumber:wp.core.HTE.Port,
+		UrlPrefix: wp.core.HTE.UrlPrefix(),
+		PortNumber:wp.core.HTE.Port(),
 	}
 
 	// Set up a channel to get the error out of the go routine
@@ -348,7 +305,7 @@ func (wp *wpWithinImpl) SelectService(serviceId, numberOfUnits, priceId int) (ty
 
 func (wp *wpWithinImpl) MakePayment(request types.TotalPriceResponse) (types.PaymentResponse, error) {
 
-	token, err := wp.core.Psp.GetToken(wp.core.HCE.HCECard, false)
+	token, err := wp.core.Psp.GetToken(wp.core.HCECard, false)
 
 	if err != nil {
 
@@ -378,4 +335,9 @@ func (wp *wpWithinImpl) RequestServices() ([]types.ServiceDetails, error) {
 	}
 
 	return result, nil
+}
+
+func (wp *wpWithinImpl) Core() (*core.Core, error) {
+
+	return wp.core, nil
 }
