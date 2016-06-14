@@ -106,6 +106,10 @@ func mAddRoboWashService() (int, error) {
 	roboWash.AddPrice(washPriceCar)
 	roboWash.AddPrice(washPriceSUV)
 
+	if sdk == nil {
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
+
 	if err := sdk.AddService(roboWash); err != nil {
 
 		return 0, err
@@ -141,6 +145,11 @@ func mAddRoboAirService() (int, error) {
 
 	roboAir.AddPrice(airSinglePrice)
 	roboAir.AddPrice(airFourPrice)
+
+	if sdk == nil {
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
+
 	if err := sdk.AddService(roboAir); err != nil {
 
 		return 0, err

@@ -191,7 +191,9 @@ func mCarWashDemoConsumer() (int, error) {
 
 func mResetSessionState() (int, error) {
 
-	return 0, errors.New("Not implemented yet..")
+	sdk = nil
+
+	return 0, nil
 }
 
 func mLoadConfig() (int, error) {
