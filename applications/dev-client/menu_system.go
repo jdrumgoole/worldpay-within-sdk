@@ -35,6 +35,7 @@ func doUI() {
 	menuItems = append(menuItems, MenuItem{"Create new producer", mNewProducer})
 	menuItems = append(menuItems, MenuItem{"Add default HTE credentials", mDefaultHTECredentials})
 	menuItems = append(menuItems, MenuItem{"Add new HTE credentials", mNewHTECredentials})
+	menuItems = append(menuItems, MenuItem{"Add RoboWash service", mAddRoboWashService})
 	menuItems = append(menuItems, MenuItem{"Initialise producer", mBroadcast})
 	menuItems = append(menuItems, MenuItem{"Start service broadcast", mStartBroadcast})
 	menuItems = append(menuItems, MenuItem{"Stop broadcast", mStopBroadcast})

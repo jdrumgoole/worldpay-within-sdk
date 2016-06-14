@@ -76,25 +76,7 @@ func mNewHTECredentials() (int, error) {
 	return 0, sdk.InitHTE(merchantClientKey, merchantServiceKey)
 }
 
-func mStartBroadcast() (int, error) {
-
-	return 0, errors.New("Not implemented yet..")
-}
-
-func mStopBroadcast() (int, error) {
-
-	return 0, errors.New("Not implemented yet..")
-}
-
-func mCarWashDemoProducer() (int, error) {
-
-	if _, err := mInitDefaultDevice(); err != nil {
-		return 0, err
-	}
-
-	if _, err := mDefaultHTECredentials(); err != nil {
-		return 0, err
-	}
+func mAddRoboWashService() (int, error) {
 
 	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
@@ -129,6 +111,66 @@ func mCarWashDemoProducer() (int, error) {
 		return 0, err
 	}
 
+	return 0, nil
+}
+
+func mStartBroadcast() (int, error) {
+
+	return 0, errors.New("Not implemented yet..")
+}
+
+func mStopBroadcast() (int, error) {
+
+	return 0, errors.New("Not implemented yet..")
+}
+
+func mCarWashDemoProducer() (int, error) {
+
+	if _, err := mInitDefaultDevice(); err != nil {
+		return 0, err
+	}
+
+	if _, err := mDefaultHTECredentials(); err != nil {
+		return 0, err
+	}
+
+	if _, err := mAddRoboWashService(); err != nil {
+		return 0, err
+	}
+	/*
+		roboWash, _ := types.NewService()
+		roboWash.Name = "RoboWash"
+		roboWash.Description = "Car washed by robot"
+		roboWash.Id = 1
+
+		washPriceCar := types.Price{
+
+			ServiceID:       roboWash.Id,
+			UnitID:          1,
+			ID:              1,
+			Description:     "Car wash",
+			UnitDescription: "Single wash",
+			PricePerUnit:    500,
+		}
+
+		washPriceSUV := types.Price{
+
+			ServiceID:       roboWash.Id,
+			UnitID:          1,
+			ID:              2,
+			Description:     "SUV Wash",
+			UnitDescription: "Single wash",
+			PricePerUnit:    650,
+		}
+
+		roboWash.AddPrice(washPriceCar)
+		roboWash.AddPrice(washPriceSUV)
+
+		if err := sdk.AddService(roboWash); err != nil {
+
+			return 0, err
+		}
+	*/
 	roboAir, _ := types.NewService()
 	roboAir.Name = "RoboAir"
 	roboAir.Description = "Car tyre pressure checked and topped up by robot"

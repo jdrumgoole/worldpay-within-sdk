@@ -27,7 +27,7 @@ func mGetDeviceInfo() (int, error) {
 
 	// TODO: need a way to test this...
 	for no, service := range sdk.GetDevice().Services {
-		fmt.Printf("   %i: %i %s %s\n", no, service.Id, service.Name, service.Description)
+		fmt.Printf("   %d: Id:%d Name:%s Description:%s\n", no, service.Id, service.Name, service.Description)
 	}
 
 	fmt.Printf("IPv4Address: %s\n", sdk.GetDevice().IPv4Address)
