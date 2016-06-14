@@ -17,7 +17,7 @@ type scannerImpl struct {
 	udpProtocol string
 }
 
-func (scanner *scannerImpl) ScanForServices(timeout int) ScanResult {
+func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.ServiceMessage, error) {
 
 	/*
 		This function works by setting up a UDP broadcast listener, returning a result object which includes a channel
@@ -28,9 +28,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) ScanResult {
 
 	log.Debugf("Begin ScanForServices(timeout = %d)", timeout)
 
-	result := ScanResult{}
-	result.Complete = make(chan bool)
-	result.Services = make(map[string]types.ServiceMessage, 0)
+	result := make(map[string]types.ServiceMessage, 0)
 	// Enable the scanner to run
 	scanner.run = true
 	// Calculate when the operation will expire based on the timeout duration
@@ -43,65 +41,58 @@ func (scanner *scannerImpl) ScanForServices(timeout int) ScanResult {
 		Port:scanner.port,
 	}
 
-	go func() {
+	// Reading incoming messages - 2kb buffer
+	buf := make([]byte, 2048)
 
-		// Reading incoming messages - 2kb buffer
-		buf := make([]byte, 2048)
+	for scanner.run && !timedOut {
 
-		for scanner.run && !timedOut {
+		srvConn, err := net.ListenUDP(scanner.udpProtocol, srvAddr)
+		if err != nil {
 
-			srvConn, err := net.ListenUDP(scanner.udpProtocol, srvAddr)
-			if err != nil {
-
-				result.Error = err
-
-				scanner.run = false
-			}
-
-			// Defer closing connection in go routine instead of main routine as it will be closed before the go routine starts.
-			defer srvConn.Close()
-
-			// Wait for incoming UDP message
-			srvConn.SetReadDeadline(time.Now().Add(time.Duration(scanner.stepSleep) * time.Millisecond))
-
-			nRecv, addrRecv,err := srvConn.ReadFromUDP(buf)
-			
-			if err != nil {
-
-				log.Error(err)
-			}
-
-			if nRecv > 0 { /* Did we actually receive any data? */
-
-				log.Debugf("Did receive UDP message from %s: %s", addrRecv.String(), string(buf[0:nRecv]))
-
-				var msg types.ServiceMessage
-
-				// Try to deserialize the message into a broadcast message
-				// NB: Anybody can send a message here so not all messages are expected to be valid
-				err = json.Unmarshal(buf[0:nRecv], &msg);
-
-				if err != nil {
-
-					// This is not neccessarily an error - could be a message from another source (ignore)
-					log.WithFields(log.Fields{"Error: ": fmt.Sprintf("Err: %q", err.Error())}).Error("Did not decode UDP message")
-				} else {
-
-					log.Infof("Did decode broadcast message: %#v", msg)
-
-					result.Services[msg.ServerID] = msg
-				}
-			}
-			// Have we timed out? i.e. Is the current time greater or equal time out time
-			timedOut = timeoutTime.Unix() <= time.Now().Unix()
+			scanner.run = false
 		}
 
-		log.WithFields(log.Fields{ "Timed out": timedOut, "Run": scanner.run, "Found": len(result.Services)}).Debug("Finish ScanForServices()")
+		// Defer closing connection in go routine instead of main routine as it will be closed before the go routine starts.
+		defer srvConn.Close()
 
-		result.Complete <- true
-	}()
+		// Wait for incoming UDP message
+		srvConn.SetReadDeadline(time.Now().Add(time.Duration(scanner.stepSleep) * time.Millisecond))
 
-	return result
+		nRecv, addrRecv,err := srvConn.ReadFromUDP(buf)
+
+		if err != nil {
+
+			log.Error(err)
+		}
+
+		if nRecv > 0 { /* Did we actually receive any data? */
+
+			log.Debugf("Did receive UDP message from %s: %s", addrRecv.String(), string(buf[0:nRecv]))
+
+			var msg types.ServiceMessage
+
+			// Try to deserialize the message into a broadcast message
+			// NB: Anybody can send a message here so not all messages are expected to be valid
+			err = json.Unmarshal(buf[0:nRecv], &msg);
+
+			if err != nil {
+
+				// This is not neccessarily an error - could be a message from another source (ignore)
+				log.WithFields(log.Fields{"Error: ": fmt.Sprintf("Err: %q", err.Error())}).Error("Did not decode UDP message")
+			} else {
+
+				log.Infof("Did decode broadcast message: %#v", msg)
+
+				result[msg.ServerID] = msg
+			}
+		}
+		// Have we timed out? i.e. Is the current time greater or equal time out time
+		timedOut = timeoutTime.Unix() <= time.Now().Unix()
+	}
+
+	log.WithFields(log.Fields{ "Timed out": timedOut, "Run": scanner.run, "Found": len(result)}).Debug("Finish ScanForServices()")
+
+	return result, nil
 }
 
 func (scanner *scannerImpl) StopScanner() {

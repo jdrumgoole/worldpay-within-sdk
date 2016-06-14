@@ -263,18 +263,14 @@ func (wp *wpWithinImpl) ServiceDiscovery(timeoutMillis int) ([]types.ServiceMess
 
 	svcResults := make([]types.ServiceMessage, 0)
 
-	scanResult := wp.core.SvcScanner.ScanForServices(timeoutMillis)
+	if scanResult, err := wp.core.SvcScanner.ScanForServices(timeoutMillis); err != nil {
 
-	// Wait for scanning to complete
-	<-scanResult.Complete
+		return nil, err
 
-	if scanResult.Error != nil {
-
-		return nil, scanResult.Error
-	} else if len(scanResult.Services) > 0 {
+	} else if len(scanResult) > 0 {
 
 		// Convert map of services to array
-		for _, svc := range scanResult.Services {
+		for _, svc := range scanResult {
 
 			svcResults = append(svcResults, svc)
 		}
