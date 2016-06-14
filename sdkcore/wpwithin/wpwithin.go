@@ -151,7 +151,14 @@ func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, ur
 
 	// Setup HTE Client
 
-	client, err := hte.NewClient(scheme, hostname, portNumber, urlPrefix, serverID)
+	httpHTE, err := Factory.GetHTEClientHTTP()
+
+	if err != nil {
+
+		return err
+	}
+
+	client, err := hte.NewClient(scheme, hostname, portNumber, urlPrefix, serverID, httpHTE)
 
 	if err != nil {
 

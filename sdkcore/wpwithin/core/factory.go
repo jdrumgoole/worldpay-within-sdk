@@ -37,6 +37,7 @@ type SDKFactory interface {
 	GetHTE(device *types.Device, psp psp.Psp, ipv4Address string, hteCredential *hte.Credential, om hte.OrderManager) (hte.Service, error)
 	GetOrderManager() (hte.OrderManager, error)
 	GetHTEClient() (hte.Client, error)
+	GetHTEClientHTTP() (hte.HTEClientHTTP, error)
 }
 
 type SDKFactoryImpl struct {}
@@ -116,4 +117,9 @@ func (factory *SDKFactoryImpl) GetOrderManager() (hte.OrderManager, error) {
 func (factory *SDKFactoryImpl) GetHTEClient() (hte.Client, error) {
 
 	return nil, nil
+}
+
+func (factory *SDKFactoryImpl) GetHTEClientHTTP() (hte.HTEClientHTTP, error) {
+
+	return hte.NewHTEClientHTTP()
 }
