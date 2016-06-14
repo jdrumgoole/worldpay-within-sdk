@@ -13,10 +13,7 @@ func mBroadcast() (int, error) {
 
 	fmt.Print("Broadcast timeout in milliseconds: ")
 	var input int
-	_, err := fmt.Scanln(&input)
-
-	if err != nil {
-
+	if _, err := mGetUserInput(&input); err != nil {
 		return 0, err
 	}
 
@@ -34,12 +31,36 @@ func mProducerStatus() (int, error) {
 
 func mDefaultProducer() (int, error) {
 
-	return 0, errors.New("Not implemented yet..")
+	if _, err := mInitDefaultDevice(); err != nil {
+		return 0, err
+	}
+
+	if _, err := mDefaultHTECredentials(); err != nil {
+		return 0, err
+	}
+
+	if sdk == nil {
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
+
+	return 0, nil
 }
 
 func mNewProducer() (int, error) {
 
-	return 0, errors.New("Not implemented yet..")
+	if _, err := mInitNewDevice(); err != nil {
+		return 0, err
+	}
+
+	if _, err := mNewHTECredentials(); err != nil {
+		return 0, err
+	}
+
+	if sdk == nil {
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
+
+	return 0, nil
 }
 
 func mDefaultHTECredentials() (int, error) {
@@ -55,17 +76,13 @@ func mNewHTECredentials() (int, error) {
 
 	fmt.Print("Merchant Client Key: ")
 	var merchantClientKey string
-	_, err := fmt.Scanf("%s", &merchantClientKey)
-
-	if err != nil {
+	if _, err := mGetUserInput(&merchantClientKey); err != nil {
 		return 0, err
 	}
 
 	fmt.Print("Merchant Service Key: ")
 	var merchantServiceKey string
-	_, err = fmt.Scanf("%s", &merchantServiceKey)
-
-	if err != nil {
+	if _, err := mGetUserInput(&merchantServiceKey); err != nil {
 		return 0, err
 	}
 

@@ -57,19 +57,13 @@ func mInitNewDevice() (int, error) {
 
 	fmt.Print("Name of device: ")
 	var nameOfDevice string
-	_, err := fmt.Scanf("%s", &nameOfDevice)
-
-	if err != nil {
-
+	if _, err := mGetUserInput(&nameOfDevice); err != nil {
 		return 0, err
 	}
 
 	fmt.Print("Description: ")
 	var description string
-	_, err = fmt.Scanf("%s", &description)
-
-	if err != nil {
-
+	if _, err := mGetUserInput(&description); err != nil {
 		return 0, err
 	}
 
