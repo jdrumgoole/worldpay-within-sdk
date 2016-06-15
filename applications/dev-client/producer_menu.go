@@ -9,6 +9,7 @@ import (
 // TODO: put this somewhere sensible
 var ERR_DEVICE_NOT_INITIALISED = "Error: Device not initialised"
 
+/*
 func mBroadcast() (int, error) {
 
 	fmt.Print("Broadcast timeout in milliseconds: ")
@@ -19,6 +20,7 @@ func mBroadcast() (int, error) {
 
 	return 0, nil
 }
+*/
 
 func mProducerStatus() (int, error) {
 
@@ -177,7 +179,21 @@ func mAddRoboAirService() (int, error) {
 
 func mStartBroadcast() (int, error) {
 
-	return 0, errors.New("Not implemented yet..")
+	if sdk == nil {
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
+
+	fmt.Print("Broadcast timeout in milliseconds: ")
+	var timeout int
+	if _, err := mGetUserInput(&timeout); err != nil {
+		return 0, err
+	}
+
+	if err := sdk.StartServiceBroadcast(timeout); err != nil {
+		return 0, err
+	}
+
+	return 0, nil
 }
 
 func mStopBroadcast() (int, error) {
