@@ -32,7 +32,7 @@ func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, 
 
 	service := &ServiceImpl{}
 
-	service.handler = NewServiceHandler(device, psp, hteCredential, orderManager)
+	service.handler = svcHandler
 
 	service._UrlPrefix = prefix
 	service._Port = port
