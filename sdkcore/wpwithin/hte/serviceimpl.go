@@ -28,7 +28,7 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential, orderManager OrderManager) (Service, error) {
+func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential, orderManager OrderManager, svcHandler *ServiceHandler) (Service, error) {
 
 	service := &ServiceImpl{}
 

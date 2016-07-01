@@ -108,7 +108,9 @@ func (wp *wpWithinImpl) InitHTE(merchantClientKey, merchantServiceKey string) er
 		return err
 	}
 
-	if svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, hteCredential, wp.core.OrderManager); err != nil {
+	hteSvcHandler := Factory.GetHTEServiceHandler(wp.core.Device, wp.core.Psp, hteCredential, wp.core.OrderManager)
+
+	if svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, hteCredential, wp.core.OrderManager, hteSvcHandler); err != nil {
 
 		return err
 

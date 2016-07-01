@@ -34,10 +34,11 @@ type SDKFactory interface {
 	GetPSP(merchantClientKey, merchantServiceKey string) (psp.Psp, error)
 	GetSvcBroadcaster(ipv4Address string) (servicediscovery.Broadcaster, error)
 	GetSvcScanner() (servicediscovery.Scanner, error)
-	GetHTE(device *types.Device, psp psp.Psp, ipv4Address string, hteCredential *hte.Credential, om hte.OrderManager) (hte.Service, error)
+	GetHTE(device *types.Device, psp psp.Psp, ipv4Address string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error)
 	GetOrderManager() (hte.OrderManager, error)
 	GetHTEClient() (hte.Client, error)
 	GetHTEClientHTTP() (hte.HTEClientHTTP, error)
+	GetHTEServiceHandler(device *types.Device, psp psp.Psp, credential *hte.Credential, orderManager hte.OrderManager) *hte.ServiceHandler
 }
 
 type SDKFactoryImpl struct {}
@@ -104,9 +105,9 @@ func (factory *SDKFactoryImpl) GetSvcScanner() (servicediscovery.Scanner, error)
 	return servicediscovery.NewScanner(BROADCAST_PORT, BROADCAST_STEP_SLEEP)
 }
 
-func (factory *SDKFactoryImpl) GetHTE(device *types.Device, psp psp.Psp, ipv4Address string, hteCredential *hte.Credential, om hte.OrderManager) (hte.Service, error) {
+func (factory *SDKFactoryImpl) GetHTE(device *types.Device, psp psp.Psp, ipv4Address string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error) {
 
-	return hte.NewService(device, psp, ipv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential, om)
+	return hte.NewService(device, psp, ipv4Address, HTE_SVC_URL_PREFIX, HTE_SVC_PORT, hteCredential, om, hteSvcHandler)
 }
 
 func (factory *SDKFactoryImpl) GetOrderManager() (hte.OrderManager, error) {
@@ -122,4 +123,9 @@ func (factory *SDKFactoryImpl) GetHTEClient() (hte.Client, error) {
 func (factory *SDKFactoryImpl) GetHTEClientHTTP() (hte.HTEClientHTTP, error) {
 
 	return hte.NewHTEClientHTTP()
+}
+
+func (factory *SDKFactoryImpl) GetHTEServiceHandler(device *types.Device, psp psp.Psp, credential *hte.Credential, orderManager hte.OrderManager) *hte.ServiceHandler {
+
+	return hte.NewServiceHandler(device, psp, credential, orderManager)
 }
