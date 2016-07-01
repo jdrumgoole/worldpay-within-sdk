@@ -8,4 +8,5 @@ type OrderManager interface {
 
 	AddOrder(order types.Order) error
 	GetOrder(paymentReference string) (types.Order, error)
+	OrderExists(paymentReference string) bool
 }
