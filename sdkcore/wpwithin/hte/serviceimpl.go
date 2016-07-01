@@ -28,11 +28,11 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential, orderManager OrderManager) (Service, error) {
+func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential, orderManager OrderManager, svcHandler *ServiceHandler) (Service, error) {
 
 	service := &ServiceImpl{}
 
-	service.handler = NewServiceHandler(device, psp, hteCredential, orderManager)
+	service.handler = svcHandler
 
 	service._UrlPrefix = prefix
 	service._Port = port
