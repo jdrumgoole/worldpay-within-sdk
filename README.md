@@ -11,6 +11,7 @@ The core of this SDK is written in Go with a native Go interface. Along with the
 <li>Get the dependencies; go get github.com/Sirupsen/logrus</li>
 <li>Get the dependencies; go get github.com/gorilla/mux</li>
 <li>Get the dependencies; go get github.com/nu7hatch/gouuid</li>
+<li>Get the dependencies; go get git.apache.org/thrift.git/lib/go/thrift</li>
 </ol>
 
 # Initial pre-alpha release - June 6, 2016
