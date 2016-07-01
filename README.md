@@ -6,9 +6,11 @@ The core of this SDK is written in Go with a native Go interface. Along with the
 <h3>Install</h3>
 <ol>
 <li>Install Go command line</li>
-<li>Set up the environmental variables correctly</li>
+<li>Set up the environmental variables correctly; you only need to set $GOPATH, and that should be set as <home>/<required_path>/<cloned_repo_structure>, where <home> is wherever you want the code, <required_path> is /src/innovation.worldpay.com</li>
 <li>clone the repo to $GOPATH/src/innovation.worldpay.com</li>
 <li>Get the dependencies; go get github.com/Sirupsen/logrus</li>
+<li>Get the dependencies; go get github.com/gorilla/mux</li>
+<li>Get the dependencies; go get github.com/nu7hatch/gouuid</li>
 </ol>
 
 # Initial pre-alpha release - June 6, 2016
