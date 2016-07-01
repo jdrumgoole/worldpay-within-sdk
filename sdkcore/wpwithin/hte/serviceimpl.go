@@ -66,37 +66,37 @@ func (srv *ServiceImpl) setupRoutes() {
 		Route{
 			"Service Discovery",
 			"GET",
-			fmt.Sprintf("%s/service/discover", srv.UrlPrefix),
+			fmt.Sprintf("%s/service/discover", srv.UrlPrefix()),
 			srv.handler.ServiceDiscovery,
 		},
 		Route{
 			"Service Price Request",
 			"GET",
-			fmt.Sprintf("%s/service/{service_id}/prices", srv.UrlPrefix),
+			fmt.Sprintf("%s/service/{service_id}/prices", srv.UrlPrefix()),
 			srv.handler.ServicePrices,
 		},
 		Route{
 			"Service Total Price Request",
 			"POST",
-			fmt.Sprintf("%s/service/{service_id}/requestTotal", srv.UrlPrefix),
+			fmt.Sprintf("%s/service/{service_id}/requestTotal", srv.UrlPrefix()),
 			srv.handler.ServiceTotalPrice,
 		},
 		Route{
 			"Payment",
 			"POST",
-			fmt.Sprintf("%s/payment", srv.UrlPrefix),
+			fmt.Sprintf("%s/payment", srv.UrlPrefix()),
 			srv.handler.Payment,
 		},
 		Route{
 			"Service Delivery Begin",
 			"POST",
-			fmt.Sprintf("%s/service/{service_id}/delivery/begin", srv.UrlPrefix),
+			fmt.Sprintf("%s/service/{service_id}/delivery/begin", srv.UrlPrefix()),
 			srv.handler.ServiceDeliveryBegin,
 		},
 		Route{
 			"Service Delivery End",
 			"POST",
-			fmt.Sprintf("%s/service/{service_id}/delivery/end", srv.UrlPrefix),
+			fmt.Sprintf("%s/service/{service_id}/delivery/end", srv.UrlPrefix()),
 			srv.handler.ServiceDeliveryEnd,
 		},
 	}
