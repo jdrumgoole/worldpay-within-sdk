@@ -18,8 +18,8 @@ The core of this SDK is written in Go with a native Go interface. Along with the
 <p>The RPC client takes command line flags e.g. -port 9091 but it can also take the flag -configfile 'conf.json' so you can specify the configuration in a config file. For example</p>
 
 <code>
-{<br/><br/>
-&nbsp;&nbsp;&nbsp;&nbsp;"WorldpayWithinConfig": {<br/><br/>
+{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"WorldpayWithinConfig": {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BufferSize" : 100,<br/><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Buffered": false,<br/><br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Framed": false,<br/><br/>
