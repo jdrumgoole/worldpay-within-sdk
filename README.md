@@ -14,6 +14,26 @@ The core of this SDK is written in Go with a native Go interface. Along with the
 <li>Get the dependencies; go get git.apache.org/thrift.git/lib/go/thrift</li>
 </ol>
 
+<h3>Configuration file versus command line flags</h3>
+<p>The RPC client takes command line flags e.g. -port 9091 but it can also take the flag -configfile 'conf.json' so you can specify the configuration in a config file. For example</p>
+
+<code>
+{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;"WorldpayWithinConfig": {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"BufferSize" : 100,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Buffered": false,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Framed": false,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Host": "127.0.0.1",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Logfile": "worldpayWithin.log",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Loglevel": "warn",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Port": 9081,<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Protocol": "binary",<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"Secure": false<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+}<br/>
+</code>
+
+
 # Initial pre-alpha release - June 6, 2016
 
 <ol>
