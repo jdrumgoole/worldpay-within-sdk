@@ -1,0 +1,50 @@
+{"Worldpay-within-config": 
+    [{
+       "key": "buffer", 
+       "value": "8192", /* default 8192 */
+       "secure": "false"
+    },
+    {
+       "key": "buffered", 
+       "value": "true", /* boolean default ??? */
+       "secure": "false"
+    },
+    {
+       "key": "framed",
+       "value": "true", /* boolean default ??? */
+       "secure": "false"
+    },
+    {
+       "key": "host",
+       "value": "127.0.0.1", /* Listening host deafult 127.0.0.1 */
+       "secure": "false"
+    },
+    {
+       "key": "logfile",
+       "value": "worldpay-within.log", /* deafaults to no logfile */
+       "secure": "false"
+    },
+    {
+       "key": "loglevel",
+       "value": "warn", /* log level, deafault 'warn' */
+       "secure": "false"
+    },
+    {
+       "key": "port",
+       "value": "9091" /* port number to listen to, required */
+       "secure": "false"
+    },
+    {
+       "key": "protocol",
+       "value": "binary", /* default binary */
+       "secure": "false"
+    },
+    {
+       "key": "secure",
+       "value": "false", /* secured transport default ????? */
+       "secure": "false"
+    }
+  ]
+}
+
+
