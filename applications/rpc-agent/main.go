@@ -2,10 +2,11 @@ package main
 import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"flag"
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 	log "github.com/Sirupsen/logrus"
 	"os"
 	"fmt"
+	conf "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/configLoad"
 )
 
 /*
@@ -28,6 +29,7 @@ const LEVEL_DEBUG = "debug"
 // General constants
 const LOGFILE_PERMS = 0755
 const RPC_MIN_PORT = 1
+const DEFAULT_ARG_CONFIGFILE = ""
 const DEFAULT_ARG_PORT = 0 // Defaulting to this should cause error (desired) (force port specifer// )
 const DEFAULT_ARG_TRANSPORT_BUFFER = 8192
 const DEFAULT_ARG_FRAMED = false
@@ -36,6 +38,7 @@ const DEFAULT_ARG_SECURE = false
 const DEFAULT_ARG_HOST = "127.0.0.1"
 const DEFAULT_ARG_PROTOCOL = "binary"
 
+const ARG_NAME_CONFIGFILE = "configfile"
 const ARG_NAME_LOG_LEVEL = "loglevel"
 const ARG_NAME_LOGFILE = "logfile"
 const ARG_NAME_PROTOCOL = "protocol"
@@ -71,15 +74,19 @@ func main() {
 	os.Exit(EXIT_OK)
 }
 
+
 func initArgs() {
 
 	log.Debug("Begin initArgs()")
+
+	// Determine whether to use config file
+	configFilePtr := flag.String(ARG_NAME_CONFIGFILE, DEFAULT_ARG_CONFIGFILE, "Config file name - string.")
 
 	// Log config args
 	logLevelPtr := flag.String(ARG_NAME_LOG_LEVEL, LEVEL_WARN, "Log level")
 	logFilePtr := flag.String(ARG_NAME_LOGFILE, "", "Log file, if set, outputs to file, if not, not logfile.")
 
-	// Program specific arguments
+	// Program specific arguments	
 	protocolPtr := flag.String(ARG_NAME_PROTOCOL, DEFAULT_ARG_PROTOCOL, "Transport protocol.")
 	framedPtr := flag.Bool(ARG_NAME_FRAMED, DEFAULT_ARG_FRAMED, "Framed transmission - bool.")
 	bufferedPtr := flag.Bool(ARG_NAME_BUFFERED, DEFAULT_ARG_BUFFERED, "Buffered transmission - bool.")
@@ -88,16 +95,62 @@ func initArgs() {
 	securePtr := flag.Bool(ARG_NAME_SECURE, DEFAULT_ARG_SECURE, "Secured transport - bool.")
 	bufferPtr := flag.Int(ARG_NAME_BUFFER, DEFAULT_ARG_TRANSPORT_BUFFER, "Buffer size.")
 
+
 	log.Debug("Before flag.parse()")
 	flag.Parse()
 
+	configFileValue := *configFilePtr
+	protocolValue := *protocolPtr
+	framedValue := *framedPtr
+	bufferedValue := *bufferedPtr
+	hostValue := *hostPtr
+	portValue := *portPtr
+	secureValue := *securePtr
+	bufferValue := *bufferPtr
+
+
 	log.Debug("After flag.parse()")
+
+	logLevelValue := *logLevelPtr
+	logFileValue := *logFilePtr
+
+
+	if("" != configFileValue) {
+		log.Debug("Begin PopulateConfiguration() from config file")
+
+		// Pull from config file - command line overwrites
+		rpcConfig = rpc.Configuration{}
+		rpcConfig = conf.PopulateConfiguration(rpcConfig) 
+
+		log.Debug("End PopulateConfiguration() from config file")	
+
+
+		// Use config file
+		logLevelValue = rpcConfig.Loglevel;
+		logFileValue = rpcConfig.Logfile;
+
+		// Program specific arguments	
+		protocolValue = rpcConfig.Protocol
+		framedValue = rpcConfig.Framed
+		bufferedValue = rpcConfig.Buffered
+		hostValue = rpcConfig.Host
+		portValue = rpcConfig.Port
+		secureValue = rpcConfig.Secure
+		bufferValue = rpcConfig.BufferSize
+
+		log.Debug("Before parsing the config file")
+		// TODO write parser for config file
+		log.Debug("After parsing the config file")
+
+	}
+
 
 	log.Debug("Before log setup")
 
 	log.Debug("Begin parsing log level arguments")
 
-	switch *logLevelPtr {
+
+	switch logLevelValue {
 
 	case LEVEL_PANIC:
 		log.SetLevel(log.PanicLevel)
@@ -117,11 +170,11 @@ func initArgs() {
 	log.Debug("Begin parsing log level arguments")
 
 	log.Debug("Begin parsing log file arguments and setup log file")
-	if *logFilePtr != "" {
+	if logFileValue != "" {
 
-		log.WithField("File", *logFilePtr).Debug("Will logs to file.")
+		log.WithField("File", logFileValue).Debug("Will logs to file.")
 
-		logFile, err := os.OpenFile(*logFilePtr, os.O_WRONLY | os.O_CREATE, LOGFILE_PERMS)
+		logFile, err := os.OpenFile(logFileValue, os.O_WRONLY | os.O_CREATE, LOGFILE_PERMS)
 
 		if err != nil {
 
@@ -148,14 +201,13 @@ func initArgs() {
 	log.Debug("After log setup")
 
 	log.Debug("Before assign RPC config.")
-	rpcConfig = rpc.Configuration{}
-	rpcConfig.Protocol = *protocolPtr
-	rpcConfig.Framed = *framedPtr
-	rpcConfig.Buffered = *bufferedPtr
-	rpcConfig.Host = *hostPtr
-	rpcConfig.Port = *portPtr
-	rpcConfig.Secure = *securePtr
-	rpcConfig.BufferSize = *bufferPtr
+	rpcConfig.Protocol = protocolValue
+	rpcConfig.Framed = framedValue
+	rpcConfig.Buffered = bufferedValue
+	rpcConfig.Host = hostValue
+	rpcConfig.Port = portValue
+	rpcConfig.Secure = secureValue
+	rpcConfig.BufferSize = bufferValue
 	log.Debug("After assign RPC config.")
 
 	log.Debug("End initArgs()")

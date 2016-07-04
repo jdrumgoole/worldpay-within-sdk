@@ -9,4 +9,6 @@ type Configuration struct {
 	Port int
 	Secure bool
 	BufferSize int
+	Loglevel string
+	Logfile string
 }
