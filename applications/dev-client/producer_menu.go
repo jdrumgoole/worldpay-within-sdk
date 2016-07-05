@@ -221,10 +221,6 @@ func mCarWashDemoProducer() (int, error) {
 		return 0, err
 	}
 
-	if err := sdk.InitHTE(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY); err != nil {
-		return 0, err
-	}
-
 	if err := sdk.StartServiceBroadcast(20000); err != nil {
 		return 0, err
 	}
