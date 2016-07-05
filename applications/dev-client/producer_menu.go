@@ -8,6 +8,8 @@ import (
 
 // TODO: put this somewhere sensible
 var ERR_DEVICE_NOT_INITIALISED = "Error: Device not initialised"
+var DEFAULT_HTE_MERCHANT_CLIENT_KEY = "T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e"
+var DEFAULT_HTE_MERCHANT_SERVICE_KEY = "T_S_6ec32d94-77fa-42ff-bede-de487d643793"
 
 /*
 func mBroadcast() (int, error) {
@@ -45,6 +47,10 @@ func mDefaultProducer() (int, error) {
 		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
+	if _, err := sdk.InitProducer(); err != nil {
+		return 0, err
+	}
+
 	return 0, nil
 }
 
@@ -71,7 +77,7 @@ func mDefaultHTECredentials() (int, error) {
 		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
+	return 0, sdk.InitHTE(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY)
 }
 
 func mNewHTECredentials() (int, error) {
@@ -203,11 +209,7 @@ func mStopBroadcast() (int, error) {
 
 func mCarWashDemoProducer() (int, error) {
 
-	if _, err := mInitDefaultDevice(); err != nil {
-		return 0, err
-	}
-
-	if _, err := mDefaultHTECredentials(); err != nil {
+	if _, err := mDefaultProducer(); err != nil {
 		return 0, err
 	}
 
@@ -219,15 +221,11 @@ func mCarWashDemoProducer() (int, error) {
 		return 0, err
 	}
 
-	_, err := sdk.InitProducer()
-
-	if err != nil {
-
+	if err := sdk.InitHTE(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY); err != nil {
 		return 0, err
 	}
 
 	if err := sdk.StartServiceBroadcast(20000); err != nil {
-
 		return 0, err
 	}
 

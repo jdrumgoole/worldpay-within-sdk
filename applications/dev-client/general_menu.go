@@ -87,10 +87,6 @@ func mCarWashDemoConsumer() (int, error) {
 		return 0, err
 	}
 
-	if _, err := mDefaultHTECredentials(); err != nil {
-		return 0, err
-	}
-
 	if _, err := mDefaultHCECredential(); err != nil {
 		return 0, err
 	}
