@@ -7,6 +7,7 @@ type TotalPriceResponse struct {
 	PriceID int `json:"priceID"`
 	UnitsToSupply int `json:"unitsToSupply"`
 	TotalPrice int `json:"totalPrice"`
+	CurrencyCode string `json:"currencyCode"`
 	PaymentReferenceID string `json:"paymentReferenceID"`
 	MerchantClientKey string `json:"merchantClientKey"`
 }

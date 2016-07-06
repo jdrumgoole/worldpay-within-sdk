@@ -28,9 +28,15 @@ struct Price {
 	1: i32 serviceId
 	2: i32 id
 	3: string description
-	4: i32 pricePerUnit
+	4: PricePerUnit pricePerUnit
 	5: i32 unitId
 	6: string unitDescription
+}
+
+struct PricePerUnit {
+	
+	1: i32 amount
+	2: string currencyCode
 }
 
 struct HCECard {

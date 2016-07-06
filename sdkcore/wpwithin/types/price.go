@@ -5,7 +5,7 @@ type Price struct {
 	ServiceID int `json:"serviceID"`
 	ID int `json:"priceID"`
 	Description string `json:"priceDescription"`
-	PricePerUnit int `json:"pricePerUnit"`
+	PricePerUnit *PricePerUnit `json:"pricePerUnit"`
 	UnitID int `json:"unitID"`
 	UnitDescription string `json:"unitDescription"`
 }

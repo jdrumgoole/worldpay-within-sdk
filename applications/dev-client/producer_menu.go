@@ -115,7 +115,10 @@ func mAddRoboWashService() (int, error) {
 		ID:              1,
 		Description:     "Car wash",
 		UnitDescription: "Single wash",
-		PricePerUnit:    500,
+		PricePerUnit: &types.PricePerUnit {
+			Amount: 500,
+			CurrencyCode: "GBP",
+		},
 	}
 
 	washPriceSUV := types.Price{
@@ -125,7 +128,10 @@ func mAddRoboWashService() (int, error) {
 		ID:              2,
 		Description:     "SUV Wash",
 		UnitDescription: "Single wash",
-		PricePerUnit:    650,
+		PricePerUnit: &types.PricePerUnit {
+			Amount: 650,
+			CurrencyCode: "GBP",
+		},
 	}
 
 	roboWash.AddPrice(washPriceCar)
@@ -156,7 +162,10 @@ func mAddRoboAirService() (int, error) {
 		ID:              1,
 		Description:     "Measure and adjust pressure",
 		UnitDescription: "Tyre",
-		PricePerUnit:    25,
+		PricePerUnit: &types.PricePerUnit {
+			Amount: 25,
+			CurrencyCode: "GBP",
+		},
 	}
 
 	airFourPrice := types.Price{
@@ -165,7 +174,10 @@ func mAddRoboAirService() (int, error) {
 		ID:              2,
 		Description:     "Measure and adjust pressure - four tyres for the price of three",
 		UnitDescription: "4 Tyre",
-		PricePerUnit:    airSinglePrice.PricePerUnit * 3,
+		PricePerUnit: &types.PricePerUnit {
+			Amount: airSinglePrice.PricePerUnit.Amount * 3,
+			CurrencyCode: "GBP",
+		},
 	}
 
 	roboAir.AddPrice(airSinglePrice)

@@ -182,7 +182,8 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			response.ClientID = totalPriceRequest.ClientID
 			response.PriceID = totalPriceRequest.SelectedPriceId
 			response.UnitsToSupply = totalPriceRequest.SelectedNumberOfUnits
-			response.TotalPrice = price.PricePerUnit * totalPriceRequest.SelectedNumberOfUnits
+			response.TotalPrice = price.PricePerUnit.Amount * totalPriceRequest.SelectedNumberOfUnits
+			response.CurrencyCode = price.PricePerUnit.CurrencyCode
 			response.MerchantClientKey = srv.credential.MerchantClientKey
 
 			payRef, err := utils.NewUUID()

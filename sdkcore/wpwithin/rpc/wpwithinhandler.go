@@ -268,7 +268,10 @@ func (wp *WPWithinHandler) GetServicePrices(serviceId int32) (r map[*wpthrift_ty
 			ServiceId: int32(gSvcPrice.ServiceID),
 			ID: int32(gSvcPrice.ID),
 			Description: gSvcPrice.Description,
-			PricePerUnit: int32(gSvcPrice.PricePerUnit),
+			PricePerUnit: &wpthrift_types.PricePerUnit {
+				Amount: int32(gSvcPrice.PricePerUnit.Amount),
+				CurrencyCode: gSvcPrice.PricePerUnit.CurrencyCode,
+			},
 			UnitId: int32(gSvcPrice.UnitID),
 			UnitDescription: gSvcPrice.UnitDescription,
 		}
