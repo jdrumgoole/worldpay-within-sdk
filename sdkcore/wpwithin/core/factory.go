@@ -31,7 +31,8 @@ const (
 type SDKFactory interface {
 
 	GetDevice(name, description string) (*types.Device, error)
-	GetPSP(merchantClientKey, merchantServiceKey string) (psp.Psp, error)
+	GetPSPMerchant(merchantClientKey, merchantServiceKey string) (psp.Psp, error)
+	GetPSPClient() (psp.Psp, error)
 	GetSvcBroadcaster(ipv4Address string) (servicediscovery.Broadcaster, error)
 	GetSvcScanner() (servicediscovery.Scanner, error)
 	GetHTE(device *types.Device, psp psp.Psp, ipv4Address string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error)
@@ -90,9 +91,14 @@ func (factory *SDKFactoryImpl) GetDevice(name, description string) (*types.Devic
 	}
 }
 
-func (factory *SDKFactoryImpl) GetPSP(merchantClientKey, merchantServiceKey string) (psp.Psp, error) {
+func (factory *SDKFactoryImpl) GetPSPMerchant(merchantClientKey, merchantServiceKey string) (psp.Psp, error) {
 
-	return onlineworldpay.New(merchantClientKey, merchantServiceKey, WP_ONLINE_API_ENDPOINT)
+	return onlineworldpay.NewMerchant(merchantClientKey, merchantServiceKey, WP_ONLINE_API_ENDPOINT)
+}
+
+func (factory *SDKFactoryImpl) GetPSPClient() (psp.Psp, error) {
+
+	return onlineworldpay.NewClient(WP_ONLINE_API_ENDPOINT)
 }
 
 func (factory *SDKFactoryImpl) GetSvcBroadcaster(ipv4Address string) (servicediscovery.Broadcaster, error) {

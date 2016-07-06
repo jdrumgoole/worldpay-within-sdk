@@ -97,7 +97,7 @@ func testWPPay() {
 //		return
 //	}
 
-	psp, err := onlineworldpay.New(hteCred.MerchantClientKey, hteCred.MerchantServiceKey, "https://api.worldpay.com/v1")
+	psp, err := onlineworldpay.NewMerchant(hteCred.MerchantClientKey, hteCred.MerchantServiceKey, "https://api.worldpay.com/v1")
 //	psp, err := onlineworldpay.New(hteCred, "https://127.0.0.1:9000")
 
 	if err != nil {
@@ -117,7 +117,7 @@ func testWPPay() {
 		Cvc:"113",
 	}
 
-	token, err := psp.GetToken(card, false)
+	token, err := psp.GetToken(card, hteCred.MerchantClientKey, false)
 
 	if err != nil {
 
@@ -440,7 +440,7 @@ func testWPTokenise() {
 		return
 	}
 
-	psp, err := onlineworldpay.New(hteCred.MerchantClientKey, hteCred.MerchantServiceKey, "https://api.worldpay.com/v1")
+	psp, err := onlineworldpay.NewMerchant(hteCred.MerchantClientKey, hteCred.MerchantServiceKey, "https://api.worldpay.com/v1")
 
 	if err != nil {
 
@@ -459,7 +459,7 @@ func testWPTokenise() {
 		Cvc:"113",
 	}
 
-	token, err := psp.GetToken(card, false)
+	token, err := psp.GetToken(card, hteCred.MerchantClientKey, false)
 
 	if err != nil {
 

@@ -93,7 +93,7 @@ func Initialise(name, description string) (WPWithin, error) {
 
 func (wp *wpWithinImpl) InitHTE(merchantClientKey, merchantServiceKey string) error {
 
-	if psp, err := Factory.GetPSP(merchantClientKey, merchantServiceKey); err != nil {
+	if psp, err := Factory.GetPSPMerchant(merchantClientKey, merchantServiceKey); err != nil {
 
 		return errors.New(fmt.Sprintf("Unable to create psp", err.Error()))
 	} else {
@@ -217,6 +217,14 @@ func (wp *wpWithinImpl) InitHCE(hceCardCredential types.HCECard) error {
 
 	wp.core.HCECard = cred
 
+	if psp, err := Factory.GetPSPClient(); err != nil {
+
+		return errors.New(fmt.Sprintf("Unable to create psp", err.Error()))
+	} else {
+
+		wp.core.Psp = psp
+	}
+
 	return nil
 }
 
@@ -310,7 +318,7 @@ func (wp *wpWithinImpl) SelectService(serviceId, numberOfUnits, priceId int) (ty
 
 func (wp *wpWithinImpl) MakePayment(request types.TotalPriceResponse) (types.PaymentResponse, error) {
 
-	token, err := wp.core.Psp.GetToken(wp.core.HCECard, false)
+	token, err := wp.core.Psp.GetToken(wp.core.HCECard, request.MerchantClientKey, false)
 
 	if err != nil {
 

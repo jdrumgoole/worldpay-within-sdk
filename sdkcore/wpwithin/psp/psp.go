@@ -5,6 +5,6 @@ import (
 
 type Psp interface {
 
-	GetToken(hceCredentials *types.HCECard, reusableToken bool) (string, error)
+	GetToken(hceCredentials *types.HCECard, clientKey string, reusableToken bool) (string, error)
 	MakePayment(amount int, currencyCode, clientToken, orderDescription, customerOrderCode string) (string, error)
 }

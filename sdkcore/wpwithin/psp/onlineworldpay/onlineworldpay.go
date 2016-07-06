@@ -21,7 +21,7 @@ type OnlineWorldpay struct {
 	apiEndpoint string
 }
 
-func New(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp.Psp, error) {
+func NewMerchant(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp.Psp, error) {
 
 	result := &OnlineWorldpay{
 		MerchantClientKey:merchantClientKey,
@@ -32,7 +32,16 @@ func New(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp.Psp, er
 	return result, nil
 }
 
-func (owp *OnlineWorldpay) GetToken(hceCredentials *wpwithin_types.HCECard, reusableToken bool) (string, error) {
+func NewClient(apiEndpoint string) (psp.Psp, error) {
+
+	result := &OnlineWorldpay{
+		apiEndpoint:apiEndpoint,
+	}
+
+	return result, nil
+}
+
+func (owp *OnlineWorldpay) GetToken(hceCredentials *wpwithin_types.HCECard, clientKey string, reusableToken bool) (string, error) {
 
 	if(reusableToken) {
 		// TODO: CH - support reusable token by storing the value (along with merchant client key so link to a merchant) within the car so that token can be re-used if present, or created if not
@@ -53,7 +62,7 @@ func (owp *OnlineWorldpay) GetToken(hceCredentials *wpwithin_types.HCECard, reus
 	tokenRequest := types.TokenRequest{
 		Reusable:reusableToken,
 		PaymentMethod:paymentMethod,
-		ClientKey:owp.MerchantClientKey,
+		ClientKey:clientKey,
 	}
 
 	bJson, err := json.Marshal(tokenRequest)
