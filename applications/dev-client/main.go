@@ -81,7 +81,7 @@ func testUUID() {
 
 func testWPPay() {
 
-	hteCred, err := hte.NewHTECredential("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
+	hteCred, err := hte.NewHTECredential("T_C_03eaa1d3-4642-4079-b030-b543ee04b5af", "T_S_f50ecb46-ca82-44a7-9c40-421818af5996")
 
 	if err != nil {
 
@@ -89,7 +89,7 @@ func testWPPay() {
 		return
 	}
 
-//	hceClient, err := hce.NewHCEClientCredential("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e")
+//	hceClient, err := hce.NewHCEClientCredential("T_C_03eaa1d3-4642-4079-b030-b543ee04b5af")
 //
 //	if err != nil {
 //
@@ -432,7 +432,7 @@ func printWorld() {
 
 func testWPTokenise() {
 
-	hteCred, err := hte.NewHTECredential("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
+	hteCred, err := hte.NewHTECredential("T_C_03eaa1d3-4642-4079-b030-b543ee04b5af", "T_S_f50ecb46-ca82-44a7-9c40-421818af5996")
 
 	if err != nil {
 
@@ -573,7 +573,7 @@ func testDiscoveryAndNegotiation() {
 		return
 	}
 
-	err = sdk.InitHTE("T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e", "T_S_6ec32d94-77fa-42ff-bede-de487d643793")
+	err = sdk.InitHTE("T_C_03eaa1d3-4642-4079-b030-b543ee04b5af", "T_S_f50ecb46-ca82-44a7-9c40-421818af5996")
 
 	if err != nil {
 

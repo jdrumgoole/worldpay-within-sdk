@@ -8,8 +8,8 @@ import (
 
 // TODO: put this somewhere sensible
 var ERR_DEVICE_NOT_INITIALISED = "Error: Device not initialised"
-var DEFAULT_HTE_MERCHANT_CLIENT_KEY = "T_C_c93d7723-2b1c-4dd2-bfb7-58dd48cd093e"
-var DEFAULT_HTE_MERCHANT_SERVICE_KEY = "T_S_6ec32d94-77fa-42ff-bede-de487d643793"
+var DEFAULT_HTE_MERCHANT_CLIENT_KEY = "T_C_03eaa1d3-4642-4079-b030-b543ee04b5af"
+var DEFAULT_HTE_MERCHANT_SERVICE_KEY = "T_S_f50ecb46-ca82-44a7-9c40-421818af5996"
 
 /*
 func mBroadcast() (int, error) {
