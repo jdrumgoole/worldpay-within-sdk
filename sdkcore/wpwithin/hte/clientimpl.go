@@ -4,6 +4,7 @@ import (
 	"fmt"
 "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 "encoding/json"
+	"net/http"
 )
 
 // Concrete implementation of HTEClient
@@ -114,23 +115,37 @@ func (client *clientImpl) NegotiatePrice(serviceId, priceId, numberOfUnits int) 
 		return types.TotalPriceResponse{}, err
 	}
 
-	bytesResp, err := client.httpClient.PostJSON(url, jsonReq)
+	bytesResp, httpStatus, err := client.httpClient.PostJSON(url, jsonReq)
 
 	if err != nil {
 
 		return types.TotalPriceResponse{}, err
+	} else if httpStatus != http.StatusOK {
+
+		errorResp := types.ErrorResponse{}
+
+		err = json.Unmarshal(bytesResp, &errorResp)
+
+		if err != nil {
+
+			return types.TotalPriceResponse{}, err
+		} else {
+
+			return types.TotalPriceResponse{}, errors.New(fmt.Sprintf("%d - %s (%d)", errorResp.HTTPStatusCode, errorResp.Message, errorResp.ErrorCode))
+		}
+	} else {
+
+		priceResp := types.TotalPriceResponse{}
+
+		err = json.Unmarshal(bytesResp, &priceResp)
+
+		if err != nil {
+
+			return types.TotalPriceResponse{}, err
+		}
+
+		return priceResp, nil
 	}
-
-	priceResp := types.TotalPriceResponse{}
-
-	err = json.Unmarshal(bytesResp, &priceResp)
-
-	if err != nil {
-
-		return types.TotalPriceResponse{}, err
-	}
-
-	return priceResp, nil
 }
 
 func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientToken string) (types.PaymentResponse, error) {
@@ -150,23 +165,37 @@ func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientTok
 		return types.PaymentResponse{}, err
 	}
 
-	byteResp, err := client.httpClient.PostJSON(url, jsonBody)
+	byteResp, httpStatus, err := client.httpClient.PostJSON(url, jsonBody)
 
 	if err != nil {
 
 		return types.PaymentResponse{}, err
+	} else if httpStatus != http.StatusOK {
+
+		errorResponse := types.ErrorResponse{}
+
+		err = json.Unmarshal(byteResp, &errorResponse)
+
+		if err != nil {
+
+			return types.PaymentResponse{}, err
+		} else {
+
+			return types.PaymentResponse{}, errors.New(fmt.Sprintf("%d - %s (%d)", errorResponse.HTTPStatusCode, errorResponse.Message, errorResponse.ErrorCode))
+		}
+	} else {
+
+		paymentResponse := types.PaymentResponse{}
+
+		err = json.Unmarshal(byteResp, &paymentResponse)
+
+		if err != nil {
+
+			return types.PaymentResponse{}, err
+		}
+
+		return paymentResponse, nil
 	}
-
-	paymentResponse := types.PaymentResponse{}
-
-	err = json.Unmarshal(byteResp, &paymentResponse)
-
-	if err != nil {
-
-		return types.PaymentResponse{}, err
-	}
-
-	return paymentResponse, nil
 }
 
 func (client *clientImpl) StartDelivery(serviceId int, serviceDeliveryToken string, unitsToSupply int) (int, error) {

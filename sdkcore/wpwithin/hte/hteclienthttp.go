@@ -8,7 +8,7 @@ import (
 type HTEClientHTTP interface {
 
 	Get(url string) ([]byte, error)
-	PostJSON(url string, postBody []byte) ([]byte, error)
+	PostJSON(url string, postBody []byte) ([]byte, int, error)
 }
 
 type HTEClientHTTPImpl struct { }
@@ -39,13 +39,13 @@ func (client *HTEClientHTTPImpl) Get(url string) ([]byte, error) {
 }
 
 // Helper function to make a http POST request
-func (_client *HTEClientHTTPImpl) PostJSON(url string, postBody []byte) ([]byte, error) {
+func (_client *HTEClientHTTPImpl) PostJSON(url string, postBody []byte) ([]byte, int, error) {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(postBody))
 
 	if err != nil {
 
-		return nil, err
+		return nil, 0, err
 	}
 
 	req.Header.Add("Content-Type", "application/json")
@@ -56,7 +56,7 @@ func (_client *HTEClientHTTPImpl) PostJSON(url string, postBody []byte) ([]byte,
 
 	if err != nil {
 
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer resp.Body.Close()
@@ -65,8 +65,8 @@ func (_client *HTEClientHTTPImpl) PostJSON(url string, postBody []byte) ([]byte,
 
 	if err != nil {
 
-		return nil, err
+		return nil, resp.StatusCode, err
 	}
 
-	return bodyBytes, nil
+	return bodyBytes, resp.StatusCode, nil
 }
