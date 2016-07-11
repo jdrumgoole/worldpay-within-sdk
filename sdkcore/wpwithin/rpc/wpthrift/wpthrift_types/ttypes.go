@@ -115,10 +115,12 @@ func (p *Error) Error() string {
 //  - ID
 //  - Name
 //  - Description
+//  - Prices
 type Service struct {
-	ID          int32  `thrift:"id,1" json:"id"`
-	Name        string `thrift:"name,2" json:"name"`
-	Description string `thrift:"description,3" json:"description"`
+	ID          int32           `thrift:"id,1" json:"id"`
+	Name        string          `thrift:"name,2" json:"name"`
+	Description string          `thrift:"description,3" json:"description"`
+	Prices      map[int32]Price `thrift:"prices,4" json:"prices,omitempty"`
 }
 
 func NewService() *Service {
@@ -136,6 +138,16 @@ func (p *Service) GetName() string {
 func (p *Service) GetDescription() string {
 	return p.Description
 }
+
+var Service_Prices_DEFAULT map[int32]Price
+
+func (p *Service) GetPrices() map[int32]Price {
+	return p.Prices
+}
+func (p *Service) IsSetPrices() bool {
+	return p.Prices != nil
+}
+
 func (p *Service) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
@@ -160,6 +172,10 @@ func (p *Service) Read(iprot thrift.TProtocol) error {
 			}
 		case 3:
 			if err := p.readField3(iprot); err != nil {
+				return err
+			}
+		case 4:
+			if err := p.readField4(iprot); err != nil {
 				return err
 			}
 		default:
@@ -204,6 +220,32 @@ func (p *Service) readField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *Service) readField4(iprot thrift.TProtocol) error {
+	_, _, size, err := iprot.ReadMapBegin()
+	if err != nil {
+		return thrift.PrependError("error reading map begin: ", err)
+	}
+	tMap := make(map[int32]Price, size)
+	p.Prices = tMap
+	for i := 0; i < size; i++ {
+		var _key0 int32
+		if v, err := iprot.ReadI32(); err != nil {
+			return thrift.PrependError("error reading field 0: ", err)
+		} else {
+			_key0 = v
+		}
+		_val1 := Price{}
+		if err := _val1.Read(iprot); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", _val1), err)
+		}
+		p.Prices[_key0] = _val1
+	}
+	if err := iprot.ReadMapEnd(); err != nil {
+		return thrift.PrependError("error reading map end: ", err)
+	}
+	return nil
+}
+
 func (p *Service) Write(oprot thrift.TProtocol) error {
 	if err := oprot.WriteStructBegin("Service"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
@@ -215,6 +257,9 @@ func (p *Service) Write(oprot thrift.TProtocol) error {
 		return err
 	}
 	if err := p.writeField3(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField4(oprot); err != nil {
 		return err
 	}
 	if err := oprot.WriteFieldStop(); err != nil {
@@ -261,6 +306,32 @@ func (p *Service) writeField3(oprot thrift.TProtocol) (err error) {
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write field end error 3:description: ", p), err)
+	}
+	return err
+}
+
+func (p *Service) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPrices() {
+		if err := oprot.WriteFieldBegin("prices", thrift.MAP, 4); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field begin error 4:prices: ", p), err)
+		}
+		if err := oprot.WriteMapBegin(thrift.I32, thrift.STRUCT, len(p.Prices)); err != nil {
+			return thrift.PrependError("error writing map begin: ", err)
+		}
+		for k, v := range p.Prices {
+			if err := oprot.WriteI32(int32(k)); err != nil {
+				return thrift.PrependError(fmt.Sprintf("%T. (0) field write error: ", p), err)
+			}
+			if err := v.Write(oprot); err != nil {
+				return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", v), err)
+			}
+		}
+		if err := oprot.WriteMapEnd(); err != nil {
+			return thrift.PrependError("error writing map end: ", err)
+		}
+		if err := oprot.WriteFieldEnd(); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field end error 4:prices: ", p), err)
+		}
 	}
 	return err
 }
@@ -1104,17 +1175,17 @@ func (p *Device) readField4(iprot thrift.TProtocol) error {
 	tMap := make(map[int32]*Service, size)
 	p.Services = tMap
 	for i := 0; i < size; i++ {
-		var _key0 int32
+		var _key2 int32
 		if v, err := iprot.ReadI32(); err != nil {
 			return thrift.PrependError("error reading field 0: ", err)
 		} else {
-			_key0 = v
+			_key2 = v
 		}
-		_val1 := &Service{}
-		if err := _val1.Read(iprot); err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", _val1), err)
+		_val3 := &Service{}
+		if err := _val3.Read(iprot); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", _val3), err)
 		}
-		p.Services[_key0] = _val1
+		p.Services[_key2] = _val3
 	}
 	if err := iprot.ReadMapEnd(); err != nil {
 		return thrift.PrependError("error reading map end: ", err)
