@@ -1932,11 +1932,11 @@ func (p *TotalPriceResponse) String() string {
 //  - ServiceDeliveryToken
 //  - ClientUUID
 type PaymentResponse struct {
-	ServerId             string `thrift:"serverId,1" json:"serverId"`
-	ClientId             string `thrift:"clientId,2" json:"clientId"`
-	TotalPaid            int32  `thrift:"totalPaid,3" json:"totalPaid"`
-	ServiceDeliveryToken string `thrift:"serviceDeliveryToken,4" json:"serviceDeliveryToken"`
-	ClientUUID           string `thrift:"ClientUUID,5" json:"ClientUUID"`
+	ServerId             string                `thrift:"serverId,1" json:"serverId"`
+	ClientId             string                `thrift:"clientId,2" json:"clientId"`
+	TotalPaid            int32                 `thrift:"totalPaid,3" json:"totalPaid"`
+	ServiceDeliveryToken *ServiceDeliveryToken `thrift:"serviceDeliveryToken,4" json:"serviceDeliveryToken"`
+	ClientUUID           string                `thrift:"ClientUUID,5" json:"ClientUUID"`
 }
 
 func NewPaymentResponse() *PaymentResponse {
@@ -1955,13 +1955,22 @@ func (p *PaymentResponse) GetTotalPaid() int32 {
 	return p.TotalPaid
 }
 
-func (p *PaymentResponse) GetServiceDeliveryToken() string {
-	return p.ServiceDeliveryToken
+var PaymentResponse_ServiceDeliveryToken_DEFAULT ServiceDeliveryToken
+
+func (p *PaymentResponse) GetServiceDeliveryToken() ServiceDeliveryToken {
+	if !p.IsSetServiceDeliveryToken() {
+		return PaymentResponse_ServiceDeliveryToken_DEFAULT
+	}
+	return *p.ServiceDeliveryToken
 }
 
 func (p *PaymentResponse) GetClientUUID() string {
 	return p.ClientUUID
 }
+func (p *PaymentResponse) IsSetServiceDeliveryToken() bool {
+	return p.ServiceDeliveryToken != nil
+}
+
 func (p *PaymentResponse) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
@@ -2039,10 +2048,9 @@ func (p *PaymentResponse) readField3(iprot thrift.TProtocol) error {
 }
 
 func (p *PaymentResponse) readField4(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return thrift.PrependError("error reading field 4: ", err)
-	} else {
-		p.ServiceDeliveryToken = v
+	p.ServiceDeliveryToken = &ServiceDeliveryToken{}
+	if err := p.ServiceDeliveryToken.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.ServiceDeliveryToken), err)
 	}
 	return nil
 }
@@ -2124,11 +2132,11 @@ func (p *PaymentResponse) writeField3(oprot thrift.TProtocol) (err error) {
 }
 
 func (p *PaymentResponse) writeField4(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("serviceDeliveryToken", thrift.STRING, 4); err != nil {
+	if err := oprot.WriteFieldBegin("serviceDeliveryToken", thrift.STRUCT, 4); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write field begin error 4:serviceDeliveryToken: ", p), err)
 	}
-	if err := oprot.WriteString(string(p.ServiceDeliveryToken)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.serviceDeliveryToken (4) field write error: ", p), err)
+	if err := p.ServiceDeliveryToken.Write(oprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.ServiceDeliveryToken), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write field end error 4:serviceDeliveryToken: ", p), err)
@@ -2154,4 +2162,235 @@ func (p *PaymentResponse) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("PaymentResponse(%+v)", *p)
+}
+
+// Attributes:
+//  - Key
+//  - Issued
+//  - Expiry
+//  - RefundOnExpiry
+//  - Signature
+type ServiceDeliveryToken struct {
+	Key            string `thrift:"key,1" json:"key"`
+	Issued         string `thrift:"issued,2" json:"issued"`
+	Expiry         string `thrift:"expiry,3" json:"expiry"`
+	RefundOnExpiry bool   `thrift:"refundOnExpiry,4" json:"refundOnExpiry"`
+	Signature      []byte `thrift:"signature,5" json:"signature"`
+}
+
+func NewServiceDeliveryToken() *ServiceDeliveryToken {
+	return &ServiceDeliveryToken{}
+}
+
+func (p *ServiceDeliveryToken) GetKey() string {
+	return p.Key
+}
+
+func (p *ServiceDeliveryToken) GetIssued() string {
+	return p.Issued
+}
+
+func (p *ServiceDeliveryToken) GetExpiry() string {
+	return p.Expiry
+}
+
+func (p *ServiceDeliveryToken) GetRefundOnExpiry() bool {
+	return p.RefundOnExpiry
+}
+
+func (p *ServiceDeliveryToken) GetSignature() []byte {
+	return p.Signature
+}
+func (p *ServiceDeliveryToken) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if err := p.readField1(iprot); err != nil {
+				return err
+			}
+		case 2:
+			if err := p.readField2(iprot); err != nil {
+				return err
+			}
+		case 3:
+			if err := p.readField3(iprot); err != nil {
+				return err
+			}
+		case 4:
+			if err := p.readField4(iprot); err != nil {
+				return err
+			}
+		case 5:
+			if err := p.readField5(iprot); err != nil {
+				return err
+			}
+		default:
+			if err := iprot.Skip(fieldTypeId); err != nil {
+				return err
+			}
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+	}
+	return nil
+}
+
+func (p *ServiceDeliveryToken) readField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return thrift.PrependError("error reading field 1: ", err)
+	} else {
+		p.Key = v
+	}
+	return nil
+}
+
+func (p *ServiceDeliveryToken) readField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return thrift.PrependError("error reading field 2: ", err)
+	} else {
+		p.Issued = v
+	}
+	return nil
+}
+
+func (p *ServiceDeliveryToken) readField3(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return thrift.PrependError("error reading field 3: ", err)
+	} else {
+		p.Expiry = v
+	}
+	return nil
+}
+
+func (p *ServiceDeliveryToken) readField4(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadBool(); err != nil {
+		return thrift.PrependError("error reading field 4: ", err)
+	} else {
+		p.RefundOnExpiry = v
+	}
+	return nil
+}
+
+func (p *ServiceDeliveryToken) readField5(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadBinary(); err != nil {
+		return thrift.PrependError("error reading field 5: ", err)
+	} else {
+		p.Signature = v
+	}
+	return nil
+}
+
+func (p *ServiceDeliveryToken) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("ServiceDeliveryToken"); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := p.writeField1(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField2(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField3(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField4(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField5(oprot); err != nil {
+		return err
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return thrift.PrependError("write field stop error: ", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return thrift.PrependError("write struct stop error: ", err)
+	}
+	return nil
+}
+
+func (p *ServiceDeliveryToken) writeField1(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("key", thrift.STRING, 1); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:key: ", p), err)
+	}
+	if err := oprot.WriteString(string(p.Key)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.key (1) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:key: ", p), err)
+	}
+	return err
+}
+
+func (p *ServiceDeliveryToken) writeField2(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("issued", thrift.STRING, 2); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:issued: ", p), err)
+	}
+	if err := oprot.WriteString(string(p.Issued)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.issued (2) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 2:issued: ", p), err)
+	}
+	return err
+}
+
+func (p *ServiceDeliveryToken) writeField3(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("expiry", thrift.STRING, 3); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 3:expiry: ", p), err)
+	}
+	if err := oprot.WriteString(string(p.Expiry)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.expiry (3) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 3:expiry: ", p), err)
+	}
+	return err
+}
+
+func (p *ServiceDeliveryToken) writeField4(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("refundOnExpiry", thrift.BOOL, 4); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 4:refundOnExpiry: ", p), err)
+	}
+	if err := oprot.WriteBool(bool(p.RefundOnExpiry)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.refundOnExpiry (4) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 4:refundOnExpiry: ", p), err)
+	}
+	return err
+}
+
+func (p *ServiceDeliveryToken) writeField5(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("signature", thrift.STRING, 5); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 5:signature: ", p), err)
+	}
+	if err := oprot.WriteBinary(p.Signature); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.signature (5) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 5:signature: ", p), err)
+	}
+	return err
+}
+
+func (p *ServiceDeliveryToken) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ServiceDeliveryToken(%+v)", *p)
 }

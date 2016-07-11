@@ -11,6 +11,7 @@ import (
 	"io"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"strings"
+	"time"
 )
 
 // Coordinate requests between RPC interface and internal SDK interface
@@ -321,11 +322,21 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 			} else {
 
+				// TODO currently creating delivery token manually and assign to paymentresponse - this should be automapped.
+				deliveryToken := &types.ServiceDeliveryToken{
+
+					Key: paymentOrderCode, // TODO cryptographically secure, random key generation.
+					Issued: time.Now(),
+					Expiry: time.Now().Add(time.Duration(24 * time.Hour)), // TODO add a value DeliveryToken lifetime (MINS) into the Service struct. 0 should be unlimited.
+					RefundOnExpiry: false, // TODO Map this into the Service Struct
+					Signature: nil, // TODO implement HMAC generation scheme.
+				}
+
 				paymentResponse := types.PaymentResponse{
 					ClientID: order.ClientID,
 					ServerID: srv.device.Uid,
 					TotalPaid: order.TotalPrice,
-					ServiceDeliveryToken: paymentOrderCode, // TODO CH - Use generated GUID instead of payment ref and persist in order manager for validation later
+					ServiceDeliveryToken: deliveryToken,
 					ClientUUID: order.ClientUUID,
 				}
 

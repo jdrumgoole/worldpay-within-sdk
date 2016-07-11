@@ -3,6 +3,7 @@ import (
 	"github.com/nu7hatch/gouuid"
 	"os"
 	"bufio"
+	"time"
 )
 
 // Generate a new UUID
@@ -94,4 +95,9 @@ func WriteString(path, input string, truncate bool) error {
 	}
 
 	return nil
+}
+
+func TimeFormatISO(input time.Time) string {
+
+	return input.Format("2006-01-02T15:04:05Z")
 }

@@ -5,6 +5,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
 type WPWithinHandler struct {
@@ -333,11 +334,21 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 		return nil, err
 	}
 
+	// TODO create delivery token manually and assign to paymentresponse - need automatpping
+	deliveryToken := &wpthrift_types.ServiceDeliveryToken{
+
+		Key: gPaymentResponse.ServiceDeliveryToken.Key,
+		Issued: utils.TimeFormatISO(gPaymentResponse.ServiceDeliveryToken.Issued),
+		Expiry: utils.TimeFormatISO(gPaymentResponse.ServiceDeliveryToken.Expiry),
+		RefundOnExpiry: gPaymentResponse.ServiceDeliveryToken.RefundOnExpiry,
+		Signature: gPaymentResponse.ServiceDeliveryToken.Signature,
+	}
+
 	result := &wpthrift_types.PaymentResponse{
 		ServerId: gPaymentResponse.ServerID,
 		ClientId: gPaymentResponse.ClientID,
 		TotalPaid: int32(gPaymentResponse.TotalPaid),
-		ServiceDeliveryToken: gPaymentResponse.ServiceDeliveryToken,
+		ServiceDeliveryToken: deliveryToken,
 		ClientUUID: gPaymentResponse.ClientUUID,
 	}
 

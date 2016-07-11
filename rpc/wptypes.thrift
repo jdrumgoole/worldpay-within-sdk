@@ -91,6 +91,15 @@ struct PaymentResponse {
 	1: string serverId
 	2: string clientId
 	3: i32 totalPaid
-	4: string serviceDeliveryToken
+	4: ServiceDeliveryToken serviceDeliveryToken
 	5: string ClientUUID
+}
+
+struct ServiceDeliveryToken {
+	
+	1: string key
+	2: string issued
+	3: string expiry
+	4: bool refundOnExpiry
+	5: binary signature
 }
