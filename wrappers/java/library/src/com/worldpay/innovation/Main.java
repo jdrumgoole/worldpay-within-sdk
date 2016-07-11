@@ -28,8 +28,9 @@ public class Main {
             WPWithin.Client client = new WPWithin.Client(protocol);
 
             defaultDevice(client);
-            initProducer(client);
-            broadcast(client);
+            discovery(client);
+//            initProducer(client);
+//            broadcast(client);
 
             doUI();
             
