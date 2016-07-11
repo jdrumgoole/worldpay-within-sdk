@@ -9,12 +9,16 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
+    private static final Logger log= Logger.getLogger( Main.class.getName() );
+    
     public static void main(String [] args) {
 
         String host = "127.0.0.1";
-        int port = 9091;
+        int port = 9081; // 9091
 
         try {
             TTransport transport = new TSocket(host, port);
@@ -27,6 +31,8 @@ public class Main {
             initProducer(client);
             broadcast(client);
 
+            doUI();
+            
             transport.close();
 
         } catch (TException x) {
@@ -90,4 +96,11 @@ public class Main {
             e.printStackTrace();
         }
     }
+    
+    private static void doUI() {
+        log.log( Level.INFO, "Starting UI");
+        (new MenuSystem()).doUI();
+        log.log( Level.INFO, "FINISHING UI");
+    }
+    
 }
