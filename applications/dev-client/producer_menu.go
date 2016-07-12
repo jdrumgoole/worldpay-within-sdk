@@ -110,7 +110,6 @@ func mAddRoboWashService() (int, error) {
 
 	washPriceCar := types.Price{
 
-		ServiceID:       roboWash.Id,
 		UnitID:          1,
 		ID:              1,
 		Description:     "Car wash",
@@ -123,7 +122,6 @@ func mAddRoboWashService() (int, error) {
 
 	washPriceSUV := types.Price{
 
-		ServiceID:       roboWash.Id,
 		UnitID:          1,
 		ID:              2,
 		Description:     "SUV Wash",
@@ -157,7 +155,7 @@ func mAddRoboAirService() (int, error) {
 	roboAir.Id = 2
 
 	airSinglePrice := types.Price{
-		ServiceID:       roboAir.Id,
+
 		UnitID:          1,
 		ID:              1,
 		Description:     "Measure and adjust pressure",
@@ -169,7 +167,7 @@ func mAddRoboAirService() (int, error) {
 	}
 
 	airFourPrice := types.Price{
-		ServiceID:       roboAir.Id,
+
 		UnitID:          2,
 		ID:              2,
 		Description:     "Measure and adjust pressure - four tyres for the price of three",

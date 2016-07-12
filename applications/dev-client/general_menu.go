@@ -29,7 +29,7 @@ func mGetDeviceInfo() (int, error) {
 		fmt.Printf("   %d: Id:%d Name:%s Description:%s\n", i, service.Id, service.Name, service.Description)
 		fmt.Printf("   Prices: \n")
 		for j, price := range service.Prices() {
-			fmt.Printf("      %d: ServiceID: %d ID:%d Description:%s PricePerUnit:%d UnitID:%d UnitDescription:%s\n", j, price.ServiceID, price.ID, price.Description, price.PricePerUnit, price.UnitID, price.UnitDescription)
+			fmt.Printf("      %d: ServiceID: %d ID:%d Description:%s PricePerUnit:%d UnitID:%d UnitDescription:%s\n", j, service.Id, price.ID, price.Description, price.PricePerUnit, price.UnitID, price.UnitDescription)
 		}
 	}
 
@@ -151,7 +151,7 @@ func mCarWashDemoConsumer() (int, error) {
 
 				fmt.Printf("(%d) %s @ %d, %s (Unit id = %d)\n", price.ID, price.Description, price.PricePerUnit, price.UnitDescription, price.UnitID)
 
-				tpr, err := sdk.SelectService(price.ServiceID, 2, price.ID)
+				tpr, err := sdk.SelectService(svcDetails.ServiceID, 2, price.ID)
 
 				if err != nil {
 

@@ -266,7 +266,6 @@ func (wp *WPWithinHandler) GetServicePrices(serviceId int32) (r map[*wpthrift_ty
 	for _, gSvcPrice := range gSvcPrices {
 
 		tmp := &wpthrift_types.Price{
-			ServiceId: int32(gSvcPrice.ServiceID),
 			ID: int32(gSvcPrice.ID),
 			Description: gSvcPrice.Description,
 			PricePerUnit: &wpthrift_types.PricePerUnit {
