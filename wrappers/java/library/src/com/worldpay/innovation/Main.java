@@ -9,6 +9,7 @@ import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 
 import java.util.Set;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +33,7 @@ public class Main {
 //            initProducer(client);
 //            broadcast(client);
 
-            doUI();
+            doUI(client);
             
             transport.close();
 
@@ -98,9 +99,17 @@ public class Main {
         }
     }
     
-    private static void doUI() {
+    private static void doUI(WPWithin.Client client) {
+        
+        log.setLevel(Level.FINE);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.FINE);
+        log.addHandler(handler);
+        
+        
+        
         log.log( Level.INFO, "Starting UI");
-        (new MenuSystem()).doUI();
+        (new MenuSystem()).doUI(client);
         log.log( Level.INFO, "FINISHING UI");
     }
     
