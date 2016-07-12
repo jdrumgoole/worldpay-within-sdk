@@ -57,6 +57,7 @@
     <Compile Include="PaymentResponse.cs" />
     <Compile Include="ServiceDetails.cs" />
     <Compile Include="ServiceMessage.cs" />
+    <Compile Include="ServiceProducer.cs" />
     <Compile Include="TotalPriceResponse.cs" />
     <Compile Include="Utils\EqualsBuilder.cs" />
     <Compile Include="Utils\HashCodeBuilder.cs" />
@@ -65,6 +66,8 @@
     <Compile Include="Service.cs" />
     <Compile Include="Price.cs" />
     <Compile Include="Utils\ToStringBuilder.cs" />
+    <Compile Include="WPWithinException.cs" />
+    <Compile Include="WPWithinService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
