@@ -16,6 +16,7 @@ import com.worldpay.innovation.wpwithin.rpc.types.TotalPriceResponse;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,15 +65,15 @@ public class GeneralMenu {
 
                 for(int i=0; i<sdk.getDevice().getServicesSize(); i++) {
 
-                        Service service = (Service)((ArrayList)sdk.getDevice().getServices()).get(i);
+                        Service service = sdk.getDevice().getServices().get(i);
                     
                         System.out.println("   " + i + ": Id:" + service.getId() + " Name:" + service.getName() + " Description:" + service.getDescription() + "\n");
                         System.out.println("   Prices: \n");
                         
                         
                         for(int j=0; j< service.getPricesSize(); j++) {
-                            Price price = (Price)(((ArrayList)service.getPrices()).get(j));
-                            System.out.println("      " + j + ": ServiceID: " + price.getServiceId() + " ID:" + price.getId() + " Description:" + price.getDescription() + " PricePerUnit:" + price.getPricePerUnit() + " UnitID:" + price.getUnitDescription() + " UnitDescription:%s\n");
+                            Price price = service.getPrices().get(j);
+                            System.out.println("      " + j + ": ServiceID: " + service.getId() + " ID:" + price.getId() + " Description:" + price.getDescription() + " PricePerUnit:" + price.getPricePerUnit() + " UnitID:" + price.getUnitDescription() + " UnitDescription:%s\n");
                         }
                 }
 
@@ -173,23 +174,23 @@ public class GeneralMenu {
                 }
 
 		log.fine("Client created..");
-                ArrayList serviceDetails;
+                Set<ServiceDetails> serviceDetails;
                 
                 try {
-                    serviceDetails = (ArrayList)sdk.requestServices();
+                    serviceDetails = sdk.requestServices();
                 } catch(TException e) {
                     return new MenuReturnStruct("Failed to request services", 0);
                 }
 
 		if(serviceDetails.size() >= 1) {
 
-			ServiceDetails svcDetails = (ServiceDetails)serviceDetails.get(0);
+			ServiceDetails svcDetails = serviceDetails.toArray(new ServiceDetails[]{})[0];
 
 			System.out.println(svcDetails.getServiceId() + " - " + svcDetails.getServiceDescription() + "\n");
 
-                        ArrayList prices;
+                        Set<Price> prices;
                         try {
-        			prices = (ArrayList)sdk.getServicePrices(svcDetails.getServiceId());
+        			        prices = sdk.getServicePrices(svcDetails.getServiceId());
                             
                         } catch(TException e) {
                             return new MenuReturnStruct("Failed to get prices", 0);
@@ -198,14 +199,14 @@ public class GeneralMenu {
 			System.out.println("------- Prices -------\n");
 			if(prices.size() >= 1) {
 
-				Price price = (Price)prices.get(0);
+				Price price = prices.toArray(new Price[]{})[0];
 
 				System.out.println("(" + price.getId() + ") " + price.getDescription() + " @ " + price.getPricePerUnit() + ", " + price.getUnitDescription() + " (Unit id = " + price.getUnitId() +")\n");
 
                                 TotalPriceResponse tpr;
                                 try {
 
-                                    tpr = sdk.selectService(price.getServiceId(), 2, price.getId());
+                                    tpr = sdk.selectService(svcDetails.getServiceId(), 2, price.getId());
                                     
                                 } catch(TException e) {
                                     return new MenuReturnStruct("Failed to get total price response", 0);

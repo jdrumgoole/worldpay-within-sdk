@@ -19,7 +19,7 @@ public class Main {
     public static void main(String [] args) {
 
         String host = "127.0.0.1";
-        int port = 9081; // 9091
+        int port = 9091;
 
         try {
             TTransport transport = new TSocket(host, port);

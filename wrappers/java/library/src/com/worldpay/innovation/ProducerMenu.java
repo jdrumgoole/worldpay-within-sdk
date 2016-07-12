@@ -168,7 +168,6 @@ public class ProducerMenu {
             roboWash.setId(1);
             
             Price washPriceCar = new Price();
-            washPriceCar.setServiceId(roboWash.getId());
             washPriceCar.setUnitId(1);
             washPriceCar.setId(1);
             washPriceCar.setDescription("Car wash");
@@ -177,7 +176,6 @@ public class ProducerMenu {
 //            washPriceCar.setPricePerUnit(new PricePerUnit(500));
 
             Price washPriceSUV = new Price();
-            washPriceSUV.setServiceId(roboWash.getId());
             washPriceSUV.setUnitId(1);
             washPriceSUV.setId(2);
             washPriceSUV.setDescription("SUV wash");
@@ -210,7 +208,6 @@ public class ProducerMenu {
 	roboAir.setId(2);
 
         Price airSinglePrice = new Price();
-        airSinglePrice.setServiceId(roboAir.getId());
         airSinglePrice.setUnitId(1);
         airSinglePrice.setId(1);
         airSinglePrice.setDescription("Measure and adjust pressue");
@@ -220,7 +217,6 @@ public class ProducerMenu {
 
         
         Price airFourPrice = new Price();
-        airFourPrice.setServiceId(roboAir.getId());
         airFourPrice.setUnitId(2);
         airFourPrice.setId(2);
         airFourPrice.setDescription("Measure and adjust pressure - four tyres for the price of three");
