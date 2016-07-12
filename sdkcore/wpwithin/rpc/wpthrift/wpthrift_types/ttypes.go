@@ -344,27 +344,21 @@ func (p *Service) String() string {
 }
 
 // Attributes:
-//  - ServiceId
 //  - ID
 //  - Description
 //  - PricePerUnit
 //  - UnitId
 //  - UnitDescription
 type Price struct {
-	ServiceId       int32         `thrift:"serviceId,1" json:"serviceId"`
-	ID              int32         `thrift:"id,2" json:"id"`
-	Description     string        `thrift:"description,3" json:"description"`
-	PricePerUnit    *PricePerUnit `thrift:"pricePerUnit,4" json:"pricePerUnit"`
-	UnitId          int32         `thrift:"unitId,5" json:"unitId"`
-	UnitDescription string        `thrift:"unitDescription,6" json:"unitDescription"`
+	ID              int32         `thrift:"id,1" json:"id"`
+	Description     string        `thrift:"description,2" json:"description"`
+	PricePerUnit    *PricePerUnit `thrift:"pricePerUnit,3" json:"pricePerUnit"`
+	UnitId          int32         `thrift:"unitId,4" json:"unitId"`
+	UnitDescription string        `thrift:"unitDescription,5" json:"unitDescription"`
 }
 
 func NewPrice() *Price {
 	return &Price{}
-}
-
-func (p *Price) GetServiceId() int32 {
-	return p.ServiceId
 }
 
 func (p *Price) GetID() int32 {
@@ -429,10 +423,6 @@ func (p *Price) Read(iprot thrift.TProtocol) error {
 			if err := p.readField5(iprot); err != nil {
 				return err
 			}
-		case 6:
-			if err := p.readField6(iprot); err != nil {
-				return err
-			}
 		default:
 			if err := iprot.Skip(fieldTypeId); err != nil {
 				return err
@@ -452,30 +442,21 @@ func (p *Price) readField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return thrift.PrependError("error reading field 1: ", err)
 	} else {
-		p.ServiceId = v
-	}
-	return nil
-}
-
-func (p *Price) readField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadI32(); err != nil {
-		return thrift.PrependError("error reading field 2: ", err)
-	} else {
 		p.ID = v
 	}
 	return nil
 }
 
-func (p *Price) readField3(iprot thrift.TProtocol) error {
+func (p *Price) readField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
-		return thrift.PrependError("error reading field 3: ", err)
+		return thrift.PrependError("error reading field 2: ", err)
 	} else {
 		p.Description = v
 	}
 	return nil
 }
 
-func (p *Price) readField4(iprot thrift.TProtocol) error {
+func (p *Price) readField3(iprot thrift.TProtocol) error {
 	p.PricePerUnit = &PricePerUnit{}
 	if err := p.PricePerUnit.Read(iprot); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.PricePerUnit), err)
@@ -483,18 +464,18 @@ func (p *Price) readField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *Price) readField5(iprot thrift.TProtocol) error {
+func (p *Price) readField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
-		return thrift.PrependError("error reading field 5: ", err)
+		return thrift.PrependError("error reading field 4: ", err)
 	} else {
 		p.UnitId = v
 	}
 	return nil
 }
 
-func (p *Price) readField6(iprot thrift.TProtocol) error {
+func (p *Price) readField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
-		return thrift.PrependError("error reading field 6: ", err)
+		return thrift.PrependError("error reading field 5: ", err)
 	} else {
 		p.UnitDescription = v
 	}
@@ -520,9 +501,6 @@ func (p *Price) Write(oprot thrift.TProtocol) error {
 	if err := p.writeField5(oprot); err != nil {
 		return err
 	}
-	if err := p.writeField6(oprot); err != nil {
-		return err
-	}
 	if err := oprot.WriteFieldStop(); err != nil {
 		return thrift.PrependError("write field stop error: ", err)
 	}
@@ -533,79 +511,66 @@ func (p *Price) Write(oprot thrift.TProtocol) error {
 }
 
 func (p *Price) writeField1(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("serviceId", thrift.I32, 1); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:serviceId: ", p), err)
+	if err := oprot.WriteFieldBegin("id", thrift.I32, 1); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:id: ", p), err)
 	}
-	if err := oprot.WriteI32(int32(p.ServiceId)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.serviceId (1) field write error: ", p), err)
+	if err := oprot.WriteI32(int32(p.ID)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.id (1) field write error: ", p), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:serviceId: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:id: ", p), err)
 	}
 	return err
 }
 
 func (p *Price) writeField2(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("id", thrift.I32, 2); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:id: ", p), err)
+	if err := oprot.WriteFieldBegin("description", thrift.STRING, 2); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:description: ", p), err)
 	}
-	if err := oprot.WriteI32(int32(p.ID)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.id (2) field write error: ", p), err)
+	if err := oprot.WriteString(string(p.Description)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.description (2) field write error: ", p), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 2:id: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 2:description: ", p), err)
 	}
 	return err
 }
 
 func (p *Price) writeField3(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("description", thrift.STRING, 3); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 3:description: ", p), err)
-	}
-	if err := oprot.WriteString(string(p.Description)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.description (3) field write error: ", p), err)
-	}
-	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 3:description: ", p), err)
-	}
-	return err
-}
-
-func (p *Price) writeField4(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("pricePerUnit", thrift.STRUCT, 4); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 4:pricePerUnit: ", p), err)
+	if err := oprot.WriteFieldBegin("pricePerUnit", thrift.STRUCT, 3); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 3:pricePerUnit: ", p), err)
 	}
 	if err := p.PricePerUnit.Write(oprot); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.PricePerUnit), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 4:pricePerUnit: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 3:pricePerUnit: ", p), err)
+	}
+	return err
+}
+
+func (p *Price) writeField4(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("unitId", thrift.I32, 4); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 4:unitId: ", p), err)
+	}
+	if err := oprot.WriteI32(int32(p.UnitId)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.unitId (4) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 4:unitId: ", p), err)
 	}
 	return err
 }
 
 func (p *Price) writeField5(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("unitId", thrift.I32, 5); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 5:unitId: ", p), err)
-	}
-	if err := oprot.WriteI32(int32(p.UnitId)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.unitId (5) field write error: ", p), err)
-	}
-	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 5:unitId: ", p), err)
-	}
-	return err
-}
-
-func (p *Price) writeField6(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("unitDescription", thrift.STRING, 6); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 6:unitDescription: ", p), err)
+	if err := oprot.WriteFieldBegin("unitDescription", thrift.STRING, 5); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 5:unitDescription: ", p), err)
 	}
 	if err := oprot.WriteString(string(p.UnitDescription)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.unitDescription (6) field write error: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T.unitDescription (5) field write error: ", p), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 6:unitDescription: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 5:unitDescription: ", p), err)
 	}
 	return err
 }
