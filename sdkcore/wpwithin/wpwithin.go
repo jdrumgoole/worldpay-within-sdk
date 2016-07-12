@@ -134,7 +134,13 @@ func (wp *wpWithinImpl) AddService(service *types.Service) error {
 		wp.core.Device.Services = make(map[int]*types.Service, 0)
 	}
 
-	wp.core.Device.Services[service.Id] = service
+	if _, exists := wp.core.Device.Services[service.Id]; exists {
+
+		return errors.New("Service with that id already exists")
+	} else {
+
+		wp.core.Device.Services[service.Id] = service
+	}
 
 	return nil
 }

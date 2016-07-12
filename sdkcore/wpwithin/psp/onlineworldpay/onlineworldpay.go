@@ -11,7 +11,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay/types"
 	wpwithin_types "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
-
+	"strconv"
 )
 
 type OnlineWorldpay struct {
@@ -83,15 +83,13 @@ func (owp *OnlineWorldpay) GetToken(hceCredentials *wpwithin_types.HCECard, clie
 
 	err = post(reqUrl, bJson, make(map[string]string, 0), &tokenResponse)
 
-	if err != nil {
-
-		return "", err
-	}
-
-	return tokenResponse.Token, nil
+	return tokenResponse.Token, err
 }
 
 func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, orderDescription, customerOrderCode string) (string, error) {
+
+	log.WithFields(log.Fields{ "Amount": strconv.Itoa(amount), "CurrencyCode": currencyCode, "ClientToken": clientToken,
+		"OrderDescription": orderDescription, "CustomerOrderCode": customerOrderCode }).Debug("Begin OWP MakePayment")
 
 	if clientToken == "" {
 
@@ -126,6 +124,8 @@ func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, or
 
 	reqUrl := fmt.Sprintf("%s/orders", owp.apiEndpoint)
 
+	log.WithFields(log.Fields{ "Request URL": reqUrl, "MerchantSvcKey": owp.MerchantServiceKey }).Debug("Using OWP parameters")
+
 	var orderResponse types.OrderResponse
 
 	headers := make(map[string]string, 0)
@@ -142,12 +142,12 @@ func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, or
 		return "", err
 	}
 
-	if strings.Compare(orderResponse.PaymentStatus, "SUCCESS") != 0 {
-
-		return "", errors.New("Payment failed.")
-	} else {
+	if strings.EqualFold(orderResponse.PaymentStatus, "SUCCESS") {
 
 		return orderResponse.OrderCode, nil
+	} else {
+
+		return "", errors.New(fmt.Sprintf("Payment failed for customer order %s ", orderResponse.CustomerOrderCode))
 	}
 }
 
@@ -185,15 +185,22 @@ func post(url string, requestBody []byte, headers map[string]string, v interface
 		return err
 	}
 
-	log.WithField("Response Body", string(respBody)).Debug("Response content")
+	if resp.StatusCode == HTTP_OK {
 
-	err = json.Unmarshal(respBody, &v)
+		log.Debug(fmt.Sprintf("Response body: %s", string(respBody)))
 
-	if err != nil {
-
-		return err
+		return json.Unmarshal(respBody, &v)
 	} else {
 
-		return nil
+		wpErr := types.ErrorResponse{}
+
+		if err := json.Unmarshal(respBody, &wpErr); err == nil {
+
+			log.WithFields(log.Fields{ "Message": wpErr.Message, "Description": wpErr.Description, "CustomCode": wpErr.CustomCode, "HTTP Status Code": wpErr.HttpStatusCode, "HelpUrl": wpErr.ErrorHelpUrl }).Debug("** POST Response")
+
+			return errors.New(fmt.Sprintf("HTTP Status: %d - CustomCode: %s - Message: %s", wpErr.HttpStatusCode, wpErr.CustomCode, wpErr.Message))
+		}
 	}
+
+	return nil
 }

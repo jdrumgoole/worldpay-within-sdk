@@ -2,7 +2,6 @@ package types
 
 type Price struct {
 
-	ServiceID int `json:"serviceID"`
 	ID int `json:"priceID"`
 	Description string `json:"priceDescription"`
 	PricePerUnit *PricePerUnit `json:"pricePerUnit"`

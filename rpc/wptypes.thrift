@@ -25,12 +25,11 @@ struct Service {
 
 struct Price {
 	
-	1: i32 serviceId
-	2: i32 id
-	3: string description
-	4: PricePerUnit pricePerUnit
-	5: i32 unitId
-	6: string unitDescription
+	1: i32 id
+	2: string description
+	3: PricePerUnit pricePerUnit
+	4: i32 unitId
+	5: string unitDescription
 }
 
 struct PricePerUnit {
