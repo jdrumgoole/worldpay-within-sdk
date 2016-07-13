@@ -10,6 +10,8 @@ import com.worldpay.innovation.wpwithin.rpc.WPWithin;
 import com.worldpay.innovation.wpwithin.rpc.types.Price;
 import com.worldpay.innovation.wpwithin.rpc.types.PricePerUnit;
 import com.worldpay.innovation.wpwithin.rpc.types.Service;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -175,21 +177,26 @@ public class ProducerMenu extends MenuBase {
             roboWash.setId(0);
             
             Price washPriceCar = new Price();
-            washPriceCar.setUnitId(1);
+            washPriceCar.setUnitId(0);
             washPriceCar.setId(0);
             washPriceCar.setDescription("Car wash");
             washPriceCar.setUnitDescription("Single wash");
             washPriceCar.setPricePerUnit(new PricePerUnit(500, "GBP"));
 
             Price washPriceSUV = new Price();
-            washPriceSUV.setUnitId(1);
+            washPriceSUV.setUnitId(0);
             washPriceSUV.setId(1);
             washPriceSUV.setDescription("SUV wash");
             washPriceSUV.setUnitDescription("Single wash");
             washPriceSUV.setPricePerUnit(new PricePerUnit(650, "GBP"));
             
-            roboWash.putToPrices(0, washPriceCar);
-            roboWash.putToPrices(1, washPriceSUV);
+            Map<Integer,Price> prices = new HashMap();
+            prices.put(0, washPriceCar);
+            prices.put(1, washPriceSUV);
+            roboWash.setPrices(prices);
+            
+//            roboWash.putToPrices(0, washPriceCar);
+//            roboWash.putToPrices(1, washPriceSUV);
 
             if(sdk == null) {
                 return new MenuReturnStruct(ERR_DEVICE_NOT_INITIALISED, 0);
@@ -213,7 +220,7 @@ public class ProducerMenu extends MenuBase {
 	roboAir.setId(1);
 
         Price airSinglePrice = new Price();
-        airSinglePrice.setUnitId(1);
+        airSinglePrice.setUnitId(0);
         airSinglePrice.setId(0);
         airSinglePrice.setDescription("Measure and adjust pressue");
         airSinglePrice.setUnitDescription("Tyre");
@@ -221,14 +228,19 @@ public class ProducerMenu extends MenuBase {
 
         
         Price airFourPrice = new Price();
-        airFourPrice.setUnitId(2);
+        airFourPrice.setUnitId(0);
         airFourPrice.setId(1);
         airFourPrice.setDescription("Measure and adjust pressure - four tyres for the price of three");
         airFourPrice.setUnitDescription("4 Tyre");
         airFourPrice.setPricePerUnit(new PricePerUnit(airSinglePrice.getPricePerUnit().getAmount() * 3, "GBP"));
 
-	roboAir.putToPrices(0, airSinglePrice);
-	roboAir.putToPrices(1, airFourPrice);
+        Map<Integer,Price> prices = new HashMap();
+        prices.put(0, airSinglePrice);
+        prices.put(1, airFourPrice);
+        roboAir.setPrices(prices);
+            
+//	roboAir.putToPrices(0, airSinglePrice);
+//	roboAir.putToPrices(1, airFourPrice);
 
         if(sdk == null) {
             return new MenuReturnStruct(ERR_DEVICE_NOT_INITIALISED, 0);

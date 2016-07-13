@@ -75,10 +75,13 @@ public class GeneralMenu extends MenuBase {
                             }
                             System.out.println("   Prices: \n");
 
-
-                            for(int j=0; j< service.getPricesSize(); j++) {
-                                Price price = service.getPrices().get(j);
-                                System.out.println("      " + j + ": ServiceID: " + service.getId() + " ID:" + price.getId() + " Description:" + price.getDescription() + " PricePerUnit:" + price.getPricePerUnit() + " UnitID:" + price.getUnitDescription() + " UnitDescription:%s\n");
+                            if(service.getPrices() != null) {
+                                for(int j=0; j< service.getPrices().size(); j++) {
+                                    Price price = service.getPrices().get(j);
+                                    System.out.println("      " + j + ": ServiceID: " + service.getId() + " ID:" + price.getId() + " Description:" + price.getDescription() + " PricePerUnit:" + price.getPricePerUnit() + " UnitID:" + price.getUnitDescription() + " UnitDescription:%s\n");
+                                }
+                            } else {
+                                log.fine("Prices are unforunately null");                            
                             }
 
                         } else {
