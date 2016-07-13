@@ -128,12 +128,13 @@ public class ProducerMenu {
 
     public MenuReturnStruct mNewHTECredentials() {
 
-	System.out.print("Merchant Client Key: ");
+	
 	String merchantClientKey;
         String merchantServiceKey;
         
         
         try {
+            System.out.print("Merchant Client Key: ");
             Scanner scanner = new Scanner(System.in);
             merchantClientKey = scanner.next();
         } catch(Exception e) {
@@ -141,6 +142,7 @@ public class ProducerMenu {
         }
         
         try {
+            System.out.print("Merchant secret Key: ");
             Scanner scanner = new Scanner(System.in);
             merchantServiceKey = scanner.next();
         } catch(Exception e) {
