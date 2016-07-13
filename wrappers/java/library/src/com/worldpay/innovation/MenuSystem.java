@@ -18,9 +18,8 @@ import java.util.logging.Logger;
  *
  * @author worldpay
  */
-public class MenuSystem {
+public class MenuSystem extends MenuBase {
 
-    private static final Logger log = Logger.getLogger(MenuSystem.class.getName());
 
     private ArrayList menuItems;
     private GeneralMenu generalMenu;
@@ -28,12 +27,9 @@ public class MenuSystem {
     private ConsumerMenu consumerMenu;
 
     public MenuSystem() {
-        log.setLevel(Level.FINE);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.FINE);
-        log.addHandler(handler);
-    }
-
+        super();
+    } 
+        
     public MenuReturnStruct mInvalidSelection() {
         return new MenuReturnStruct("*** Invalid menu selection - please choose another item ***", 0);
     }

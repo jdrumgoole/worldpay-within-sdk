@@ -11,7 +11,6 @@ import com.worldpay.innovation.wpwithin.rpc.types.HCECard;
 import com.worldpay.innovation.wpwithin.rpc.types.ServiceMessage;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.thrift.TException;
@@ -20,16 +19,12 @@ import org.apache.thrift.TException;
  *
  * @author worldpay
  */
-public class ConsumerMenu {
-    private static final Logger log = Logger.getLogger( ConsumerMenu.class.getName() );
-        
-    private final WPWithin.Client sdk;
+public class ConsumerMenu extends MenuBase {
     
+    private final WPWithin.Client sdk;
+        
     public ConsumerMenu(WPWithin.Client _client) {
-        log.setLevel(Level.FINE);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.FINE);
-        log.addHandler(handler);
+        super(_client);
         this.sdk = _client;
     } 
     
@@ -201,48 +196,5 @@ public class ConsumerMenu {
     public MenuReturnStruct mConsumerStatus() {
         return new MenuReturnStruct("Not implemented yet..", 0);
     } 
-
-    // Put in super class!!!
-    private final String DEFAULT_DEVICE_NAME = "conorhwp-macbook";
-    private final String DEFAULT_DEVICE_DESCRIPTION = "Conor H WP - Raspberry Pi";    
-    public MenuReturnStruct mInitDefaultDevice() {
-
-            //_sdk, err := wpwithin.Initialise(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION)
-            
-            try {
-                sdk.setup(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION);
-            } catch(TException e) {
-                return new MenuReturnStruct("SDK setup failed", 1);
-            }
-        
-            return new MenuReturnStruct(null, 0);
-
-    }
-    
-    public MenuReturnStruct mInitNewDevice()  {
-
-            System.out.println("Name of device: ");
-            
-            Scanner scanner = new Scanner(System.in);
-            String nameOfDevice = scanner.next();
-            if(null == nameOfDevice || "".equals(nameOfDevice)) {
-                    return new MenuReturnStruct("Name of device not set", 0);
-            }
-
-            System.out.println("Description: ");
-            String description = scanner.next();
-            if(null == description || "".equals(description)) {
-                    return new MenuReturnStruct("Description of device not set", 0);
-            }
-                    
-            try {
-                sdk.setup(nameOfDevice, description);
-            } catch(TException e) {
-                return new MenuReturnStruct("Setup of device unsucessful", 0);
-            }
-            
-            return new MenuReturnStruct(null, 0);
-            
-    }
         
 }

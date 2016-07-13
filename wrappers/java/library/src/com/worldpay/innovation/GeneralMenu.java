@@ -27,58 +27,57 @@ import org.apache.thrift.TException;
  *
  * @author worldpay
  */
-public class GeneralMenu {
-    private static final Logger log= Logger.getLogger( GeneralMenu.class.getName() );
+public class GeneralMenu extends MenuBase {
 
-    // TODO: put these somewhere sensible
-    // TODO: What do these do and what should they be?
-    private final String DEFAULT_DEVICE_NAME = "conorhwp-macbook";
-    private final String DEFAULT_DEVICE_DESCRIPTION = "Conor H WP - Raspberry Pi";
-    
-    
-    // Move these
-    String ERR_DEVICE_NOT_INITIALISED = "ERR_DEVICE_NOT_INITIALISED";
-    
-    
     private final WPWithin.Client sdk;
-    
+        
     public GeneralMenu(WPWithin.Client _client) {
-        log.setLevel(Level.FINE);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.FINE);
-        log.addHandler(handler);
+        super(_client);
         this.sdk = _client;
-    }
-    
+    } 
+        
     public MenuReturnStruct mGetDeviceInfo() {
 
             if(this.sdk == null) {
-                    return new MenuReturnStruct(ERR_DEVICE_NOT_INITIALISED, 0);
+                return new MenuReturnStruct("ERR_DEVICE_NOT_INITIALISED", 0);
             }
 
             try {
-                System.out.println("Uid of device: " + sdk.getDevice().getUid() + "\n");
+                System.out.println("Uid of device: " + this.sdk.getDevice().getUid() + "\n");
 
-                System.out.println("Name of device: " + sdk.getDevice().getName() + "\n");
-                System.out.println("Description: " + sdk.getDevice().getDescription() + "\n");
+                System.out.println("Name of device: " + this.sdk.getDevice().getName() + "\n");
+                System.out.println("Description: " + this.sdk.getDevice().getDescription() + "\n");
                 System.out.println("Services: \n");
 
-                for(int i=0; i<sdk.getDevice().getServicesSize(); i++) {
+                log.fine(this.sdk.getDevice().getServicesSize() + ": services available");
+                
+                for(int i=0; i < this.sdk.getDevice().getServicesSize(); i++) {
 
-                        Service service = sdk.getDevice().getServices().get(i);
-                    
-                        System.out.println("   " + i + ": Id:" + service.getId() + " Name:" + service.getName() + " Description:" + service.getDescription() + "\n");
-                        System.out.println("   Prices: \n");
+                        Service service = this.sdk.getDevice().getServices().get(i);
                         
-                        
-                        for(int j=0; j< service.getPricesSize(); j++) {
-                            Price price = service.getPrices().get(j);
-                            System.out.println("      " + j + ": ServiceID: " + service.getId() + " ID:" + price.getId() + " Description:" + price.getDescription() + " PricePerUnit:" + price.getPricePerUnit() + " UnitID:" + price.getUnitDescription() + " UnitDescription:%s\n");
+                        if(service != null) {
+
+                            try {
+                                System.out.println("   " + i + ": Id:" + service.getId() + " Name:" + service.getName() + " Description:" + service.getDescription() + "\n");
+                            } catch(NullPointerException npe) {
+                                npe.printStackTrace();
+                                return new MenuReturnStruct("Null pointer exception amongst the service info", 0);
+                            }
+                            System.out.println("   Prices: \n");
+
+
+                            for(int j=0; j< service.getPricesSize(); j++) {
+                                Price price = service.getPrices().get(j);
+                                System.out.println("      " + j + ": ServiceID: " + service.getId() + " ID:" + price.getId() + " Description:" + price.getDescription() + " PricePerUnit:" + price.getPricePerUnit() + " UnitID:" + price.getUnitDescription() + " UnitDescription:%s\n");
+                            }
+
+                        } else {
+                            log.fine(i + ": service not configured (was null)");
                         }
                 }
 
-                System.out.println("IPv4Address: " + sdk.getDevice().getIpv4Address() + "\n");
-                System.out.println("CurrencyCode: " + sdk.getDevice().getCurrencyCode() + "\n");
+                System.out.println("IPv4Address: " + this.sdk.getDevice().getIpv4Address() + "\n");
+                System.out.println("CurrencyCode: " + this.sdk.getDevice().getCurrencyCode() + "\n");
 
                 return new MenuReturnStruct(null, 0);
                         
@@ -88,45 +87,45 @@ public class GeneralMenu {
             }                        
     }    
 
-    public MenuReturnStruct mInitDefaultDevice() {
-
-            //_sdk, err := wpwithin.Initialise(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION)
-            
-            try {
-                sdk.setup(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION);
-            } catch(TException e) {
-                return new MenuReturnStruct("SDK setup failed", 1);
-            }
-        
-            return new MenuReturnStruct(null, 0);
-
-    }
-
-    public MenuReturnStruct mInitNewDevice()  {
-
-            System.out.println("Name of device: ");
-            
-            Scanner scanner = new Scanner(System.in);
-            String nameOfDevice = scanner.next();
-            if(null == nameOfDevice || "".equals(nameOfDevice)) {
-                    return new MenuReturnStruct("Name of device not set", 0);
-            }
-
-            System.out.println("Description: ");
-            String description = scanner.next();
-            if(null == description || "".equals(description)) {
-                    return new MenuReturnStruct("Description of device not set", 0);
-            }
-                    
-            try {
-                sdk.setup(nameOfDevice, description);
-            } catch(TException e) {
-                return new MenuReturnStruct("Setup of device unsucessful", 0);
-            }
-            
-            return new MenuReturnStruct(null, 0);
-            
-    }
+//    public MenuReturnStruct mInitDefaultDevice() {
+//
+//            //_sdk, err := wpwithin.Initialise(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION)
+//            
+//            try {
+//                super.sdk.setup(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION);
+//            } catch(TException e) {
+//                return new MenuReturnStruct("SDK setup failed", 1);
+//            }
+//        
+//            return new MenuReturnStruct(null, 0);
+//
+//    }
+//
+//    public MenuReturnStruct mInitNewDevice()  {
+//
+//            System.out.println("Name of device: ");
+//            
+//            Scanner scanner = new Scanner(System.in);
+//            String nameOfDevice = scanner.next();
+//            if(null == nameOfDevice || "".equals(nameOfDevice)) {
+//                    return new MenuReturnStruct("Name of device not set", 0);
+//            }
+//
+//            System.out.println("Description: ");
+//            String description = scanner.next();
+//            if(null == description || "".equals(description)) {
+//                    return new MenuReturnStruct("Description of device not set", 0);
+//            }
+//                    
+//            try {
+//                sdk.setup(nameOfDevice, description);
+//            } catch(TException e) {
+//                return new MenuReturnStruct("Setup of device unsucessful", 0);
+//            }
+//            
+//            return new MenuReturnStruct(null, 0);
+//            
+//    }
 
     
     public MenuReturnStruct mCarWashDemoConsumer() {
