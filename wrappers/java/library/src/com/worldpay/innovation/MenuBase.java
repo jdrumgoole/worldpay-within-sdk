@@ -18,25 +18,16 @@ import org.apache.thrift.TException;
  * @author worldpay
  */
 public class MenuBase {
-
-    protected static final Logger log = Logger.getLogger( MenuBase.class.getName() );    
+   
     protected final String DEFAULT_DEVICE_NAME = "conorhwp-macbook";
     protected final String DEFAULT_DEVICE_DESCRIPTION = "Conor H WP - Raspberry Pi";    
     private final WPWithin.Client sdk;
     
     public MenuBase(WPWithin.Client _client) {
-        log.setLevel(Level.FINE);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.FINE);
-        log.addHandler(handler);
         this.sdk = _client;
     }
     
     public MenuBase() {
-        log.setLevel(Level.FINE);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setLevel(Level.FINE);
-        log.addHandler(handler);
         this.sdk = null;
     } 
     

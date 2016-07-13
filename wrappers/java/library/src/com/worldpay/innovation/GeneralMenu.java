@@ -34,8 +34,18 @@ public class GeneralMenu extends MenuBase {
     public GeneralMenu(WPWithin.Client _client) {
         super(_client);
         this.sdk = _client;
+        setupLog();
     } 
+
+    protected static final Logger log = Logger.getLogger( GeneralMenu.class.getName() ); 
+    public void setupLog() {
+        log.setLevel(Level.FINE);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.FINE);
+        log.addHandler(handler);
+    }
         
+    
     public MenuReturnStruct mGetDeviceInfo() {
 
             if(this.sdk == null) {

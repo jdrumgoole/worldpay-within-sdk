@@ -28,8 +28,18 @@ public class MenuSystem extends MenuBase {
 
     public MenuSystem() {
         super();
+        setupLog();
     } 
-        
+    
+    protected static final Logger log = Logger.getLogger( MenuBase.class.getName() ); 
+    public void setupLog() {
+        log.setLevel(Level.FINE);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.FINE);
+        log.addHandler(handler);
+    }
+
+    
     public MenuReturnStruct mInvalidSelection() {
         return new MenuReturnStruct("*** Invalid menu selection - please choose another item ***", 0);
     }

@@ -11,6 +11,9 @@ import com.worldpay.innovation.wpwithin.rpc.types.Price;
 import com.worldpay.innovation.wpwithin.rpc.types.PricePerUnit;
 import com.worldpay.innovation.wpwithin.rpc.types.Service;
 import java.util.Scanner;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.thrift.TException;
 
 /**
@@ -29,7 +32,16 @@ public class ProducerMenu extends MenuBase {
     public ProducerMenu(WPWithin.Client _client) {
         super(_client);
         this.sdk = _client;
+        setupLog();
     } 
+
+    protected static final Logger log = Logger.getLogger( ProducerMenu.class.getName() ); 
+    public void setupLog() {
+        log.setLevel(Level.FINE);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.FINE);
+        log.addHandler(handler);
+    }
     
     public MenuReturnStruct mBroadcast() {
 	System.out.print("Broadcast timeout in milliseconds: ");
@@ -164,14 +176,14 @@ public class ProducerMenu extends MenuBase {
             
             Price washPriceCar = new Price();
             washPriceCar.setUnitId(1);
-            washPriceCar.setId(1);
+            washPriceCar.setId(0);
             washPriceCar.setDescription("Car wash");
             washPriceCar.setUnitDescription("Single wash");
             washPriceCar.setPricePerUnit(new PricePerUnit(500, "GBP"));
 
             Price washPriceSUV = new Price();
             washPriceSUV.setUnitId(1);
-            washPriceSUV.setId(2);
+            washPriceSUV.setId(1);
             washPriceSUV.setDescription("SUV wash");
             washPriceSUV.setUnitDescription("Single wash");
             washPriceSUV.setPricePerUnit(new PricePerUnit(650, "GBP"));
@@ -184,7 +196,6 @@ public class ProducerMenu extends MenuBase {
             }
 
             try {
-                sdk.addService(roboWash); 
                 sdk.addService(roboWash); 
             } catch(TException e) {
                 return new MenuReturnStruct("Failed to add Service for roboWash", 0);
@@ -203,7 +214,7 @@ public class ProducerMenu extends MenuBase {
 
         Price airSinglePrice = new Price();
         airSinglePrice.setUnitId(1);
-        airSinglePrice.setId(1);
+        airSinglePrice.setId(0);
         airSinglePrice.setDescription("Measure and adjust pressue");
         airSinglePrice.setUnitDescription("Tyre");
         airSinglePrice.setPricePerUnit(new PricePerUnit(25, "GBP"));
@@ -211,7 +222,7 @@ public class ProducerMenu extends MenuBase {
         
         Price airFourPrice = new Price();
         airFourPrice.setUnitId(2);
-        airFourPrice.setId(2);
+        airFourPrice.setId(1);
         airFourPrice.setDescription("Measure and adjust pressure - four tyres for the price of three");
         airFourPrice.setUnitDescription("4 Tyre");
         airFourPrice.setPricePerUnit(new PricePerUnit(airSinglePrice.getPricePerUnit().getAmount() * 3, "GBP"));
@@ -224,7 +235,6 @@ public class ProducerMenu extends MenuBase {
         }
 
         try {
-            sdk.addService(roboAir); 
             sdk.addService(roboAir); 
         } catch(TException e) {
             return new MenuReturnStruct("Failed to addService for roboAir", 0);

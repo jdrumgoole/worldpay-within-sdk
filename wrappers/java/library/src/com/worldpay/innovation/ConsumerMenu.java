@@ -11,6 +11,7 @@ import com.worldpay.innovation.wpwithin.rpc.types.HCECard;
 import com.worldpay.innovation.wpwithin.rpc.types.ServiceMessage;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.thrift.TException;
@@ -26,7 +27,16 @@ public class ConsumerMenu extends MenuBase {
     public ConsumerMenu(WPWithin.Client _client) {
         super(_client);
         this.sdk = _client;
+        setupLog();
     } 
+
+    protected static final Logger log = Logger.getLogger( ConsumerMenu.class.getName() ); 
+    public void setupLog() {
+        log.setLevel(Level.FINE);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setLevel(Level.FINE);
+        log.addHandler(handler);
+    }
     
     
     public MenuReturnStruct mDefaultConsumer() {
