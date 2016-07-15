@@ -45,16 +45,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="worldpaywithin\rpc\types\Device.cs" />
-    <Compile Include="worldpaywithin\rpc\types\Error.cs" />
-    <Compile Include="worldpaywithin\rpc\types\HCECard.cs" />
-    <Compile Include="worldpaywithin\rpc\types\PaymentResponse.cs" />
-    <Compile Include="worldpaywithin\rpc\types\Price.cs" />
-    <Compile Include="worldpaywithin\rpc\types\Service.cs" />
-    <Compile Include="worldpaywithin\rpc\types\ServiceDetails.cs" />
-    <Compile Include="worldpaywithin\rpc\types\ServiceMessage.cs" />
-    <Compile Include="worldpaywithin\rpc\types\TotalPriceResponse.cs" />
-    <Compile Include="worldpaywithin\rpc\WPWithin.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\Device.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\Error.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\HCECard.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\PaymentResponse.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\Price.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\PricePerUnit.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\Service.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\ServiceDeliveryToken.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\ServiceDetails.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\ServiceMessage.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\TotalPriceResponse.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\WPWithin.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

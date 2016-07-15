@@ -15,30 +15,28 @@ using System.Runtime.Serialization;
 using Thrift.Protocol;
 using Thrift.Transport;
 
-namespace worldpaywithin.rpc.types
+namespace Worldpay.Innovation.WPWithin.Rpc.Types
 {
 
   #if !SILVERLIGHT
   [Serializable]
   #endif
-  public partial class TotalPriceResponse : TBase
+  public partial class Device : TBase
   {
 
-    public string ServerId { get; set; }
+    public string Uid { get; set; }
 
-    public string ClientId { get; set; }
+    public string Name { get; set; }
 
-    public int? PriceId { get; set; }
+    public string Description { get; set; }
 
-    public int? UnitsToSupply { get; set; }
+    public Dictionary<int, Service> Services { get; set; }
 
-    public int? TotalPrice { get; set; }
+    public string Ipv4Address { get; set; }
 
-    public string PaymentReferenceId { get; set; }
+    public string CurrencyCode { get; set; }
 
-    public string MerchantClientKey { get; set; }
-
-    public TotalPriceResponse() {
+    public Device() {
     }
 
     public void Read (TProtocol iprot)
@@ -58,49 +56,55 @@ namespace worldpaywithin.rpc.types
           {
             case 1:
               if (field.Type == TType.String) {
-                ServerId = iprot.ReadString();
+                Uid = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 2:
               if (field.Type == TType.String) {
-                ClientId = iprot.ReadString();
+                Name = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 3:
-              if (field.Type == TType.I32) {
-                PriceId = iprot.ReadI32();
+              if (field.Type == TType.String) {
+                Description = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 4:
-              if (field.Type == TType.I32) {
-                UnitsToSupply = iprot.ReadI32();
+              if (field.Type == TType.Map) {
+                {
+                  Services = new Dictionary<int, Service>();
+                  TMap _map5 = iprot.ReadMapBegin();
+                  for( int _i6 = 0; _i6 < _map5.Count; ++_i6)
+                  {
+                    int _key7;
+                    Service _val8;
+                    _key7 = iprot.ReadI32();
+                    _val8 = new Service();
+                    _val8.Read(iprot);
+                    Services[_key7] = _val8;
+                  }
+                  iprot.ReadMapEnd();
+                }
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 5:
-              if (field.Type == TType.I32) {
-                TotalPrice = iprot.ReadI32();
+              if (field.Type == TType.String) {
+                Ipv4Address = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 6:
               if (field.Type == TType.String) {
-                PaymentReferenceId = iprot.ReadString();
-              } else { 
-                TProtocolUtil.Skip(iprot, field.Type);
-              }
-              break;
-            case 7:
-              if (field.Type == TType.String) {
-                MerchantClientKey = iprot.ReadString();
+                CurrencyCode = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -123,63 +127,63 @@ namespace worldpaywithin.rpc.types
       oprot.IncrementRecursionDepth();
       try
       {
-        TStruct struc = new TStruct("TotalPriceResponse");
+        TStruct struc = new TStruct("Device");
         oprot.WriteStructBegin(struc);
         TField field = new TField();
-        if (ServerId != null) {
-          field.Name = "serverId";
+        if (Uid != null) {
+          field.Name = "uid";
           field.Type = TType.String;
           field.ID = 1;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(ServerId);
+          oprot.WriteString(Uid);
           oprot.WriteFieldEnd();
         }
-        if (ClientId != null) {
-          field.Name = "clientId";
+        if (Name != null) {
+          field.Name = "name";
           field.Type = TType.String;
           field.ID = 2;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(ClientId);
+          oprot.WriteString(Name);
           oprot.WriteFieldEnd();
         }
-        if (PriceId != null) {
-          field.Name = "priceId";
-          field.Type = TType.I32;
+        if (Description != null) {
+          field.Name = "description";
+          field.Type = TType.String;
           field.ID = 3;
           oprot.WriteFieldBegin(field);
-          oprot.WriteI32(PriceId.Value);
+          oprot.WriteString(Description);
           oprot.WriteFieldEnd();
         }
-        if (UnitsToSupply != null) {
-          field.Name = "unitsToSupply";
-          field.Type = TType.I32;
+        if (Services != null) {
+          field.Name = "services";
+          field.Type = TType.Map;
           field.ID = 4;
           oprot.WriteFieldBegin(field);
-          oprot.WriteI32(UnitsToSupply.Value);
+          {
+            oprot.WriteMapBegin(new TMap(TType.I32, TType.Struct, Services.Count));
+            foreach (int _iter9 in Services.Keys)
+            {
+              oprot.WriteI32(_iter9);
+              Services[_iter9].Write(oprot);
+            }
+            oprot.WriteMapEnd();
+          }
           oprot.WriteFieldEnd();
         }
-        if (TotalPrice != null) {
-          field.Name = "totalPrice";
-          field.Type = TType.I32;
+        if (Ipv4Address != null) {
+          field.Name = "ipv4Address";
+          field.Type = TType.String;
           field.ID = 5;
           oprot.WriteFieldBegin(field);
-          oprot.WriteI32(TotalPrice.Value);
+          oprot.WriteString(Ipv4Address);
           oprot.WriteFieldEnd();
         }
-        if (PaymentReferenceId != null) {
-          field.Name = "paymentReferenceId";
+        if (CurrencyCode != null) {
+          field.Name = "currencyCode";
           field.Type = TType.String;
           field.ID = 6;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(PaymentReferenceId);
-          oprot.WriteFieldEnd();
-        }
-        if (MerchantClientKey != null) {
-          field.Name = "merchantClientKey";
-          field.Type = TType.String;
-          field.ID = 7;
-          oprot.WriteFieldBegin(field);
-          oprot.WriteString(MerchantClientKey);
+          oprot.WriteString(CurrencyCode);
           oprot.WriteFieldEnd();
         }
         oprot.WriteFieldStop();
@@ -192,49 +196,43 @@ namespace worldpaywithin.rpc.types
     }
 
     public override string ToString() {
-      StringBuilder __sb = new StringBuilder("TotalPriceResponse(");
+      StringBuilder __sb = new StringBuilder("Device(");
       bool __first = true;
-      if (ServerId != null) {
+      if (Uid != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("ServerId: ");
-        __sb.Append(ServerId);
+        __sb.Append("Uid: ");
+        __sb.Append(Uid);
       }
-      if (ClientId != null) {
+      if (Name != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("ClientId: ");
-        __sb.Append(ClientId);
+        __sb.Append("Name: ");
+        __sb.Append(Name);
       }
-      if (PriceId != null) {
+      if (Description != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("PriceId: ");
-        __sb.Append(PriceId);
+        __sb.Append("Description: ");
+        __sb.Append(Description);
       }
-      if (UnitsToSupply != null) {
+      if (Services != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("UnitsToSupply: ");
-        __sb.Append(UnitsToSupply);
+        __sb.Append("Services: ");
+        __sb.Append(Services);
       }
-      if (TotalPrice != null) {
+      if (Ipv4Address != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("TotalPrice: ");
-        __sb.Append(TotalPrice);
+        __sb.Append("Ipv4Address: ");
+        __sb.Append(Ipv4Address);
       }
-      if (PaymentReferenceId != null) {
+      if (CurrencyCode != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("PaymentReferenceId: ");
-        __sb.Append(PaymentReferenceId);
-      }
-      if (MerchantClientKey != null) {
-        if(!__first) { __sb.Append(", "); }
-        __first = false;
-        __sb.Append("MerchantClientKey: ");
-        __sb.Append(MerchantClientKey);
+        __sb.Append("CurrencyCode: ");
+        __sb.Append(CurrencyCode);
       }
       __sb.Append(")");
       return __sb.ToString();

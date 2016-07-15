@@ -15,7 +15,7 @@ namespace Worldpay.Innovation.WPWithin
 
         public string Description { get; set; }
 
-        public int? PricePerUnit { get; set; }
+        public PricePerUnit PricePerUnit { get; set; }
 
         public int? UnitId { get; set; }
 

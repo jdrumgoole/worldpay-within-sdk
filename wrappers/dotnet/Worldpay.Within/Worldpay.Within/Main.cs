@@ -3,22 +3,22 @@ using System;
 using Thrift.Collections;
 using Thrift.Protocol;
 using Thrift.Transport;
-using WWRpc = worldpaywithin.rpc.WPWithin;
-using WWRpcTypes = worldpaywithin.rpc.types;
+using WWRpc = Worldpay.Innovation.WPWithin.Rpc.WPWithin;
+using WWRpcTypes = Worldpay.Innovation.WPWithin.Rpc.Types;
 
 namespace Worldpay.Innovation.WPWithin
 {
 
     public class Main
     {
-        private static ILog log = LogManager.GetLogger<Main>();
+        private static readonly ILog Log = LogManager.GetLogger<Main>();
 
         public void SendSimpleMessage()
         {
-            String host = "127.0.0.1";
-            int port = 9091;
+            const string host = "127.0.0.1";
+            const int port = 9091;
 
-            log.InfoFormat("Opening TSocket to {0}:{1}", host, port);
+            Log.InfoFormat("Opening TSocket to {0}:{1}", host, port);
             TTransport transport = new TSocket(host, port);
             transport.Open();
 
@@ -30,7 +30,7 @@ namespace Worldpay.Innovation.WPWithin
             Broadcast(client);
             Discovery(client);
 
-            log.Info("All done, closing transport");
+            Log.Info("All done, closing transport");
             transport.Close();
         }
 
@@ -43,11 +43,11 @@ namespace Worldpay.Innovation.WPWithin
             {
                 foreach (WWRpcTypes.ServiceMessage svcMsg in svcMsgs)
                 {
-                    log.InfoFormat("{0} - {1} - {2} - {3}", svcMsg.DeviceDescription, svcMsg.Hostname, svcMsg.PortNumber, svcMsg.ServerId);
+                    Log.InfoFormat("{0} - {1} - {2} - {3}", svcMsg.DeviceDescription, svcMsg.Hostname, svcMsg.PortNumber, svcMsg.ServerId);
                 }
             } else
             {
-                log.Info("Broadcast ok, but no services found");
+                Log.Info("Broadcast ok, but no services found");
             }
         }
 

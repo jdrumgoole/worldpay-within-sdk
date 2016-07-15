@@ -55,9 +55,16 @@
     <Compile Include="Device.cs" />
     <Compile Include="HceCard.cs" />
     <Compile Include="PaymentResponse.cs" />
+    <Compile Include="PricePerUnit.cs" />
     <Compile Include="ServiceDetails.cs" />
     <Compile Include="ServiceMessage.cs" />
     <Compile Include="ServiceProducer.cs" />
+    <Compile Include="ThriftAdapters\CollectionUtils.cs" />
+    <Compile Include="ThriftAdapters\DeviceAdapter.cs" />
+    <Compile Include="ThriftAdapters\HceCardAdapter.cs" />
+    <Compile Include="ThriftAdapters\PriceAdapter.cs" />
+    <Compile Include="ThriftAdapters\PricePerUnitAdapter.cs" />
+    <Compile Include="ThriftAdapters\ServiceAdapter.cs" />
     <Compile Include="TotalPriceResponse.cs" />
     <Compile Include="Utils\EqualsBuilder.cs" />
     <Compile Include="Utils\HashCodeBuilder.cs" />

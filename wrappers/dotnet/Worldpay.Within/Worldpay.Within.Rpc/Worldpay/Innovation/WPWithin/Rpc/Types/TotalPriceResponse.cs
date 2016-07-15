@@ -15,26 +15,30 @@ using System.Runtime.Serialization;
 using Thrift.Protocol;
 using Thrift.Transport;
 
-namespace worldpaywithin.rpc.types
+namespace Worldpay.Innovation.WPWithin.Rpc.Types
 {
 
   #if !SILVERLIGHT
   [Serializable]
   #endif
-  public partial class PaymentResponse : TBase
+  public partial class TotalPriceResponse : TBase
   {
 
     public string ServerId { get; set; }
 
     public string ClientId { get; set; }
 
-    public int? TotalPaid { get; set; }
+    public int? PriceId { get; set; }
 
-    public string ServiceDeliveryToken { get; set; }
+    public int? UnitsToSupply { get; set; }
 
-    public string ClientUUID { get; set; }
+    public int? TotalPrice { get; set; }
 
-    public PaymentResponse() {
+    public string PaymentReferenceId { get; set; }
+
+    public string MerchantClientKey { get; set; }
+
+    public TotalPriceResponse() {
     }
 
     public void Read (TProtocol iprot)
@@ -68,21 +72,35 @@ namespace worldpaywithin.rpc.types
               break;
             case 3:
               if (field.Type == TType.I32) {
-                TotalPaid = iprot.ReadI32();
+                PriceId = iprot.ReadI32();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 4:
-              if (field.Type == TType.String) {
-                ServiceDeliveryToken = iprot.ReadString();
+              if (field.Type == TType.I32) {
+                UnitsToSupply = iprot.ReadI32();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 5:
+              if (field.Type == TType.I32) {
+                TotalPrice = iprot.ReadI32();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 6:
               if (field.Type == TType.String) {
-                ClientUUID = iprot.ReadString();
+                PaymentReferenceId = iprot.ReadString();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 7:
+              if (field.Type == TType.String) {
+                MerchantClientKey = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -105,7 +123,7 @@ namespace worldpaywithin.rpc.types
       oprot.IncrementRecursionDepth();
       try
       {
-        TStruct struc = new TStruct("PaymentResponse");
+        TStruct struc = new TStruct("TotalPriceResponse");
         oprot.WriteStructBegin(struc);
         TField field = new TField();
         if (ServerId != null) {
@@ -124,28 +142,44 @@ namespace worldpaywithin.rpc.types
           oprot.WriteString(ClientId);
           oprot.WriteFieldEnd();
         }
-        if (TotalPaid != null) {
-          field.Name = "totalPaid";
+        if (PriceId != null) {
+          field.Name = "priceId";
           field.Type = TType.I32;
           field.ID = 3;
           oprot.WriteFieldBegin(field);
-          oprot.WriteI32(TotalPaid.Value);
+          oprot.WriteI32(PriceId.Value);
           oprot.WriteFieldEnd();
         }
-        if (ServiceDeliveryToken != null) {
-          field.Name = "serviceDeliveryToken";
-          field.Type = TType.String;
+        if (UnitsToSupply != null) {
+          field.Name = "unitsToSupply";
+          field.Type = TType.I32;
           field.ID = 4;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(ServiceDeliveryToken);
+          oprot.WriteI32(UnitsToSupply.Value);
           oprot.WriteFieldEnd();
         }
-        if (ClientUUID != null) {
-          field.Name = "ClientUUID";
-          field.Type = TType.String;
+        if (TotalPrice != null) {
+          field.Name = "totalPrice";
+          field.Type = TType.I32;
           field.ID = 5;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(ClientUUID);
+          oprot.WriteI32(TotalPrice.Value);
+          oprot.WriteFieldEnd();
+        }
+        if (PaymentReferenceId != null) {
+          field.Name = "paymentReferenceId";
+          field.Type = TType.String;
+          field.ID = 6;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteString(PaymentReferenceId);
+          oprot.WriteFieldEnd();
+        }
+        if (MerchantClientKey != null) {
+          field.Name = "merchantClientKey";
+          field.Type = TType.String;
+          field.ID = 7;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteString(MerchantClientKey);
           oprot.WriteFieldEnd();
         }
         oprot.WriteFieldStop();
@@ -158,7 +192,7 @@ namespace worldpaywithin.rpc.types
     }
 
     public override string ToString() {
-      StringBuilder __sb = new StringBuilder("PaymentResponse(");
+      StringBuilder __sb = new StringBuilder("TotalPriceResponse(");
       bool __first = true;
       if (ServerId != null) {
         if(!__first) { __sb.Append(", "); }
@@ -172,23 +206,35 @@ namespace worldpaywithin.rpc.types
         __sb.Append("ClientId: ");
         __sb.Append(ClientId);
       }
-      if (TotalPaid != null) {
+      if (PriceId != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("TotalPaid: ");
-        __sb.Append(TotalPaid);
+        __sb.Append("PriceId: ");
+        __sb.Append(PriceId);
       }
-      if (ServiceDeliveryToken != null) {
+      if (UnitsToSupply != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("ServiceDeliveryToken: ");
-        __sb.Append(ServiceDeliveryToken);
+        __sb.Append("UnitsToSupply: ");
+        __sb.Append(UnitsToSupply);
       }
-      if (ClientUUID != null) {
+      if (TotalPrice != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("ClientUUID: ");
-        __sb.Append(ClientUUID);
+        __sb.Append("TotalPrice: ");
+        __sb.Append(TotalPrice);
+      }
+      if (PaymentReferenceId != null) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("PaymentReferenceId: ");
+        __sb.Append(PaymentReferenceId);
+      }
+      if (MerchantClientKey != null) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("MerchantClientKey: ");
+        __sb.Append(MerchantClientKey);
       }
       __sb.Append(")");
       return __sb.ToString();

@@ -15,7 +15,7 @@ using System.Runtime.Serialization;
 using Thrift.Protocol;
 using Thrift.Transport;
 
-namespace worldpaywithin.rpc
+namespace Worldpay.Innovation.WPWithin.Rpc
 {
   public partial class WPWithin {
     /// <summary>
@@ -27,19 +27,19 @@ namespace worldpaywithin.rpc
       IAsyncResult Begin_setup(AsyncCallback callback, object state, string name, string description);
       void End_setup(IAsyncResult asyncResult);
       #endif
-      void addService(worldpaywithin.rpc.types.Service svc);
+      void addService(Worldpay.Innovation.WPWithin.Rpc.Types.Service svc);
       #if SILVERLIGHT
-      IAsyncResult Begin_addService(AsyncCallback callback, object state, worldpaywithin.rpc.types.Service svc);
+      IAsyncResult Begin_addService(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.Service svc);
       void End_addService(IAsyncResult asyncResult);
       #endif
-      void removeService(worldpaywithin.rpc.types.Service svc);
+      void removeService(Worldpay.Innovation.WPWithin.Rpc.Types.Service svc);
       #if SILVERLIGHT
-      IAsyncResult Begin_removeService(AsyncCallback callback, object state, worldpaywithin.rpc.types.Service svc);
+      IAsyncResult Begin_removeService(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.Service svc);
       void End_removeService(IAsyncResult asyncResult);
       #endif
-      void initHCE(worldpaywithin.rpc.types.HCECard hceCard);
+      void initHCE(Worldpay.Innovation.WPWithin.Rpc.Types.HCECard hceCard);
       #if SILVERLIGHT
-      IAsyncResult Begin_initHCE(AsyncCallback callback, object state, worldpaywithin.rpc.types.HCECard hceCard);
+      IAsyncResult Begin_initHCE(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.HCECard hceCard);
       void End_initHCE(IAsyncResult asyncResult);
       #endif
       void initHTE(string merchantClientKey, string merchantServiceKey);
@@ -57,10 +57,10 @@ namespace worldpaywithin.rpc
       IAsyncResult Begin_initProducer(AsyncCallback callback, object state);
       void End_initProducer(IAsyncResult asyncResult);
       #endif
-      worldpaywithin.rpc.types.Device getDevice();
+      Worldpay.Innovation.WPWithin.Rpc.Types.Device getDevice();
       #if SILVERLIGHT
       IAsyncResult Begin_getDevice(AsyncCallback callback, object state);
-      worldpaywithin.rpc.types.Device End_getDevice(IAsyncResult asyncResult);
+      Worldpay.Innovation.WPWithin.Rpc.Types.Device End_getDevice(IAsyncResult asyncResult);
       #endif
       void startServiceBroadcast(int timeoutMillis);
       #if SILVERLIGHT
@@ -72,30 +72,30 @@ namespace worldpaywithin.rpc
       IAsyncResult Begin_stopServiceBroadcast(AsyncCallback callback, object state);
       void End_stopServiceBroadcast(IAsyncResult asyncResult);
       #endif
-      THashSet<worldpaywithin.rpc.types.ServiceMessage> serviceDiscovery(int timeoutMillis);
+      THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage> serviceDiscovery(int timeoutMillis);
       #if SILVERLIGHT
       IAsyncResult Begin_serviceDiscovery(AsyncCallback callback, object state, int timeoutMillis);
-      THashSet<worldpaywithin.rpc.types.ServiceMessage> End_serviceDiscovery(IAsyncResult asyncResult);
+      THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage> End_serviceDiscovery(IAsyncResult asyncResult);
       #endif
-      THashSet<worldpaywithin.rpc.types.ServiceDetails> requestServices();
+      THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails> requestServices();
       #if SILVERLIGHT
       IAsyncResult Begin_requestServices(AsyncCallback callback, object state);
-      THashSet<worldpaywithin.rpc.types.ServiceDetails> End_requestServices(IAsyncResult asyncResult);
+      THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails> End_requestServices(IAsyncResult asyncResult);
       #endif
-      THashSet<worldpaywithin.rpc.types.Price> getServicePrices(int serviceId);
+      THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.Price> getServicePrices(int serviceId);
       #if SILVERLIGHT
       IAsyncResult Begin_getServicePrices(AsyncCallback callback, object state, int serviceId);
-      THashSet<worldpaywithin.rpc.types.Price> End_getServicePrices(IAsyncResult asyncResult);
+      THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.Price> End_getServicePrices(IAsyncResult asyncResult);
       #endif
-      worldpaywithin.rpc.types.TotalPriceResponse selectService(int serviceId, int numberOfUnits, int priceId);
+      Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse selectService(int serviceId, int numberOfUnits, int priceId);
       #if SILVERLIGHT
       IAsyncResult Begin_selectService(AsyncCallback callback, object state, int serviceId, int numberOfUnits, int priceId);
-      worldpaywithin.rpc.types.TotalPriceResponse End_selectService(IAsyncResult asyncResult);
+      Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse End_selectService(IAsyncResult asyncResult);
       #endif
-      worldpaywithin.rpc.types.PaymentResponse makePayment(worldpaywithin.rpc.types.TotalPriceResponse request);
+      Worldpay.Innovation.WPWithin.Rpc.Types.PaymentResponse makePayment(Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse request);
       #if SILVERLIGHT
-      IAsyncResult Begin_makePayment(AsyncCallback callback, object state, worldpaywithin.rpc.types.TotalPriceResponse request);
-      worldpaywithin.rpc.types.PaymentResponse End_makePayment(IAsyncResult asyncResult);
+      IAsyncResult Begin_makePayment(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse request);
+      Worldpay.Innovation.WPWithin.Rpc.Types.PaymentResponse End_makePayment(IAsyncResult asyncResult);
       #endif
     }
 
@@ -223,7 +223,7 @@ namespace worldpaywithin.rpc
 
       
       #if SILVERLIGHT
-      public IAsyncResult Begin_addService(AsyncCallback callback, object state, worldpaywithin.rpc.types.Service svc)
+      public IAsyncResult Begin_addService(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.Service svc)
       {
         return send_addService(callback, state, svc);
       }
@@ -236,7 +236,7 @@ namespace worldpaywithin.rpc
 
       #endif
 
-      public void addService(worldpaywithin.rpc.types.Service svc)
+      public void addService(Worldpay.Innovation.WPWithin.Rpc.Types.Service svc)
       {
         #if !SILVERLIGHT
         send_addService(svc);
@@ -249,9 +249,9 @@ namespace worldpaywithin.rpc
         #endif
       }
       #if SILVERLIGHT
-      public IAsyncResult send_addService(AsyncCallback callback, object state, worldpaywithin.rpc.types.Service svc)
+      public IAsyncResult send_addService(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.Service svc)
       #else
-      public void send_addService(worldpaywithin.rpc.types.Service svc)
+      public void send_addService(Worldpay.Innovation.WPWithin.Rpc.Types.Service svc)
       #endif
       {
         oprot_.WriteMessageBegin(new TMessage("addService", TMessageType.Call, seqid_));
@@ -285,7 +285,7 @@ namespace worldpaywithin.rpc
 
       
       #if SILVERLIGHT
-      public IAsyncResult Begin_removeService(AsyncCallback callback, object state, worldpaywithin.rpc.types.Service svc)
+      public IAsyncResult Begin_removeService(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.Service svc)
       {
         return send_removeService(callback, state, svc);
       }
@@ -298,7 +298,7 @@ namespace worldpaywithin.rpc
 
       #endif
 
-      public void removeService(worldpaywithin.rpc.types.Service svc)
+      public void removeService(Worldpay.Innovation.WPWithin.Rpc.Types.Service svc)
       {
         #if !SILVERLIGHT
         send_removeService(svc);
@@ -311,9 +311,9 @@ namespace worldpaywithin.rpc
         #endif
       }
       #if SILVERLIGHT
-      public IAsyncResult send_removeService(AsyncCallback callback, object state, worldpaywithin.rpc.types.Service svc)
+      public IAsyncResult send_removeService(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.Service svc)
       #else
-      public void send_removeService(worldpaywithin.rpc.types.Service svc)
+      public void send_removeService(Worldpay.Innovation.WPWithin.Rpc.Types.Service svc)
       #endif
       {
         oprot_.WriteMessageBegin(new TMessage("removeService", TMessageType.Call, seqid_));
@@ -347,7 +347,7 @@ namespace worldpaywithin.rpc
 
       
       #if SILVERLIGHT
-      public IAsyncResult Begin_initHCE(AsyncCallback callback, object state, worldpaywithin.rpc.types.HCECard hceCard)
+      public IAsyncResult Begin_initHCE(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.HCECard hceCard)
       {
         return send_initHCE(callback, state, hceCard);
       }
@@ -360,7 +360,7 @@ namespace worldpaywithin.rpc
 
       #endif
 
-      public void initHCE(worldpaywithin.rpc.types.HCECard hceCard)
+      public void initHCE(Worldpay.Innovation.WPWithin.Rpc.Types.HCECard hceCard)
       {
         #if !SILVERLIGHT
         send_initHCE(hceCard);
@@ -373,9 +373,9 @@ namespace worldpaywithin.rpc
         #endif
       }
       #if SILVERLIGHT
-      public IAsyncResult send_initHCE(AsyncCallback callback, object state, worldpaywithin.rpc.types.HCECard hceCard)
+      public IAsyncResult send_initHCE(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.HCECard hceCard)
       #else
-      public void send_initHCE(worldpaywithin.rpc.types.HCECard hceCard)
+      public void send_initHCE(Worldpay.Innovation.WPWithin.Rpc.Types.HCECard hceCard)
       #endif
       {
         oprot_.WriteMessageBegin(new TMessage("initHCE", TMessageType.Call, seqid_));
@@ -604,7 +604,7 @@ namespace worldpaywithin.rpc
         return send_getDevice(callback, state);
       }
 
-      public worldpaywithin.rpc.types.Device End_getDevice(IAsyncResult asyncResult)
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Device End_getDevice(IAsyncResult asyncResult)
       {
         oprot_.Transport.EndFlush(asyncResult);
         return recv_getDevice();
@@ -612,7 +612,7 @@ namespace worldpaywithin.rpc
 
       #endif
 
-      public worldpaywithin.rpc.types.Device getDevice()
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Device getDevice()
       {
         #if !SILVERLIGHT
         send_getDevice();
@@ -641,7 +641,7 @@ namespace worldpaywithin.rpc
         #endif
       }
 
-      public worldpaywithin.rpc.types.Device recv_getDevice()
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Device recv_getDevice()
       {
         TMessage msg = iprot_.ReadMessageBegin();
         if (msg.Type == TMessageType.Exception) {
@@ -788,7 +788,7 @@ namespace worldpaywithin.rpc
         return send_serviceDiscovery(callback, state, timeoutMillis);
       }
 
-      public THashSet<worldpaywithin.rpc.types.ServiceMessage> End_serviceDiscovery(IAsyncResult asyncResult)
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage> End_serviceDiscovery(IAsyncResult asyncResult)
       {
         oprot_.Transport.EndFlush(asyncResult);
         return recv_serviceDiscovery();
@@ -796,7 +796,7 @@ namespace worldpaywithin.rpc
 
       #endif
 
-      public THashSet<worldpaywithin.rpc.types.ServiceMessage> serviceDiscovery(int timeoutMillis)
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage> serviceDiscovery(int timeoutMillis)
       {
         #if !SILVERLIGHT
         send_serviceDiscovery(timeoutMillis);
@@ -826,7 +826,7 @@ namespace worldpaywithin.rpc
         #endif
       }
 
-      public THashSet<worldpaywithin.rpc.types.ServiceMessage> recv_serviceDiscovery()
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage> recv_serviceDiscovery()
       {
         TMessage msg = iprot_.ReadMessageBegin();
         if (msg.Type == TMessageType.Exception) {
@@ -853,7 +853,7 @@ namespace worldpaywithin.rpc
         return send_requestServices(callback, state);
       }
 
-      public THashSet<worldpaywithin.rpc.types.ServiceDetails> End_requestServices(IAsyncResult asyncResult)
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails> End_requestServices(IAsyncResult asyncResult)
       {
         oprot_.Transport.EndFlush(asyncResult);
         return recv_requestServices();
@@ -861,7 +861,7 @@ namespace worldpaywithin.rpc
 
       #endif
 
-      public THashSet<worldpaywithin.rpc.types.ServiceDetails> requestServices()
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails> requestServices()
       {
         #if !SILVERLIGHT
         send_requestServices();
@@ -890,7 +890,7 @@ namespace worldpaywithin.rpc
         #endif
       }
 
-      public THashSet<worldpaywithin.rpc.types.ServiceDetails> recv_requestServices()
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails> recv_requestServices()
       {
         TMessage msg = iprot_.ReadMessageBegin();
         if (msg.Type == TMessageType.Exception) {
@@ -917,7 +917,7 @@ namespace worldpaywithin.rpc
         return send_getServicePrices(callback, state, serviceId);
       }
 
-      public THashSet<worldpaywithin.rpc.types.Price> End_getServicePrices(IAsyncResult asyncResult)
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.Price> End_getServicePrices(IAsyncResult asyncResult)
       {
         oprot_.Transport.EndFlush(asyncResult);
         return recv_getServicePrices();
@@ -925,7 +925,7 @@ namespace worldpaywithin.rpc
 
       #endif
 
-      public THashSet<worldpaywithin.rpc.types.Price> getServicePrices(int serviceId)
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.Price> getServicePrices(int serviceId)
       {
         #if !SILVERLIGHT
         send_getServicePrices(serviceId);
@@ -955,7 +955,7 @@ namespace worldpaywithin.rpc
         #endif
       }
 
-      public THashSet<worldpaywithin.rpc.types.Price> recv_getServicePrices()
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.Price> recv_getServicePrices()
       {
         TMessage msg = iprot_.ReadMessageBegin();
         if (msg.Type == TMessageType.Exception) {
@@ -982,7 +982,7 @@ namespace worldpaywithin.rpc
         return send_selectService(callback, state, serviceId, numberOfUnits, priceId);
       }
 
-      public worldpaywithin.rpc.types.TotalPriceResponse End_selectService(IAsyncResult asyncResult)
+      public Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse End_selectService(IAsyncResult asyncResult)
       {
         oprot_.Transport.EndFlush(asyncResult);
         return recv_selectService();
@@ -990,7 +990,7 @@ namespace worldpaywithin.rpc
 
       #endif
 
-      public worldpaywithin.rpc.types.TotalPriceResponse selectService(int serviceId, int numberOfUnits, int priceId)
+      public Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse selectService(int serviceId, int numberOfUnits, int priceId)
       {
         #if !SILVERLIGHT
         send_selectService(serviceId, numberOfUnits, priceId);
@@ -1022,7 +1022,7 @@ namespace worldpaywithin.rpc
         #endif
       }
 
-      public worldpaywithin.rpc.types.TotalPriceResponse recv_selectService()
+      public Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse recv_selectService()
       {
         TMessage msg = iprot_.ReadMessageBegin();
         if (msg.Type == TMessageType.Exception) {
@@ -1044,12 +1044,12 @@ namespace worldpaywithin.rpc
 
       
       #if SILVERLIGHT
-      public IAsyncResult Begin_makePayment(AsyncCallback callback, object state, worldpaywithin.rpc.types.TotalPriceResponse request)
+      public IAsyncResult Begin_makePayment(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse request)
       {
         return send_makePayment(callback, state, request);
       }
 
-      public worldpaywithin.rpc.types.PaymentResponse End_makePayment(IAsyncResult asyncResult)
+      public Worldpay.Innovation.WPWithin.Rpc.Types.PaymentResponse End_makePayment(IAsyncResult asyncResult)
       {
         oprot_.Transport.EndFlush(asyncResult);
         return recv_makePayment();
@@ -1057,7 +1057,7 @@ namespace worldpaywithin.rpc
 
       #endif
 
-      public worldpaywithin.rpc.types.PaymentResponse makePayment(worldpaywithin.rpc.types.TotalPriceResponse request)
+      public Worldpay.Innovation.WPWithin.Rpc.Types.PaymentResponse makePayment(Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse request)
       {
         #if !SILVERLIGHT
         send_makePayment(request);
@@ -1070,9 +1070,9 @@ namespace worldpaywithin.rpc
         #endif
       }
       #if SILVERLIGHT
-      public IAsyncResult send_makePayment(AsyncCallback callback, object state, worldpaywithin.rpc.types.TotalPriceResponse request)
+      public IAsyncResult send_makePayment(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse request)
       #else
-      public void send_makePayment(worldpaywithin.rpc.types.TotalPriceResponse request)
+      public void send_makePayment(Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse request)
       #endif
       {
         oprot_.WriteMessageBegin(new TMessage("makePayment", TMessageType.Call, seqid_));
@@ -1087,7 +1087,7 @@ namespace worldpaywithin.rpc
         #endif
       }
 
-      public worldpaywithin.rpc.types.PaymentResponse recv_makePayment()
+      public Worldpay.Innovation.WPWithin.Rpc.Types.PaymentResponse recv_makePayment()
       {
         TMessage msg = iprot_.ReadMessageBegin();
         if (msg.Type == TMessageType.Exception) {
@@ -1167,7 +1167,7 @@ namespace worldpaywithin.rpc
         setup_result result = new setup_result();
         try {
           iface_.setup(args.Name, args.Description);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("setup", TMessageType.Reply, seqid)); 
@@ -1184,7 +1184,7 @@ namespace worldpaywithin.rpc
         addService_result result = new addService_result();
         try {
           iface_.addService(args.Svc);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("addService", TMessageType.Reply, seqid)); 
@@ -1201,7 +1201,7 @@ namespace worldpaywithin.rpc
         removeService_result result = new removeService_result();
         try {
           iface_.removeService(args.Svc);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("removeService", TMessageType.Reply, seqid)); 
@@ -1218,7 +1218,7 @@ namespace worldpaywithin.rpc
         initHCE_result result = new initHCE_result();
         try {
           iface_.initHCE(args.HceCard);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("initHCE", TMessageType.Reply, seqid)); 
@@ -1235,7 +1235,7 @@ namespace worldpaywithin.rpc
         initHTE_result result = new initHTE_result();
         try {
           iface_.initHTE(args.MerchantClientKey, args.MerchantServiceKey);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("initHTE", TMessageType.Reply, seqid)); 
@@ -1252,7 +1252,7 @@ namespace worldpaywithin.rpc
         initConsumer_result result = new initConsumer_result();
         try {
           iface_.initConsumer(args.Scheme, args.Hostname, args.Port.Value, args.UrlPrefix, args.ServiceId);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("initConsumer", TMessageType.Reply, seqid)); 
@@ -1269,7 +1269,7 @@ namespace worldpaywithin.rpc
         initProducer_result result = new initProducer_result();
         try {
           iface_.initProducer();
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("initProducer", TMessageType.Reply, seqid)); 
@@ -1299,7 +1299,7 @@ namespace worldpaywithin.rpc
         startServiceBroadcast_result result = new startServiceBroadcast_result();
         try {
           iface_.startServiceBroadcast(args.TimeoutMillis.Value);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("startServiceBroadcast", TMessageType.Reply, seqid)); 
@@ -1316,7 +1316,7 @@ namespace worldpaywithin.rpc
         stopServiceBroadcast_result result = new stopServiceBroadcast_result();
         try {
           iface_.stopServiceBroadcast();
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("stopServiceBroadcast", TMessageType.Reply, seqid)); 
@@ -1333,7 +1333,7 @@ namespace worldpaywithin.rpc
         serviceDiscovery_result result = new serviceDiscovery_result();
         try {
           result.Success = iface_.serviceDiscovery(args.TimeoutMillis.Value);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("serviceDiscovery", TMessageType.Reply, seqid)); 
@@ -1350,7 +1350,7 @@ namespace worldpaywithin.rpc
         requestServices_result result = new requestServices_result();
         try {
           result.Success = iface_.requestServices();
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("requestServices", TMessageType.Reply, seqid)); 
@@ -1367,7 +1367,7 @@ namespace worldpaywithin.rpc
         getServicePrices_result result = new getServicePrices_result();
         try {
           result.Success = iface_.getServicePrices(args.ServiceId.Value);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("getServicePrices", TMessageType.Reply, seqid)); 
@@ -1384,7 +1384,7 @@ namespace worldpaywithin.rpc
         selectService_result result = new selectService_result();
         try {
           result.Success = iface_.selectService(args.ServiceId.Value, args.NumberOfUnits.Value, args.PriceId.Value);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("selectService", TMessageType.Reply, seqid)); 
@@ -1401,7 +1401,7 @@ namespace worldpaywithin.rpc
         makePayment_result result = new makePayment_result();
         try {
           result.Success = iface_.makePayment(args.Request);
-        } catch (worldpaywithin.rpc.types.Error err) {
+        } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
         oprot.WriteMessageBegin(new TMessage("makePayment", TMessageType.Reply, seqid)); 
@@ -1529,7 +1529,7 @@ namespace worldpaywithin.rpc
     public partial class setup_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public setup_result() {
       }
@@ -1551,7 +1551,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -1618,7 +1618,7 @@ namespace worldpaywithin.rpc
     public partial class addService_args : TBase
     {
 
-      public worldpaywithin.rpc.types.Service Svc { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Service Svc { get; set; }
 
       public addService_args() {
       }
@@ -1640,7 +1640,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Svc = new worldpaywithin.rpc.types.Service();
+                  Svc = new Worldpay.Innovation.WPWithin.Rpc.Types.Service();
                   Svc.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -1706,7 +1706,7 @@ namespace worldpaywithin.rpc
     public partial class addService_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public addService_result() {
       }
@@ -1728,7 +1728,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -1795,7 +1795,7 @@ namespace worldpaywithin.rpc
     public partial class removeService_args : TBase
     {
 
-      public worldpaywithin.rpc.types.Service Svc { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Service Svc { get; set; }
 
       public removeService_args() {
       }
@@ -1817,7 +1817,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Svc = new worldpaywithin.rpc.types.Service();
+                  Svc = new Worldpay.Innovation.WPWithin.Rpc.Types.Service();
                   Svc.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -1883,7 +1883,7 @@ namespace worldpaywithin.rpc
     public partial class removeService_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public removeService_result() {
       }
@@ -1905,7 +1905,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -1972,7 +1972,7 @@ namespace worldpaywithin.rpc
     public partial class initHCE_args : TBase
     {
 
-      public worldpaywithin.rpc.types.HCECard HceCard { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.HCECard HceCard { get; set; }
 
       public initHCE_args() {
       }
@@ -1994,7 +1994,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  HceCard = new worldpaywithin.rpc.types.HCECard();
+                  HceCard = new Worldpay.Innovation.WPWithin.Rpc.Types.HCECard();
                   HceCard.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -2060,7 +2060,7 @@ namespace worldpaywithin.rpc
     public partial class initHCE_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public initHCE_result() {
       }
@@ -2082,7 +2082,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -2259,7 +2259,7 @@ namespace worldpaywithin.rpc
     public partial class initHTE_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public initHTE_result() {
       }
@@ -2281,7 +2281,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -2527,7 +2527,7 @@ namespace worldpaywithin.rpc
     public partial class initConsumer_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public initConsumer_result() {
       }
@@ -2549,7 +2549,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -2678,7 +2678,7 @@ namespace worldpaywithin.rpc
     public partial class initProducer_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public initProducer_result() {
       }
@@ -2700,7 +2700,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -2829,7 +2829,7 @@ namespace worldpaywithin.rpc
     public partial class getDevice_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Device Success { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Device Success { get; set; }
 
       public getDevice_result() {
       }
@@ -2851,7 +2851,7 @@ namespace worldpaywithin.rpc
             {
               case 0:
                 if (field.Type == TType.Struct) {
-                  Success = new worldpaywithin.rpc.types.Device();
+                  Success = new Worldpay.Innovation.WPWithin.Rpc.Types.Device();
                   Success.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -3005,7 +3005,7 @@ namespace worldpaywithin.rpc
     public partial class startServiceBroadcast_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public startServiceBroadcast_result() {
       }
@@ -3027,7 +3027,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -3156,7 +3156,7 @@ namespace worldpaywithin.rpc
     public partial class stopServiceBroadcast_result : TBase
     {
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public stopServiceBroadcast_result() {
       }
@@ -3178,7 +3178,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -3332,9 +3332,9 @@ namespace worldpaywithin.rpc
     public partial class serviceDiscovery_result : TBase
     {
 
-      public THashSet<worldpaywithin.rpc.types.ServiceMessage> Success { get; set; }
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage> Success { get; set; }
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public serviceDiscovery_result() {
       }
@@ -3357,12 +3357,12 @@ namespace worldpaywithin.rpc
               case 0:
                 if (field.Type == TType.Set) {
                   {
-                    Success = new THashSet<worldpaywithin.rpc.types.ServiceMessage>();
+                    Success = new THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage>();
                     TSet _set0 = iprot.ReadSetBegin();
                     for( int _i1 = 0; _i1 < _set0.Count; ++_i1)
                     {
-                      worldpaywithin.rpc.types.ServiceMessage _elem2;
-                      _elem2 = new worldpaywithin.rpc.types.ServiceMessage();
+                      Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage _elem2;
+                      _elem2 = new Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage();
                       _elem2.Read(iprot);
                       Success.Add(_elem2);
                     }
@@ -3374,7 +3374,7 @@ namespace worldpaywithin.rpc
                 break;
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -3409,7 +3409,7 @@ namespace worldpaywithin.rpc
             oprot.WriteFieldBegin(field);
             {
               oprot.WriteSetBegin(new TSet(TType.Struct, Success.Count));
-              foreach (worldpaywithin.rpc.types.ServiceMessage _iter3 in Success)
+              foreach (Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessage _iter3 in Success)
               {
                 _iter3.Write(oprot);
               }
@@ -3523,9 +3523,9 @@ namespace worldpaywithin.rpc
     public partial class requestServices_result : TBase
     {
 
-      public THashSet<worldpaywithin.rpc.types.ServiceDetails> Success { get; set; }
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails> Success { get; set; }
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public requestServices_result() {
       }
@@ -3548,12 +3548,12 @@ namespace worldpaywithin.rpc
               case 0:
                 if (field.Type == TType.Set) {
                   {
-                    Success = new THashSet<worldpaywithin.rpc.types.ServiceDetails>();
+                    Success = new THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails>();
                     TSet _set4 = iprot.ReadSetBegin();
                     for( int _i5 = 0; _i5 < _set4.Count; ++_i5)
                     {
-                      worldpaywithin.rpc.types.ServiceDetails _elem6;
-                      _elem6 = new worldpaywithin.rpc.types.ServiceDetails();
+                      Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails _elem6;
+                      _elem6 = new Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails();
                       _elem6.Read(iprot);
                       Success.Add(_elem6);
                     }
@@ -3565,7 +3565,7 @@ namespace worldpaywithin.rpc
                 break;
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -3600,7 +3600,7 @@ namespace worldpaywithin.rpc
             oprot.WriteFieldBegin(field);
             {
               oprot.WriteSetBegin(new TSet(TType.Struct, Success.Count));
-              foreach (worldpaywithin.rpc.types.ServiceDetails _iter7 in Success)
+              foreach (Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetails _iter7 in Success)
               {
                 _iter7.Write(oprot);
               }
@@ -3739,9 +3739,9 @@ namespace worldpaywithin.rpc
     public partial class getServicePrices_result : TBase
     {
 
-      public THashSet<worldpaywithin.rpc.types.Price> Success { get; set; }
+      public THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.Price> Success { get; set; }
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public getServicePrices_result() {
       }
@@ -3764,12 +3764,12 @@ namespace worldpaywithin.rpc
               case 0:
                 if (field.Type == TType.Set) {
                   {
-                    Success = new THashSet<worldpaywithin.rpc.types.Price>();
+                    Success = new THashSet<Worldpay.Innovation.WPWithin.Rpc.Types.Price>();
                     TSet _set8 = iprot.ReadSetBegin();
                     for( int _i9 = 0; _i9 < _set8.Count; ++_i9)
                     {
-                      worldpaywithin.rpc.types.Price _elem10;
-                      _elem10 = new worldpaywithin.rpc.types.Price();
+                      Worldpay.Innovation.WPWithin.Rpc.Types.Price _elem10;
+                      _elem10 = new Worldpay.Innovation.WPWithin.Rpc.Types.Price();
                       _elem10.Read(iprot);
                       Success.Add(_elem10);
                     }
@@ -3781,7 +3781,7 @@ namespace worldpaywithin.rpc
                 break;
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -3816,7 +3816,7 @@ namespace worldpaywithin.rpc
             oprot.WriteFieldBegin(field);
             {
               oprot.WriteSetBegin(new TSet(TType.Struct, Success.Count));
-              foreach (worldpaywithin.rpc.types.Price _iter11 in Success)
+              foreach (Worldpay.Innovation.WPWithin.Rpc.Types.Price _iter11 in Success)
               {
                 _iter11.Write(oprot);
               }
@@ -4001,9 +4001,9 @@ namespace worldpaywithin.rpc
     public partial class selectService_result : TBase
     {
 
-      public worldpaywithin.rpc.types.TotalPriceResponse Success { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse Success { get; set; }
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public selectService_result() {
       }
@@ -4025,7 +4025,7 @@ namespace worldpaywithin.rpc
             {
               case 0:
                 if (field.Type == TType.Struct) {
-                  Success = new worldpaywithin.rpc.types.TotalPriceResponse();
+                  Success = new Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse();
                   Success.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -4033,7 +4033,7 @@ namespace worldpaywithin.rpc
                 break;
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -4113,7 +4113,7 @@ namespace worldpaywithin.rpc
     public partial class makePayment_args : TBase
     {
 
-      public worldpaywithin.rpc.types.TotalPriceResponse Request { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse Request { get; set; }
 
       public makePayment_args() {
       }
@@ -4135,7 +4135,7 @@ namespace worldpaywithin.rpc
             {
               case 1:
                 if (field.Type == TType.Struct) {
-                  Request = new worldpaywithin.rpc.types.TotalPriceResponse();
+                  Request = new Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse();
                   Request.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -4201,9 +4201,9 @@ namespace worldpaywithin.rpc
     public partial class makePayment_result : TBase
     {
 
-      public worldpaywithin.rpc.types.PaymentResponse Success { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.PaymentResponse Success { get; set; }
 
-      public worldpaywithin.rpc.types.Error Err { get; set; }
+      public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public makePayment_result() {
       }
@@ -4225,7 +4225,7 @@ namespace worldpaywithin.rpc
             {
               case 0:
                 if (field.Type == TType.Struct) {
-                  Success = new worldpaywithin.rpc.types.PaymentResponse();
+                  Success = new Worldpay.Innovation.WPWithin.Rpc.Types.PaymentResponse();
                   Success.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
@@ -4233,7 +4233,7 @@ namespace worldpaywithin.rpc
                 break;
               case 1:
                 if (field.Type == TType.Struct) {
-                  Err = new worldpaywithin.rpc.types.Error();
+                  Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
                   Err.Read(iprot);
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);

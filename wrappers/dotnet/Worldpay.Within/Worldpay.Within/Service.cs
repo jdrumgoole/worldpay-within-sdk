@@ -15,6 +15,8 @@ namespace Worldpay.Innovation.WPWithin
 
         public string Description { get; set; }
 
+        public Dictionary<int, Price> Prices { get; set; }
+
         public override int GetHashCode()
         {
             return new HashCodeBuilder<Service>(this).With(m => m.Id)

@@ -8,7 +8,7 @@
 
 include "wptypes.thrift"
 
-namespace csharp worldpaywithin.rpc
+namespace csharp Worldpay.Innovation.WPWithin.Rpc
 namespace java com.worldpay.innovation.wpwithin.rpc
 namespace go wpthrift
 

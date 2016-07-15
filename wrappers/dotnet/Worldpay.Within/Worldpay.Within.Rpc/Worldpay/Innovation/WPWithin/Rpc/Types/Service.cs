@@ -15,28 +15,24 @@ using System.Runtime.Serialization;
 using Thrift.Protocol;
 using Thrift.Transport;
 
-namespace worldpaywithin.rpc.types
+namespace Worldpay.Innovation.WPWithin.Rpc.Types
 {
 
   #if !SILVERLIGHT
   [Serializable]
   #endif
-  public partial class Price : TBase
+  public partial class Service : TBase
   {
-
-    public int? ServiceId { get; set; }
 
     public int? Id { get; set; }
 
+    public string Name { get; set; }
+
     public string Description { get; set; }
 
-    public int? PricePerUnit { get; set; }
+    public Dictionary<int, Price> Prices { get; set; }
 
-    public int? UnitId { get; set; }
-
-    public string UnitDescription { get; set; }
-
-    public Price() {
+    public Service() {
     }
 
     public void Read (TProtocol iprot)
@@ -56,14 +52,14 @@ namespace worldpaywithin.rpc.types
           {
             case 1:
               if (field.Type == TType.I32) {
-                ServiceId = iprot.ReadI32();
+                Id = iprot.ReadI32();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 2:
-              if (field.Type == TType.I32) {
-                Id = iprot.ReadI32();
+              if (field.Type == TType.String) {
+                Name = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -76,22 +72,21 @@ namespace worldpaywithin.rpc.types
               }
               break;
             case 4:
-              if (field.Type == TType.I32) {
-                PricePerUnit = iprot.ReadI32();
-              } else { 
-                TProtocolUtil.Skip(iprot, field.Type);
-              }
-              break;
-            case 5:
-              if (field.Type == TType.I32) {
-                UnitId = iprot.ReadI32();
-              } else { 
-                TProtocolUtil.Skip(iprot, field.Type);
-              }
-              break;
-            case 6:
-              if (field.Type == TType.String) {
-                UnitDescription = iprot.ReadString();
+              if (field.Type == TType.Map) {
+                {
+                  Prices = new Dictionary<int, Price>();
+                  TMap _map0 = iprot.ReadMapBegin();
+                  for( int _i1 = 0; _i1 < _map0.Count; ++_i1)
+                  {
+                    int _key2;
+                    Price _val3;
+                    _key2 = iprot.ReadI32();
+                    _val3 = new Price();
+                    _val3.Read(iprot);
+                    Prices[_key2] = _val3;
+                  }
+                  iprot.ReadMapEnd();
+                }
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -114,23 +109,23 @@ namespace worldpaywithin.rpc.types
       oprot.IncrementRecursionDepth();
       try
       {
-        TStruct struc = new TStruct("Price");
+        TStruct struc = new TStruct("Service");
         oprot.WriteStructBegin(struc);
         TField field = new TField();
-        if (ServiceId != null) {
-          field.Name = "serviceId";
-          field.Type = TType.I32;
-          field.ID = 1;
-          oprot.WriteFieldBegin(field);
-          oprot.WriteI32(ServiceId.Value);
-          oprot.WriteFieldEnd();
-        }
         if (Id != null) {
           field.Name = "id";
           field.Type = TType.I32;
-          field.ID = 2;
+          field.ID = 1;
           oprot.WriteFieldBegin(field);
           oprot.WriteI32(Id.Value);
+          oprot.WriteFieldEnd();
+        }
+        if (Name != null) {
+          field.Name = "name";
+          field.Type = TType.String;
+          field.ID = 2;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteString(Name);
           oprot.WriteFieldEnd();
         }
         if (Description != null) {
@@ -141,28 +136,20 @@ namespace worldpaywithin.rpc.types
           oprot.WriteString(Description);
           oprot.WriteFieldEnd();
         }
-        if (PricePerUnit != null) {
-          field.Name = "pricePerUnit";
-          field.Type = TType.I32;
+        if (Prices != null) {
+          field.Name = "prices";
+          field.Type = TType.Map;
           field.ID = 4;
           oprot.WriteFieldBegin(field);
-          oprot.WriteI32(PricePerUnit.Value);
-          oprot.WriteFieldEnd();
-        }
-        if (UnitId != null) {
-          field.Name = "unitId";
-          field.Type = TType.I32;
-          field.ID = 5;
-          oprot.WriteFieldBegin(field);
-          oprot.WriteI32(UnitId.Value);
-          oprot.WriteFieldEnd();
-        }
-        if (UnitDescription != null) {
-          field.Name = "unitDescription";
-          field.Type = TType.String;
-          field.ID = 6;
-          oprot.WriteFieldBegin(field);
-          oprot.WriteString(UnitDescription);
+          {
+            oprot.WriteMapBegin(new TMap(TType.I32, TType.Struct, Prices.Count));
+            foreach (int _iter4 in Prices.Keys)
+            {
+              oprot.WriteI32(_iter4);
+              Prices[_iter4].Write(oprot);
+            }
+            oprot.WriteMapEnd();
+          }
           oprot.WriteFieldEnd();
         }
         oprot.WriteFieldStop();
@@ -175,19 +162,19 @@ namespace worldpaywithin.rpc.types
     }
 
     public override string ToString() {
-      StringBuilder __sb = new StringBuilder("Price(");
+      StringBuilder __sb = new StringBuilder("Service(");
       bool __first = true;
-      if (ServiceId != null) {
-        if(!__first) { __sb.Append(", "); }
-        __first = false;
-        __sb.Append("ServiceId: ");
-        __sb.Append(ServiceId);
-      }
       if (Id != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
         __sb.Append("Id: ");
         __sb.Append(Id);
+      }
+      if (Name != null) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("Name: ");
+        __sb.Append(Name);
       }
       if (Description != null) {
         if(!__first) { __sb.Append(", "); }
@@ -195,23 +182,11 @@ namespace worldpaywithin.rpc.types
         __sb.Append("Description: ");
         __sb.Append(Description);
       }
-      if (PricePerUnit != null) {
+      if (Prices != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("PricePerUnit: ");
-        __sb.Append(PricePerUnit);
-      }
-      if (UnitId != null) {
-        if(!__first) { __sb.Append(", "); }
-        __first = false;
-        __sb.Append("UnitId: ");
-        __sb.Append(UnitId);
-      }
-      if (UnitDescription != null) {
-        if(!__first) { __sb.Append(", "); }
-        __first = false;
-        __sb.Append("UnitDescription: ");
-        __sb.Append(UnitDescription);
+        __sb.Append("Prices: ");
+        __sb.Append(Prices);
       }
       __sb.Append(")");
       return __sb.ToString();

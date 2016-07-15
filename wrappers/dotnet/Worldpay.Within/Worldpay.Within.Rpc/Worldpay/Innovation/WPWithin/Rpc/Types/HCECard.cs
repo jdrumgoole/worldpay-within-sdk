@@ -15,28 +15,30 @@ using System.Runtime.Serialization;
 using Thrift.Protocol;
 using Thrift.Transport;
 
-namespace worldpaywithin.rpc.types
+namespace Worldpay.Innovation.WPWithin.Rpc.Types
 {
 
   #if !SILVERLIGHT
   [Serializable]
   #endif
-  public partial class Device : TBase
+  public partial class HCECard : TBase
   {
 
-    public string Uid { get; set; }
+    public string FirstName { get; set; }
 
-    public string Name { get; set; }
+    public string LastName { get; set; }
 
-    public string Description { get; set; }
+    public int? ExpMonth { get; set; }
 
-    public Dictionary<int, Service> Services { get; set; }
+    public int? ExpYear { get; set; }
 
-    public string Ipv4Address { get; set; }
+    public string CardNumber { get; set; }
 
-    public string CurrencyCode { get; set; }
+    public string Type { get; set; }
 
-    public Device() {
+    public string Cvc { get; set; }
+
+    public HCECard() {
     }
 
     public void Read (TProtocol iprot)
@@ -56,55 +58,49 @@ namespace worldpaywithin.rpc.types
           {
             case 1:
               if (field.Type == TType.String) {
-                Uid = iprot.ReadString();
+                FirstName = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 2:
               if (field.Type == TType.String) {
-                Name = iprot.ReadString();
+                LastName = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 3:
-              if (field.Type == TType.String) {
-                Description = iprot.ReadString();
+              if (field.Type == TType.I32) {
+                ExpMonth = iprot.ReadI32();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 4:
-              if (field.Type == TType.Map) {
-                {
-                  Services = new Dictionary<int, Service>();
-                  TMap _map0 = iprot.ReadMapBegin();
-                  for( int _i1 = 0; _i1 < _map0.Count; ++_i1)
-                  {
-                    int _key2;
-                    Service _val3;
-                    _key2 = iprot.ReadI32();
-                    _val3 = new Service();
-                    _val3.Read(iprot);
-                    Services[_key2] = _val3;
-                  }
-                  iprot.ReadMapEnd();
-                }
+              if (field.Type == TType.I32) {
+                ExpYear = iprot.ReadI32();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 5:
               if (field.Type == TType.String) {
-                Ipv4Address = iprot.ReadString();
+                CardNumber = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 6:
               if (field.Type == TType.String) {
-                CurrencyCode = iprot.ReadString();
+                Type = iprot.ReadString();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 7:
+              if (field.Type == TType.String) {
+                Cvc = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -127,63 +123,63 @@ namespace worldpaywithin.rpc.types
       oprot.IncrementRecursionDepth();
       try
       {
-        TStruct struc = new TStruct("Device");
+        TStruct struc = new TStruct("HCECard");
         oprot.WriteStructBegin(struc);
         TField field = new TField();
-        if (Uid != null) {
-          field.Name = "uid";
+        if (FirstName != null) {
+          field.Name = "FirstName";
           field.Type = TType.String;
           field.ID = 1;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(Uid);
+          oprot.WriteString(FirstName);
           oprot.WriteFieldEnd();
         }
-        if (Name != null) {
-          field.Name = "name";
+        if (LastName != null) {
+          field.Name = "LastName";
           field.Type = TType.String;
           field.ID = 2;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(Name);
+          oprot.WriteString(LastName);
           oprot.WriteFieldEnd();
         }
-        if (Description != null) {
-          field.Name = "description";
-          field.Type = TType.String;
+        if (ExpMonth != null) {
+          field.Name = "ExpMonth";
+          field.Type = TType.I32;
           field.ID = 3;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(Description);
+          oprot.WriteI32(ExpMonth.Value);
           oprot.WriteFieldEnd();
         }
-        if (Services != null) {
-          field.Name = "services";
-          field.Type = TType.Map;
+        if (ExpYear != null) {
+          field.Name = "ExpYear";
+          field.Type = TType.I32;
           field.ID = 4;
           oprot.WriteFieldBegin(field);
-          {
-            oprot.WriteMapBegin(new TMap(TType.I32, TType.Struct, Services.Count));
-            foreach (int _iter4 in Services.Keys)
-            {
-              oprot.WriteI32(_iter4);
-              Services[_iter4].Write(oprot);
-            }
-            oprot.WriteMapEnd();
-          }
+          oprot.WriteI32(ExpYear.Value);
           oprot.WriteFieldEnd();
         }
-        if (Ipv4Address != null) {
-          field.Name = "ipv4Address";
+        if (CardNumber != null) {
+          field.Name = "CardNumber";
           field.Type = TType.String;
           field.ID = 5;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(Ipv4Address);
+          oprot.WriteString(CardNumber);
           oprot.WriteFieldEnd();
         }
-        if (CurrencyCode != null) {
-          field.Name = "currencyCode";
+        if (Type != null) {
+          field.Name = "Type";
           field.Type = TType.String;
           field.ID = 6;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(CurrencyCode);
+          oprot.WriteString(Type);
+          oprot.WriteFieldEnd();
+        }
+        if (Cvc != null) {
+          field.Name = "Cvc";
+          field.Type = TType.String;
+          field.ID = 7;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteString(Cvc);
           oprot.WriteFieldEnd();
         }
         oprot.WriteFieldStop();
@@ -196,43 +192,49 @@ namespace worldpaywithin.rpc.types
     }
 
     public override string ToString() {
-      StringBuilder __sb = new StringBuilder("Device(");
+      StringBuilder __sb = new StringBuilder("HCECard(");
       bool __first = true;
-      if (Uid != null) {
+      if (FirstName != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("Uid: ");
-        __sb.Append(Uid);
+        __sb.Append("FirstName: ");
+        __sb.Append(FirstName);
       }
-      if (Name != null) {
+      if (LastName != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("Name: ");
-        __sb.Append(Name);
+        __sb.Append("LastName: ");
+        __sb.Append(LastName);
       }
-      if (Description != null) {
+      if (ExpMonth != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("Description: ");
-        __sb.Append(Description);
+        __sb.Append("ExpMonth: ");
+        __sb.Append(ExpMonth);
       }
-      if (Services != null) {
+      if (ExpYear != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("Services: ");
-        __sb.Append(Services);
+        __sb.Append("ExpYear: ");
+        __sb.Append(ExpYear);
       }
-      if (Ipv4Address != null) {
+      if (CardNumber != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("Ipv4Address: ");
-        __sb.Append(Ipv4Address);
+        __sb.Append("CardNumber: ");
+        __sb.Append(CardNumber);
       }
-      if (CurrencyCode != null) {
+      if (Type != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("CurrencyCode: ");
-        __sb.Append(CurrencyCode);
+        __sb.Append("Type: ");
+        __sb.Append(Type);
+      }
+      if (Cvc != null) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("Cvc: ");
+        __sb.Append(Cvc);
       }
       __sb.Append(")");
       return __sb.ToString();

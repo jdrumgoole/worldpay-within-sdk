@@ -15,18 +15,20 @@ using System.Runtime.Serialization;
 using Thrift.Protocol;
 using Thrift.Transport;
 
-namespace worldpaywithin.rpc.types
+namespace Worldpay.Innovation.WPWithin.Rpc.Types
 {
 
   #if !SILVERLIGHT
   [Serializable]
   #endif
-  public partial class Error : TException, TBase
+  public partial class ServiceDetails : TBase
   {
 
-    public string Message { get; set; }
+    public int? ServiceId { get; set; }
 
-    public Error() {
+    public string ServiceDescription { get; set; }
+
+    public ServiceDetails() {
     }
 
     public void Read (TProtocol iprot)
@@ -45,8 +47,15 @@ namespace worldpaywithin.rpc.types
           switch (field.ID)
           {
             case 1:
+              if (field.Type == TType.I32) {
+                ServiceId = iprot.ReadI32();
+              } else { 
+                TProtocolUtil.Skip(iprot, field.Type);
+              }
+              break;
+            case 2:
               if (field.Type == TType.String) {
-                Message = iprot.ReadString();
+                ServiceDescription = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -69,15 +78,23 @@ namespace worldpaywithin.rpc.types
       oprot.IncrementRecursionDepth();
       try
       {
-        TStruct struc = new TStruct("Error");
+        TStruct struc = new TStruct("ServiceDetails");
         oprot.WriteStructBegin(struc);
         TField field = new TField();
-        if (Message != null) {
-          field.Name = "message";
-          field.Type = TType.String;
+        if (ServiceId != null) {
+          field.Name = "serviceId";
+          field.Type = TType.I32;
           field.ID = 1;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(Message);
+          oprot.WriteI32(ServiceId.Value);
+          oprot.WriteFieldEnd();
+        }
+        if (ServiceDescription != null) {
+          field.Name = "serviceDescription";
+          field.Type = TType.String;
+          field.ID = 2;
+          oprot.WriteFieldBegin(field);
+          oprot.WriteString(ServiceDescription);
           oprot.WriteFieldEnd();
         }
         oprot.WriteFieldStop();
@@ -90,13 +107,19 @@ namespace worldpaywithin.rpc.types
     }
 
     public override string ToString() {
-      StringBuilder __sb = new StringBuilder("Error(");
+      StringBuilder __sb = new StringBuilder("ServiceDetails(");
       bool __first = true;
-      if (Message != null) {
+      if (ServiceId != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("Message: ");
-        __sb.Append(Message);
+        __sb.Append("ServiceId: ");
+        __sb.Append(ServiceId);
+      }
+      if (ServiceDescription != null) {
+        if(!__first) { __sb.Append(", "); }
+        __first = false;
+        __sb.Append("ServiceDescription: ");
+        __sb.Append(ServiceDescription);
       }
       __sb.Append(")");
       return __sb.ToString();

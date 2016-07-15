@@ -15,30 +15,26 @@ using System.Runtime.Serialization;
 using Thrift.Protocol;
 using Thrift.Transport;
 
-namespace worldpaywithin.rpc.types
+namespace Worldpay.Innovation.WPWithin.Rpc.Types
 {
 
   #if !SILVERLIGHT
   [Serializable]
   #endif
-  public partial class HCECard : TBase
+  public partial class ServiceMessage : TBase
   {
 
-    public string FirstName { get; set; }
+    public string DeviceDescription { get; set; }
 
-    public string LastName { get; set; }
+    public string Hostname { get; set; }
 
-    public int? ExpMonth { get; set; }
+    public int? PortNumber { get; set; }
 
-    public int? ExpYear { get; set; }
+    public string ServerId { get; set; }
 
-    public string CardNumber { get; set; }
+    public string UrlPrefix { get; set; }
 
-    public string Type { get; set; }
-
-    public string Cvc { get; set; }
-
-    public HCECard() {
+    public ServiceMessage() {
     }
 
     public void Read (TProtocol iprot)
@@ -58,49 +54,35 @@ namespace worldpaywithin.rpc.types
           {
             case 1:
               if (field.Type == TType.String) {
-                FirstName = iprot.ReadString();
+                DeviceDescription = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 2:
               if (field.Type == TType.String) {
-                LastName = iprot.ReadString();
+                Hostname = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 3:
               if (field.Type == TType.I32) {
-                ExpMonth = iprot.ReadI32();
+                PortNumber = iprot.ReadI32();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 4:
-              if (field.Type == TType.I32) {
-                ExpYear = iprot.ReadI32();
+              if (field.Type == TType.String) {
+                ServerId = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
               break;
             case 5:
               if (field.Type == TType.String) {
-                CardNumber = iprot.ReadString();
-              } else { 
-                TProtocolUtil.Skip(iprot, field.Type);
-              }
-              break;
-            case 6:
-              if (field.Type == TType.String) {
-                Type = iprot.ReadString();
-              } else { 
-                TProtocolUtil.Skip(iprot, field.Type);
-              }
-              break;
-            case 7:
-              if (field.Type == TType.String) {
-                Cvc = iprot.ReadString();
+                UrlPrefix = iprot.ReadString();
               } else { 
                 TProtocolUtil.Skip(iprot, field.Type);
               }
@@ -123,63 +105,47 @@ namespace worldpaywithin.rpc.types
       oprot.IncrementRecursionDepth();
       try
       {
-        TStruct struc = new TStruct("HCECard");
+        TStruct struc = new TStruct("ServiceMessage");
         oprot.WriteStructBegin(struc);
         TField field = new TField();
-        if (FirstName != null) {
-          field.Name = "FirstName";
+        if (DeviceDescription != null) {
+          field.Name = "deviceDescription";
           field.Type = TType.String;
           field.ID = 1;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(FirstName);
+          oprot.WriteString(DeviceDescription);
           oprot.WriteFieldEnd();
         }
-        if (LastName != null) {
-          field.Name = "LastName";
+        if (Hostname != null) {
+          field.Name = "hostname";
           field.Type = TType.String;
           field.ID = 2;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(LastName);
+          oprot.WriteString(Hostname);
           oprot.WriteFieldEnd();
         }
-        if (ExpMonth != null) {
-          field.Name = "ExpMonth";
+        if (PortNumber != null) {
+          field.Name = "portNumber";
           field.Type = TType.I32;
           field.ID = 3;
           oprot.WriteFieldBegin(field);
-          oprot.WriteI32(ExpMonth.Value);
+          oprot.WriteI32(PortNumber.Value);
           oprot.WriteFieldEnd();
         }
-        if (ExpYear != null) {
-          field.Name = "ExpYear";
-          field.Type = TType.I32;
+        if (ServerId != null) {
+          field.Name = "serverId";
+          field.Type = TType.String;
           field.ID = 4;
           oprot.WriteFieldBegin(field);
-          oprot.WriteI32(ExpYear.Value);
+          oprot.WriteString(ServerId);
           oprot.WriteFieldEnd();
         }
-        if (CardNumber != null) {
-          field.Name = "CardNumber";
+        if (UrlPrefix != null) {
+          field.Name = "urlPrefix";
           field.Type = TType.String;
           field.ID = 5;
           oprot.WriteFieldBegin(field);
-          oprot.WriteString(CardNumber);
-          oprot.WriteFieldEnd();
-        }
-        if (Type != null) {
-          field.Name = "Type";
-          field.Type = TType.String;
-          field.ID = 6;
-          oprot.WriteFieldBegin(field);
-          oprot.WriteString(Type);
-          oprot.WriteFieldEnd();
-        }
-        if (Cvc != null) {
-          field.Name = "Cvc";
-          field.Type = TType.String;
-          field.ID = 7;
-          oprot.WriteFieldBegin(field);
-          oprot.WriteString(Cvc);
+          oprot.WriteString(UrlPrefix);
           oprot.WriteFieldEnd();
         }
         oprot.WriteFieldStop();
@@ -192,49 +158,37 @@ namespace worldpaywithin.rpc.types
     }
 
     public override string ToString() {
-      StringBuilder __sb = new StringBuilder("HCECard(");
+      StringBuilder __sb = new StringBuilder("ServiceMessage(");
       bool __first = true;
-      if (FirstName != null) {
+      if (DeviceDescription != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("FirstName: ");
-        __sb.Append(FirstName);
+        __sb.Append("DeviceDescription: ");
+        __sb.Append(DeviceDescription);
       }
-      if (LastName != null) {
+      if (Hostname != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("LastName: ");
-        __sb.Append(LastName);
+        __sb.Append("Hostname: ");
+        __sb.Append(Hostname);
       }
-      if (ExpMonth != null) {
+      if (PortNumber != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("ExpMonth: ");
-        __sb.Append(ExpMonth);
+        __sb.Append("PortNumber: ");
+        __sb.Append(PortNumber);
       }
-      if (ExpYear != null) {
+      if (ServerId != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("ExpYear: ");
-        __sb.Append(ExpYear);
+        __sb.Append("ServerId: ");
+        __sb.Append(ServerId);
       }
-      if (CardNumber != null) {
+      if (UrlPrefix != null) {
         if(!__first) { __sb.Append(", "); }
         __first = false;
-        __sb.Append("CardNumber: ");
-        __sb.Append(CardNumber);
-      }
-      if (Type != null) {
-        if(!__first) { __sb.Append(", "); }
-        __first = false;
-        __sb.Append("Type: ");
-        __sb.Append(Type);
-      }
-      if (Cvc != null) {
-        if(!__first) { __sb.Append(", "); }
-        __first = false;
-        __sb.Append("Cvc: ");
-        __sb.Append(Cvc);
+        __sb.Append("UrlPrefix: ");
+        __sb.Append(UrlPrefix);
       }
       __sb.Append(")");
       return __sb.ToString();
