@@ -100,7 +100,7 @@ func mCarWashDemoConsumer() (int, error) {
 	}
 
 	log.Debug("pre scan for services")
-	services, err := sdk.ServiceDiscovery(20000)
+	services, err := sdk.DeviceDiscovery(20000)
 	log.Debug("end scan for services")
 
 	if err != nil {
@@ -115,7 +115,7 @@ func mCarWashDemoConsumer() (int, error) {
 		fmt.Println("# Service:: (%s:%d/%s) - %s", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
 
 		log.Debug("Init consumer")
-		err := sdk.InitConsumer("http://", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.ServerID)
+		err := sdk.InitConsumer("http://", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.ServerID, &hceCard)
 
 		if err != nil {
 

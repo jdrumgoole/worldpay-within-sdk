@@ -15,21 +15,34 @@ type WPWithin interface {
 
 	AddService(service *types.Service) error
 	RemoveService(service *types.Service) error
-	InitHCE(hceCard types.HCECard) error
-	InitHTE(merchantClientKey, merchantServiceKey string) error
-	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error
-	InitProducer() (chan bool, error)
+	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string, hceCard *types.HCECard) error
+	InitProducer(merchantClientKey, merchantServiceKey string) error
 	GetDevice() *types.Device
 	StartServiceBroadcast(timeoutMillis int) error
 	StopServiceBroadcast()
-	ServiceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error)
+	DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error)
 	RequestServices() ([]types.ServiceDetails, error)
 	GetServicePrices(serviceId int) ([]types.Price, error)
 	SelectService(serviceId, numberOfUnits, priceId int) (types.TotalPriceResponse, error)
 	MakePayment(payRequest types.TotalPriceResponse) (types.PaymentResponse, error)
+	BeginServiceDelivery(clientId string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) error
+	EndServiceDelivery(clientId string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error
 }
 
 func Initialise(name, description string) (WPWithin, error) {
+
+	// Parameter validation
+
+	if name == "" {
+
+		return nil, errors.New("name should not be empty")
+
+	} else if description == "" {
+
+		return nil, errors.New("description should not be empty")
+	}
+
+	// Start initialisation tasks
 
 	if Factory == nil {
 
@@ -91,37 +104,6 @@ func Initialise(name, description string) (WPWithin, error) {
 	return result, nil
 }
 
-func (wp *wpWithinImpl) InitHTE(merchantClientKey, merchantServiceKey string) error {
-
-	if psp, err := Factory.GetPSPMerchant(merchantClientKey, merchantServiceKey); err != nil {
-
-		return errors.New(fmt.Sprintf("Unable to create psp", err.Error()))
-	} else {
-
-		wp.core.Psp = psp
-	}
-
-	hteCredential, err := hte.NewHTECredential(merchantClientKey, merchantServiceKey)
-
-	if err != nil {
-
-		return err
-	}
-
-	hteSvcHandler := Factory.GetHTEServiceHandler(wp.core.Device, wp.core.Psp, hteCredential, wp.core.OrderManager)
-
-	if svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, hteCredential, wp.core.OrderManager, hteSvcHandler); err != nil {
-
-		return err
-
-	} else {
-
-		wp.core.HTE = svc
-	}
-
-	return nil
-}
-
 type wpWithinImpl struct {
 
 	core *core.Core
@@ -155,7 +137,22 @@ func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 	return nil
 }
 
-func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string) error {
+func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string, hceCard *types.HCECard) error {
+
+	// Setup PSP as client
+
+	_psp, err := Factory.GetPSPClient()
+
+	if err != nil {
+
+		return err
+	}
+
+	wp.core.Psp = _psp
+
+	// Set core HCE Card
+
+	wp.core.HCECard = hceCard
 
 	// Setup HTE Client
 
@@ -178,7 +175,45 @@ func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, ur
 	return nil
 }
 
-func (wp *wpWithinImpl) InitProducer() (chan bool, error) {
+func (wp *wpWithinImpl) InitProducer(merchantClientKey, merchantServiceKey string) error {
+
+	// Paramter validation
+
+	if merchantClientKey == "" {
+
+		return errors.New("merchant client key should not be empty")
+	} else if merchantServiceKey == "" {
+
+		return errors.New("merchant service key should not be empty")
+	}
+
+	// Start HTE initialisation tasks
+
+	if psp, err := Factory.GetPSPMerchant(merchantClientKey, merchantServiceKey); err != nil {
+
+		return errors.New(fmt.Sprintf("Unable to create psp", err.Error()))
+	} else {
+
+		wp.core.Psp = psp
+	}
+
+	hteCredential, err := hte.NewHTECredential(merchantClientKey, merchantServiceKey)
+
+	if err != nil {
+
+		return err
+	}
+
+	hteSvcHandler := Factory.GetHTEServiceHandler(wp.core.Device, wp.core.Psp, hteCredential, wp.core.OrderManager)
+
+	if svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, hteCredential, wp.core.OrderManager, hteSvcHandler); err != nil {
+
+		return err
+
+	} else {
+
+		wp.core.HTE = svc
+	}
 
 	// Error channel allows us to get the error out of the go routine
 	chStartResult := make(chan error)
@@ -191,7 +226,7 @@ func (wp *wpWithinImpl) InitProducer() (chan bool, error) {
 	}()
 
 	// Receive the error from the channel or wait a predefined amount of time
-	// TODO CH : Fix this race condition
+	// TODO CH : Fix this race condition - Matthew B has a solution, find and implement.
 	select {
 
 	case res := <-chStartResult:
@@ -202,36 +237,12 @@ func (wp *wpWithinImpl) InitProducer() (chan bool, error) {
 
 	}
 
-	return nil, startErr
+	return startErr
 }
 
 func (wp *wpWithinImpl) GetDevice() *types.Device {
 
 	return wp.core.Device
-}
-
-func (wp *wpWithinImpl) InitHCE(hceCardCredential types.HCECard) error {
-
-	cred := new(types.HCECard)
-	cred.FirstName = hceCardCredential.FirstName
-	cred.LastName = hceCardCredential.LastName
-	cred.ExpMonth = hceCardCredential.ExpMonth
-	cred.ExpYear = hceCardCredential.ExpYear
-	cred.CardNumber = hceCardCredential.CardNumber
-	cred.Type = hceCardCredential.Type
-	cred.Cvc = hceCardCredential.Cvc
-
-	wp.core.HCECard = cred
-
-	if psp, err := Factory.GetPSPClient(); err != nil {
-
-		return errors.New(fmt.Sprintf("Unable to create psp", err.Error()))
-	} else {
-
-		wp.core.Psp = psp
-	}
-
-	return nil
 }
 
 func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
@@ -275,7 +286,7 @@ func (wp *wpWithinImpl) StopServiceBroadcast() {
 	wp.core.SvcBroadcaster.StopBroadcast()
 }
 
-func (wp *wpWithinImpl) ServiceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error) {
+func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error) {
 
 	svcResults := make([]types.ServiceMessage, 0)
 
@@ -359,4 +370,14 @@ func (wp *wpWithinImpl) RequestServices() ([]types.ServiceDetails, error) {
 func (wp *wpWithinImpl) Core() (*core.Core, error) {
 
 	return wp.core, nil
+}
+
+func (wp *wpWithinImpl) BeginServiceDelivery(clientId string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) error {
+
+	return nil
+}
+
+func (wp *wpWithinImpl) EndServiceDelivery(clientId string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error {
+
+	return nil
 }

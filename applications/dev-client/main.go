@@ -7,7 +7,10 @@ import
 	"time"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
 	"os"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
+
+var hceCard types.HCECard
 
 func main() {
 

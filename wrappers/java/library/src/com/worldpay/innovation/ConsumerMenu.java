@@ -106,7 +106,7 @@ public class ConsumerMenu extends MenuBase {
 	log.fine("pre scan for services");
         Set<ServiceMessage> services;
         try {
-            services = sdk.serviceDiscovery(20000);
+            services = sdk.deviceDiscovery(20000);
         } catch (TException ex) {
             Logger.getLogger(ConsumerMenu.class.getName()).log(Level.SEVERE, "Service Discovery failed for consumer", ex);
             return new MenuReturnStruct("Service Discovery failed for consumer", 0);
@@ -129,11 +129,11 @@ public class ConsumerMenu extends MenuBase {
             return new MenuReturnStruct("ERR_DEVICE_NOT_INITIALISED", 0);
 	}
 
-        try {
-            sdk.initHCE(card);
-        } catch(TException e) {
-            return new MenuReturnStruct("Issue initialising the HCE card", 0);    
-        }
+//        try {
+//            sdk.initHCE(card);
+//        } catch(TException e) {
+//            return new MenuReturnStruct("Issue initialising the HCE card", 0);
+//        }
         
 	return new MenuReturnStruct(null, 0);
     }
@@ -178,11 +178,11 @@ public class ConsumerMenu extends MenuBase {
 
 	HCECard card = new HCECard(firstName, lastName, expMonth, expYear, cardNumber, cardType, cvc);
 	
-        try {
-            sdk.initHCE(card);
-        } catch(TException e) {
-            return new MenuReturnStruct("Failed to initHCE card", 0);
-        }
+//        try {
+//            sdk.initHCE(card);
+//        } catch(TException e) {
+//            return new MenuReturnStruct("Failed to initHCE card", 0);
+//        }
 
 	return new MenuReturnStruct(null, 0);
     }    

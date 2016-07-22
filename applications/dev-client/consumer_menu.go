@@ -58,7 +58,7 @@ func mScanService() (int, error) {
 	}
 
 	log.Debug("pre scan for services")
-	services, err := sdk.ServiceDiscovery(20000)
+	services, err := sdk.DeviceDiscovery(20000)
 	log.Debug("end scan for services")
 
 	if err != nil {
@@ -85,11 +85,13 @@ func mDefaultHCECredential() (int, error) {
 		Cvc:        "113",
 	}
 
+	hceCard = card
+
 	if sdk == nil {
 		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, sdk.InitHCE(card)
+	return 0, nil
 }
 
 func mGetUserInput(input interface{}) (int, error) {
@@ -173,7 +175,9 @@ func mNewHCECredential() (int, error) {
 		Cvc:        cvc,
 	}
 
-	return 0, sdk.InitHCE(card)
+	hceCard = card
+
+	return 0, nil
 }
 
 func mDiscoverSvcs() (int, error) {

@@ -87,7 +87,7 @@ public class ProducerMenu extends MenuBase {
 	}
 
         try {
-            sdk.initProducer();
+            sdk.initProducer(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY);
         } catch(TException e) {
             return new MenuReturnStruct("failed to init producer via SDK", 0);
 	}
@@ -123,11 +123,11 @@ public class ProducerMenu extends MenuBase {
             return new MenuReturnStruct(ERR_DEVICE_NOT_INITIALISED, 0);
         }
         
-        try {
-            sdk.initHTE(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY);
-        } catch(TException e) {
-            return new MenuReturnStruct("Failed to initiate HTE", 0);
-        }    
+//        try {
+//            sdk.initHTE(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY);
+//        } catch(TException e) {
+//            return new MenuReturnStruct("Failed to initiate HTE", 0);
+//        }
             
         return new MenuReturnStruct(null, 0);
         
@@ -161,7 +161,7 @@ public class ProducerMenu extends MenuBase {
         }
                 
         try {
-            sdk.initHTE(merchantClientKey, merchantServiceKey);
+            sdk.initProducer(merchantClientKey, merchantServiceKey);
         } catch(TException e) {
             return new MenuReturnStruct("Failed to initiate HTE", 0);
         }    
