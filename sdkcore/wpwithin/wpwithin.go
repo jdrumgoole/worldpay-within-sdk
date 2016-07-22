@@ -374,10 +374,10 @@ func (wp *wpWithinImpl) Core() (*core.Core, error) {
 
 func (wp *wpWithinImpl) BeginServiceDelivery(clientId string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) error {
 
-	return nil
+	return errors.New("BeginServiceDelivery() not yet implemented..")
 }
 
 func (wp *wpWithinImpl) EndServiceDelivery(clientId string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error {
 
-	return nil
+	return errors.New("EndServiceDelivery() not yet implemented..")
 }
