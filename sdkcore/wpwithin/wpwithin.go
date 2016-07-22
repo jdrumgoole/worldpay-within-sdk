@@ -3,6 +3,7 @@ package wpwithin
 import (
 	"errors"
 	"fmt"
+	"runtime/debug"
 	"time"
 
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/core"
@@ -40,7 +41,7 @@ func Initialise(name, description string) (WPWithin, error) {
 	defer func() {
 		if r := recover(); r != nil {
 
-			log.WithFields(log.Fields{"panic_message": r, "name": name, "description": description}).
+			log.WithFields(log.Fields{"panic_message": r, "name": name, "description": description, "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.Initialise()")
 		}
 	}()
@@ -131,7 +132,7 @@ func (wp *wpWithinImpl) AddService(service *types.Service) error {
 	defer func() {
 		if r := recover(); r != nil {
 
-			log.WithFields(log.Fields{"panic_message": r, "service": fmt.Sprintf("%+v", service)}).
+			log.WithFields(log.Fields{"panic_message": r, "service": fmt.Sprintf("%+v", service), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.AddService()")
 		}
 	}()
@@ -156,7 +157,7 @@ func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 	defer func() {
 		if r := recover(); r != nil {
 
-			log.WithFields(log.Fields{"panic_message": r, "service": fmt.Sprintf("%+v", service)}).
+			log.WithFields(log.Fields{"panic_message": r, "service": fmt.Sprintf("%+v", service), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.RemoveService()")
 		}
 	}()
@@ -175,7 +176,7 @@ func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, ur
 		if r := recover(); r != nil {
 
 			log.WithFields(log.Fields{"panic_message": r, "scheme": scheme, "hostname": hostname, "port": portNumber,
-				"urlPrefix": urlPrefix, "serverID": serverID, "hceCard": fmt.Sprintf("%+v", hceCard)}).
+				"urlPrefix": urlPrefix, "serverID": serverID, "hceCard": fmt.Sprintf("%+v", hceCard), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.InitConsumer()")
 		}
 	}()
@@ -221,7 +222,7 @@ func (wp *wpWithinImpl) InitProducer(merchantClientKey, merchantServiceKey strin
 	defer func() {
 		if r := recover(); r != nil {
 
-			log.WithFields(log.Fields{"panic_message": r}).
+			log.WithFields(log.Fields{"panic_message": r, "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.InitProducer()")
 		}
 	}()
@@ -307,7 +308,7 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 	defer func() {
 		if r := recover(); r != nil {
 
-			log.WithFields(log.Fields{"panic_message": r, "timeoutMillis": timeoutMillis}).
+			log.WithFields(log.Fields{"panic_message": r, "timeoutMillis": timeoutMillis, "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.StartServiceBroadcast()")
 		}
 	}()
@@ -363,7 +364,7 @@ func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessa
 	defer func() {
 		if r := recover(); r != nil {
 
-			log.WithFields(log.Fields{"panic_message": r, "timeoutMillis": timeoutMillis}).
+			log.WithFields(log.Fields{"panic_message": r, "timeoutMillis": timeoutMillis, "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.DeviceDiscovery()")
 		}
 	}()
@@ -391,7 +392,7 @@ func (wp *wpWithinImpl) GetServicePrices(serviceID int) ([]types.Price, error) {
 	defer func() {
 		if r := recover(); r != nil {
 
-			log.WithFields(log.Fields{"panic_message": r, "serviceID": serviceID}).
+			log.WithFields(log.Fields{"panic_message": r, "serviceID": serviceID, "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.GetServicePrices()")
 		}
 	}()
@@ -418,7 +419,7 @@ func (wp *wpWithinImpl) SelectService(serviceID, numberOfUnits, priceID int) (ty
 	defer func() {
 		if r := recover(); r != nil {
 
-			log.WithFields(log.Fields{"panic_message": r, "serviceID": serviceID, "numberOfUnits": numberOfUnits, "priceID": priceID}).
+			log.WithFields(log.Fields{"panic_message": r, "serviceID": serviceID, "numberOfUnits": numberOfUnits, "priceID": priceID, "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.SelectService()")
 		}
 	}()
@@ -433,7 +434,7 @@ func (wp *wpWithinImpl) MakePayment(request types.TotalPriceResponse) (types.Pay
 	defer func() {
 		if r := recover(); r != nil {
 
-			log.WithFields(log.Fields{"panic_message": r, "price request": fmt.Sprintf("%+v", request)}).
+			log.WithFields(log.Fields{"panic_message": r, "price request": fmt.Sprintf("%+v", request), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.MakePayment()")
 		}
 	}()
@@ -494,7 +495,7 @@ func (wp *wpWithinImpl) BeginServiceDelivery(clientID string, serviceDeliveryTok
 		if r := recover(); r != nil {
 
 			log.WithFields(log.Fields{"panic_message": r, "clientID": clientID, "unitsToSupply": unitsToSupply,
-				"serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken)}).
+				"serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.BeginServiceDelivery()")
 		}
 	}()
@@ -508,7 +509,7 @@ func (wp *wpWithinImpl) EndServiceDelivery(clientID string, serviceDeliveryToken
 		if r := recover(); r != nil {
 
 			log.WithFields(log.Fields{"panic_message": r, "clientID": clientID, "unitsReceived": unitsReceived,
-				"serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken)}).
+				"serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.EndServiceDelivery()")
 		}
 	}()
