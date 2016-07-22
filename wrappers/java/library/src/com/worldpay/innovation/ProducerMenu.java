@@ -10,6 +10,8 @@ import com.worldpay.innovation.wpwithin.rpc.WPWithin;
 import com.worldpay.innovation.wpwithin.rpc.types.Price;
 import com.worldpay.innovation.wpwithin.rpc.types.PricePerUnit;
 import com.worldpay.innovation.wpwithin.rpc.types.Service;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -20,22 +22,27 @@ import org.apache.thrift.TException;
  *
  * @author worldpay
  */
-public class ProducerMenu {
+public class ProducerMenu extends MenuBase {
     
     // TODO: put this somewhere sensible
     final private String ERR_DEVICE_NOT_INITIALISED = "Error: Device not initialised";
     final private String DEFAULT_HTE_MERCHANT_CLIENT_KEY = "T_C_03eaa1d3-4642-4079-b030-b543ee04b5af";
     final private String DEFAULT_HTE_MERCHANT_SERVICE_KEY = "T_S_f50ecb46-ca82-44a7-9c40-421818af5996";
 
-    private static final Logger log= Logger.getLogger( ProducerMenu.class.getName() );    
     private final WPWithin.Client sdk;
-    
+        
     public ProducerMenu(WPWithin.Client _client) {
+        super(_client);
+        this.sdk = _client;
+        setupLog();
+    } 
+
+    protected static final Logger log = Logger.getLogger( ProducerMenu.class.getName() ); 
+    public void setupLog() {
         log.setLevel(Level.FINE);
         ConsoleHandler handler = new ConsoleHandler();
         handler.setLevel(Level.FINE);
         log.addHandler(handler);
-        this.sdk = _client;
     }
     
     public MenuReturnStruct mBroadcast() {
@@ -128,12 +135,13 @@ public class ProducerMenu {
 
     public MenuReturnStruct mNewHTECredentials() {
 
-	System.out.print("Merchant Client Key: ");
+	
 	String merchantClientKey;
         String merchantServiceKey;
         
         
         try {
+            System.out.print("Merchant Client Key: ");
             Scanner scanner = new Scanner(System.in);
             merchantClientKey = scanner.next();
         } catch(Exception e) {
@@ -141,6 +149,7 @@ public class ProducerMenu {
         }
         
         try {
+            System.out.print("Merchant secret Key: ");
             Scanner scanner = new Scanner(System.in);
             merchantServiceKey = scanner.next();
         } catch(Exception e) {
@@ -165,26 +174,29 @@ public class ProducerMenu {
             Service roboWash = new Service();
             roboWash.setName("RoboWash");
             roboWash.setDescription("Car washed by robot");
-            roboWash.setId(1);
+            roboWash.setId(0);
             
             Price washPriceCar = new Price();
-            washPriceCar.setUnitId(1);
-            washPriceCar.setId(1);
+            washPriceCar.setUnitId(0);
+            washPriceCar.setId(0);
             washPriceCar.setDescription("Car wash");
             washPriceCar.setUnitDescription("Single wash");
             washPriceCar.setPricePerUnit(new PricePerUnit(500, "GBP"));
-//            washPriceCar.setPricePerUnit(new PricePerUnit(500));
 
             Price washPriceSUV = new Price();
-            washPriceSUV.setUnitId(1);
-            washPriceSUV.setId(2);
+            washPriceSUV.setUnitId(0);
+            washPriceSUV.setId(1);
             washPriceSUV.setDescription("SUV wash");
             washPriceSUV.setUnitDescription("Single wash");
             washPriceSUV.setPricePerUnit(new PricePerUnit(650, "GBP"));
-            //washPriceSUV.setPricePerUnit(new PricePerUnit(650));
             
-            roboWash.putToPrices(0, washPriceCar);
-            roboWash.putToPrices(1, washPriceSUV);
+            Map<Integer,Price> prices = new HashMap();
+            prices.put(0, washPriceCar);
+            prices.put(1, washPriceSUV);
+            roboWash.setPrices(prices);
+            
+//            roboWash.putToPrices(0, washPriceCar);
+//            roboWash.putToPrices(1, washPriceSUV);
 
             if(sdk == null) {
                 return new MenuReturnStruct(ERR_DEVICE_NOT_INITIALISED, 0);
@@ -205,26 +217,30 @@ public class ProducerMenu {
 	Service roboAir = new Service();
 	roboAir.setName("RoboAir");
 	roboAir.setDescription("Car tyre pressure checked and topped up by robot");
-	roboAir.setId(2);
+	roboAir.setId(1);
 
         Price airSinglePrice = new Price();
-        airSinglePrice.setUnitId(1);
-        airSinglePrice.setId(1);
+        airSinglePrice.setUnitId(0);
+        airSinglePrice.setId(0);
         airSinglePrice.setDescription("Measure and adjust pressue");
         airSinglePrice.setUnitDescription("Tyre");
         airSinglePrice.setPricePerUnit(new PricePerUnit(25, "GBP"));
-        //airSinglePrice.setPricePerUnit(25);
 
         
         Price airFourPrice = new Price();
-        airFourPrice.setUnitId(2);
-        airFourPrice.setId(2);
+        airFourPrice.setUnitId(0);
+        airFourPrice.setId(1);
         airFourPrice.setDescription("Measure and adjust pressure - four tyres for the price of three");
         airFourPrice.setUnitDescription("4 Tyre");
         airFourPrice.setPricePerUnit(new PricePerUnit(airSinglePrice.getPricePerUnit().getAmount() * 3, "GBP"));
 
-	roboAir.putToPrices(0, airSinglePrice);
-	roboAir.putToPrices(1, airFourPrice);
+        Map<Integer,Price> prices = new HashMap();
+        prices.put(0, airSinglePrice);
+        prices.put(1, airFourPrice);
+        roboAir.setPrices(prices);
+            
+//	roboAir.putToPrices(0, airSinglePrice);
+//	roboAir.putToPrices(1, airFourPrice);
 
         if(sdk == null) {
             return new MenuReturnStruct(ERR_DEVICE_NOT_INITIALISED, 0);
@@ -297,49 +313,49 @@ public class ProducerMenu {
 	return new MenuReturnStruct(null, 0);
     }
     
-    // TODO: To be moved to superclass
-    // TODO: put these somewhere sensible
-    // TODO: What do these do and what should they be?
-    private final String DEFAULT_DEVICE_NAME = "conorhwp-macbook";
-    private final String DEFAULT_DEVICE_DESCRIPTION = "Conor H WP - Raspberry Pi";    
-    public MenuReturnStruct mInitDefaultDevice() {
-
-            //_sdk, err := wpwithin.Initialise(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION)
-            
-            try {
-                sdk.setup(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION);
-            } catch(TException e) {
-                return new MenuReturnStruct("SDK setup failed", 1);
-            }
-        
-            return new MenuReturnStruct(null, 0);
-
-    }
-    
-    // TODO: To be moved to superclass
-    public MenuReturnStruct mInitNewDevice()  {
-
-            System.out.println("Name of device: ");
-            
-            Scanner scanner = new Scanner(System.in);
-            String nameOfDevice = scanner.next();
-            if(null == nameOfDevice || "".equals(nameOfDevice)) {
-                    return new MenuReturnStruct("Name of device not set", 0);
-            }
-
-            System.out.println("Description: ");
-            String description = scanner.next();
-            if(null == description || "".equals(description)) {
-                    return new MenuReturnStruct("Description of device not set", 0);
-            }
-                    
-            try {
-                sdk.setup(nameOfDevice, description);
-            } catch(TException e) {
-                return new MenuReturnStruct("Setup of device unsucessful", 0);
-            }
-            
-            return new MenuReturnStruct(null, 0);
-            
-    }    
+//    // TODO: To be moved to superclass
+//    // TODO: put these somewhere sensible
+//    // TODO: What do these do and what should they be?
+//    private final String DEFAULT_DEVICE_NAME = "conorhwp-macbook";
+//    private final String DEFAULT_DEVICE_DESCRIPTION = "Conor H WP - Raspberry Pi";    
+//    public MenuReturnStruct mInitDefaultDevice() {
+//
+//            //_sdk, err := wpwithin.Initialise(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION)
+//            
+//            try {
+//                sdk.setup(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION);
+//            } catch(TException e) {
+//                return new MenuReturnStruct("SDK setup failed", 1);
+//            }
+//        
+//            return new MenuReturnStruct(null, 0);
+//
+//    }
+//    
+//    // TODO: To be moved to superclass
+//    public MenuReturnStruct mInitNewDevice()  {
+//
+//            System.out.println("Name of device: ");
+//            
+//            Scanner scanner = new Scanner(System.in);
+//            String nameOfDevice = scanner.next();
+//            if(null == nameOfDevice || "".equals(nameOfDevice)) {
+//                    return new MenuReturnStruct("Name of device not set", 0);
+//            }
+//
+//            System.out.println("Description: ");
+//            String description = scanner.next();
+//            if(null == description || "".equals(description)) {
+//                    return new MenuReturnStruct("Description of device not set", 0);
+//            }
+//                    
+//            try {
+//                sdk.setup(nameOfDevice, description);
+//            } catch(TException e) {
+//                return new MenuReturnStruct("Setup of device unsucessful", 0);
+//            }
+//            
+//            return new MenuReturnStruct(null, 0);
+//            
+//    }    
 }

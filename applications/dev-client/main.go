@@ -4,9 +4,9 @@ import
 
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"os"
 	"time"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
+	"os"
 )
 
 func main() {
@@ -22,8 +22,14 @@ func initLog() {
 
 	log.SetFormatter(&log.JSONFormatter{})
 
-	// Output to stderr instead of stdout, could also be a file.
-	log.SetOutput(os.Stderr)
+	f, err := os.OpenFile("output.log", os.O_WRONLY|os.O_CREATE, 0755)
+
+	if err != nil {
+
+		fmt.Println(err.Error())
+	}
+
+	log.SetOutput(f)
 
 	// Only log the warning severity or above.
 	log.SetLevel(log.DebugLevel)

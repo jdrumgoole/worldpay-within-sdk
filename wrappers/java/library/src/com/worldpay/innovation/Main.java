@@ -28,8 +28,9 @@ public class Main {
             TProtocol protocol = new TBinaryProtocol(transport);
             WPWithin.Client client = new WPWithin.Client(protocol);
 
-            defaultDevice(client);
-            discovery(client);
+// This was unncessary, and slowing down startup - KG
+//            defaultDevice(client);
+//            discovery(client);
 //            initProducer(client);
 //            broadcast(client);
 
