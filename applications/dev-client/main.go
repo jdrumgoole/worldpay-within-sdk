@@ -22,7 +22,7 @@ func initLog() {
 
 	log.SetFormatter(&log.JSONFormatter{})
 
-	f, err := os.OpenFile("output.log", os.O_WRONLY|os.O_CREATE, 0755)
+	f, err := os.OpenFile("output.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 
 	if err != nil {
 
