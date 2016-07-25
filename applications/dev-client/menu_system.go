@@ -6,6 +6,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var sdk wpwithin.WPWithin
@@ -25,11 +26,9 @@ func doUI() {
 	menuItems = append(menuItems, MenuItem{"Start RPC Service", mStartRPCService})
 	menuItems = append(menuItems, MenuItem{"Init new device", mInitNewDevice})
 	menuItems = append(menuItems, MenuItem{"Get device info", mGetDeviceInfo})
-	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Producer)", mCarWashDemoProducer})
-	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Consumer)", mCarWashDemoConsumer})
 	menuItems = append(menuItems, MenuItem{"Reset session", mResetSessionState})
-	menuItems = append(menuItems, MenuItem{"Load configuration", mLoadConfig})
-	menuItems = append(menuItems, MenuItem{"Read loaded configuration", mReadConfig})
+	//menuItems = append(menuItems, MenuItem{"Load configuration", mLoadConfig})
+	//menuItems = append(menuItems, MenuItem{"Read loaded configuration", mReadConfig})
 	menuItems = append(menuItems, MenuItem{"-------------------- PRODUCER --------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Create default producer", mDefaultProducer})
 	menuItems = append(menuItems, MenuItem{"Create new producer", mNewProducer})
@@ -40,18 +39,21 @@ func doUI() {
 	//menuItems = append(menuItems, MenuItem{"Initialise producer", mBroadcast})
 	menuItems = append(menuItems, MenuItem{"Start service broadcast", mStartBroadcast})
 	menuItems = append(menuItems, MenuItem{"Stop broadcast", mStopBroadcast})
-	menuItems = append(menuItems, MenuItem{"Producer status", mProducerStatus})
+	//menuItems = append(menuItems, MenuItem{"Producer status", mProducerStatus})
+	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Producer)", mCarWashDemoProducer})
 	menuItems = append(menuItems, MenuItem{"-------------------- CONSUMER --------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Create default consumer", mDefaultConsumer})
 	menuItems = append(menuItems, MenuItem{"Create new consumer", mNewConsumer})
+
+	menuItems = append(menuItems, MenuItem{"Add default HCE credential", mDefaultHCECredential})
+	menuItems = append(menuItems, MenuItem{"Add new HCE credential", mNewHCECredential})
 	menuItems = append(menuItems, MenuItem{"Scan services", mScanService})
-	menuItems = append(menuItems, MenuItem{"Create default HCE credential", mDefaultHCECredential})
-	menuItems = append(menuItems, MenuItem{"Create new HCE credential", mNewHCECredential})
-	menuItems = append(menuItems, MenuItem{"Discover services", mDiscoverSvcs})
-	menuItems = append(menuItems, MenuItem{"Get service prices", mGetSvcPrices})
-	menuItems = append(menuItems, MenuItem{"Select service", mSelectService})
-	menuItems = append(menuItems, MenuItem{"Make payment", mMakePayment})
-	menuItems = append(menuItems, MenuItem{"Consumer status", mConsumerStatus})
+	//menuItems = append(menuItems, MenuItem{"Discover services", mDiscoverSvcs})
+	//menuItems = append(menuItems, MenuItem{"Get service prices", mGetSvcPrices})
+	//menuItems = append(menuItems, MenuItem{"Select service", mSelectService})
+	//menuItems = append(menuItems, MenuItem{"Make payment", mMakePayment})
+	//menuItems = append(menuItems, MenuItem{"Consumer status", mConsumerStatus})
+	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Consumer)", mCarWashDemoConsumer})
 	menuItems = append(menuItems, MenuItem{"--------------------------------------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Exit", mQuit})
 
@@ -82,6 +84,9 @@ func promptContinue() bool {
 }
 
 func renderMenu() {
+
+	// simple hack to enable error/info messages to be printed before the menu appears
+	time.Sleep(time.Millisecond * 500)
 
 	fmt.Println("----------------------------- Worldpay Within SDK Client ----------------------------")
 
@@ -138,4 +143,26 @@ func mQuit() (int, error) {
 	fmt.Println("")
 	fmt.Println("Goodbye...")
 	return 1, nil
+}
+
+func getUserInput(input interface{}) (int, error) {
+
+	var err error
+
+	switch t := input.(type) {
+	case *int:
+		_, err = fmt.Scanf("%d", input)
+	case *int32:
+		_, err = fmt.Scanf("%d", input)
+	case *string:
+		_, err = fmt.Scanf("%s", input)
+	default:
+		fmt.Printf("unexpected type %T", t)
+	}
+
+	if err != nil {
+		return 0, err
+	}
+
+	return 0, nil
 }
