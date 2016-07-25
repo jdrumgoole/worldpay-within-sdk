@@ -51,10 +51,14 @@ func mDefaultProducer() (int, error) {
 		return 0, err
 	}
 
+	fmt.Println("Initialised default producer")
+
 	return 0, nil
 }
 
 func mNewProducer() (int, error) {
+
+	fmt.Println("Initialising new producer")
 
 	if _, err := mInitNewDevice(); err != nil {
 		return 0, err
@@ -73,6 +77,8 @@ func mNewProducer() (int, error) {
 
 func mDefaultHTECredentials() (int, error) {
 
+	fmt.Println("Adding default HTE credentials")
+
 	if sdk == nil {
 		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
@@ -82,15 +88,17 @@ func mDefaultHTECredentials() (int, error) {
 
 func mNewHTECredentials() (int, error) {
 
+	fmt.Println("Add new HTE credentials")
+
 	fmt.Print("Merchant Client Key: ")
 	var merchantClientKey string
-	if _, err := mGetUserInput(&merchantClientKey); err != nil {
+	if _, err := getUserInput(&merchantClientKey); err != nil {
 		return 0, err
 	}
 
 	fmt.Print("Merchant Service Key: ")
 	var merchantServiceKey string
-	if _, err := mGetUserInput(&merchantServiceKey); err != nil {
+	if _, err := getUserInput(&merchantServiceKey); err != nil {
 		return 0, err
 	}
 
@@ -114,8 +122,8 @@ func mAddRoboWashService() (int, error) {
 		ID:              1,
 		Description:     "Car wash",
 		UnitDescription: "Single wash",
-		PricePerUnit: &types.PricePerUnit {
-			Amount: 500,
+		PricePerUnit: &types.PricePerUnit{
+			Amount:       500,
 			CurrencyCode: "GBP",
 		},
 	}
@@ -126,8 +134,8 @@ func mAddRoboWashService() (int, error) {
 		ID:              2,
 		Description:     "SUV Wash",
 		UnitDescription: "Single wash",
-		PricePerUnit: &types.PricePerUnit {
-			Amount: 650,
+		PricePerUnit: &types.PricePerUnit{
+			Amount:       650,
 			CurrencyCode: "GBP",
 		},
 	}
@@ -143,6 +151,8 @@ func mAddRoboWashService() (int, error) {
 
 		return 0, err
 	}
+
+	fmt.Println("Added robowash service")
 
 	return 0, nil
 }
@@ -160,8 +170,8 @@ func mAddRoboAirService() (int, error) {
 		ID:              1,
 		Description:     "Measure and adjust pressure",
 		UnitDescription: "Tyre",
-		PricePerUnit: &types.PricePerUnit {
-			Amount: 25,
+		PricePerUnit: &types.PricePerUnit{
+			Amount:       25,
 			CurrencyCode: "GBP",
 		},
 	}
@@ -172,8 +182,8 @@ func mAddRoboAirService() (int, error) {
 		ID:              2,
 		Description:     "Measure and adjust pressure - four tyres for the price of three",
 		UnitDescription: "4 Tyre",
-		PricePerUnit: &types.PricePerUnit {
-			Amount: airSinglePrice.PricePerUnit.Amount * 3,
+		PricePerUnit: &types.PricePerUnit{
+			Amount:       airSinglePrice.PricePerUnit.Amount * 3,
 			CurrencyCode: "GBP",
 		},
 	}
@@ -190,6 +200,8 @@ func mAddRoboAirService() (int, error) {
 		return 0, err
 	}
 
+	fmt.Println("Added roboair service")
+
 	return 0, nil
 }
 
@@ -201,7 +213,7 @@ func mStartBroadcast() (int, error) {
 
 	fmt.Print("Broadcast timeout in milliseconds: ")
 	var timeout int
-	if _, err := mGetUserInput(&timeout); err != nil {
+	if _, err := getUserInput(&timeout); err != nil {
 		return 0, err
 	}
 
@@ -209,15 +221,25 @@ func mStartBroadcast() (int, error) {
 		return 0, err
 	}
 
+	fmt.Println("Broadcast started...")
 	return 0, nil
 }
 
 func mStopBroadcast() (int, error) {
 
-	return 0, errors.New("Not implemented yet..")
+	if sdk == nil {
+		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+	}
+
+	sdk.StopServiceBroadcast()
+
+	fmt.Println("Broadcast stopped...")
+	return 0, nil
 }
 
 func mCarWashDemoProducer() (int, error) {
+
+	fmt.Println("Starting car wash demo (Producer)")
 
 	if _, err := mDefaultProducer(); err != nil {
 		return 0, err

@@ -1,12 +1,11 @@
 package main
-import
-(
 
+import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"time"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
 	"os"
+	"time"
 )
 
 func main() {
@@ -15,14 +14,14 @@ func main() {
 
 	doUI()
 
-//	doWebSocketLogger()
+	//	doWebSocketLogger()
 }
 
 func initLog() {
 
 	log.SetFormatter(&log.JSONFormatter{})
 
-	f, err := os.OpenFile("output.log", os.O_WRONLY|os.O_CREATE, 0755)
+	f, err := os.OpenFile("output.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
 
 	if err != nil {
 
@@ -56,7 +55,7 @@ func doWebSocketLogger() {
 
 		return
 	}
-	
+
 	time.Sleep(time.Duration(10) * time.Second)
 
 	log.Debug("This is debug :)")
