@@ -6,6 +6,9 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types/event"
+	"time"
 )
 
 // TODO: put these somewhere sensible
@@ -177,6 +180,29 @@ func mCarWashDemoConsumer() (int, error) {
 
 				fmt.Printf("Service delivery token: %s\n", payResp.ServiceDeliveryToken)
 
+				chNotification := make(chan event.Notification)
+
+				sdk.SetNotificationChannel(chNotification)
+
+				go sdk.BeginServiceDelivery("", types.ServiceDeliveryToken{}, 0)
+
+				select {
+
+				case msg := <-chNotification:
+
+					switch data := msg.Data.(type) {
+
+					case event.BeginServiceDelivery:
+
+						fmt.Printf("Name: %s\n", data.Name)
+						fmt.Printf("Key: %s\n", data.DeliveryToken.Key)
+					default:
+						fmt.Print("Unknown event data type")
+					}
+
+				case <-time.After(time.Millisecond * 750):
+
+				}
 			}
 		}
 	}

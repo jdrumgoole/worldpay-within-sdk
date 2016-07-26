@@ -11,6 +11,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 
 	log "github.com/Sirupsen/logrus"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
 // Factory to allow easy creation of
@@ -32,6 +33,12 @@ type WPWithin interface {
 	MakePayment(payRequest types.TotalPriceResponse) (types.PaymentResponse, error)
 	BeginServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) error
 	EndServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error
+	SetNotificationChannel(message chan event.Notification)
+}
+
+func (wp *wpWithinImpl) SetNotificationChannel(chMessage chan event.Notification) {
+
+	wp.ChanNotification = chMessage
 }
 
 // Initialise Initialise the SDK - Returns an implementation of WPWithin
@@ -125,6 +132,7 @@ func Initialise(name, description string) (WPWithin, error) {
 
 type wpWithinImpl struct {
 	core *core.Core
+	ChanNotification chan event.Notification
 }
 
 func (wp *wpWithinImpl) AddService(service *types.Service) error {
@@ -517,6 +525,16 @@ func (wp *wpWithinImpl) BeginServiceDelivery(clientID string, serviceDeliveryTok
 				Errorf("Recover: WPWithin.BeginServiceDelivery()")
 		}
 	}()
+
+	tmpMessage := event.Notification{
+		Type: "this-is-step",
+		Data: event.BeginServiceDelivery{
+			Name:"this-is-name",
+			DeliveryToken: types.ServiceDeliveryToken{Key:"this-is-key"},
+		},
+	}
+
+	wp.ChanNotification <- tmpMessage
 
 	return errors.New("BeginServiceDelivery() not yet implemented..")
 }
