@@ -6,6 +6,7 @@ package wpthrift
 import (
 	"bytes"
 	"fmt"
+
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
 )
@@ -30,20 +31,17 @@ type WPWithin interface { //WorldpayWithin Service - exposing all WorldpayWithin
 	//  - Svc
 	RemoveService(svc *wpthrift_types.Service) (err error)
 	// Parameters:
-	//  - HceCard
-	InitHCE(hceCard *wpthrift_types.HCECard) (err error)
-	// Parameters:
-	//  - MerchantClientKey
-	//  - MerchantServiceKey
-	InitHTE(merchantClientKey string, merchantServiceKey string) (err error)
-	// Parameters:
 	//  - Scheme
 	//  - Hostname
 	//  - Port
 	//  - UrlPrefix
-	//  - ServiceId
-	InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serviceId string) (err error)
-	InitProducer() (err error)
+	//  - ServerId
+	//  - HceCard
+	InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serverId string, hceCard *wpthrift_types.HCECard) (err error)
+	// Parameters:
+	//  - MerchantClientKey
+	//  - MerchantServiceKey
+	InitProducer(merchantClientKey string, merchantServiceKey string) (err error)
 	GetDevice() (r *wpthrift_types.Device, err error)
 	// Parameters:
 	//  - TimeoutMillis
@@ -51,7 +49,7 @@ type WPWithin interface { //WorldpayWithin Service - exposing all WorldpayWithin
 	StopServiceBroadcast() (err error)
 	// Parameters:
 	//  - TimeoutMillis
-	ServiceDiscovery(timeoutMillis int32) (r map[*wpthrift_types.ServiceMessage]bool, err error)
+	DeviceDiscovery(timeoutMillis int32) (r map[*wpthrift_types.ServiceMessage]bool, err error)
 	RequestServices() (r map[*wpthrift_types.ServiceDetails]bool, err error)
 	// Parameters:
 	//  - ServiceId
@@ -64,6 +62,16 @@ type WPWithin interface { //WorldpayWithin Service - exposing all WorldpayWithin
 	// Parameters:
 	//  - Request
 	MakePayment(request *wpthrift_types.TotalPriceResponse) (r *wpthrift_types.PaymentResponse, err error)
+	// Parameters:
+	//  - ClientId
+	//  - ServiceDeliveryToken
+	//  - UnitsToSupply
+	BeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error)
+	// Parameters:
+	//  - ClientId
+	//  - ServiceDeliveryToken
+	//  - UnitsReceived
+	EndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error)
 }
 
 //WorldpayWithin Service - exposing all WorldpayWithin SDK functionality
@@ -336,181 +344,20 @@ func (p *WPWithinClient) recvRemoveService() (err error) {
 }
 
 // Parameters:
-//  - HceCard
-func (p *WPWithinClient) InitHCE(hceCard *wpthrift_types.HCECard) (err error) {
-	if err = p.sendInitHCE(hceCard); err != nil {
-		return
-	}
-	return p.recvInitHCE()
-}
-
-func (p *WPWithinClient) sendInitHCE(hceCard *wpthrift_types.HCECard) (err error) {
-	oprot := p.OutputProtocol
-	if oprot == nil {
-		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
-		p.OutputProtocol = oprot
-	}
-	p.SeqId++
-	if err = oprot.WriteMessageBegin("initHCE", thrift.CALL, p.SeqId); err != nil {
-		return
-	}
-	args := WPWithinInitHCEArgs{
-		HceCard: hceCard,
-	}
-	if err = args.Write(oprot); err != nil {
-		return
-	}
-	if err = oprot.WriteMessageEnd(); err != nil {
-		return
-	}
-	return oprot.Flush()
-}
-
-func (p *WPWithinClient) recvInitHCE() (err error) {
-	iprot := p.InputProtocol
-	if iprot == nil {
-		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
-		p.InputProtocol = iprot
-	}
-	method, mTypeId, seqId, err := iprot.ReadMessageBegin()
-	if err != nil {
-		return
-	}
-	if method != "initHCE" {
-		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "initHCE failed: wrong method name")
-		return
-	}
-	if p.SeqId != seqId {
-		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "initHCE failed: out of sequence response")
-		return
-	}
-	if mTypeId == thrift.EXCEPTION {
-		error6 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error7 error
-		error7, err = error6.Read(iprot)
-		if err != nil {
-			return
-		}
-		if err = iprot.ReadMessageEnd(); err != nil {
-			return
-		}
-		err = error7
-		return
-	}
-	if mTypeId != thrift.REPLY {
-		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "initHCE failed: invalid message type")
-		return
-	}
-	result := WPWithinInitHCEResult{}
-	if err = result.Read(iprot); err != nil {
-		return
-	}
-	if err = iprot.ReadMessageEnd(); err != nil {
-		return
-	}
-	if result.Err != nil {
-		err = result.Err
-		return
-	}
-	return
-}
-
-// Parameters:
-//  - MerchantClientKey
-//  - MerchantServiceKey
-func (p *WPWithinClient) InitHTE(merchantClientKey string, merchantServiceKey string) (err error) {
-	if err = p.sendInitHTE(merchantClientKey, merchantServiceKey); err != nil {
-		return
-	}
-	return p.recvInitHTE()
-}
-
-func (p *WPWithinClient) sendInitHTE(merchantClientKey string, merchantServiceKey string) (err error) {
-	oprot := p.OutputProtocol
-	if oprot == nil {
-		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
-		p.OutputProtocol = oprot
-	}
-	p.SeqId++
-	if err = oprot.WriteMessageBegin("initHTE", thrift.CALL, p.SeqId); err != nil {
-		return
-	}
-	args := WPWithinInitHTEArgs{
-		MerchantClientKey:  merchantClientKey,
-		MerchantServiceKey: merchantServiceKey,
-	}
-	if err = args.Write(oprot); err != nil {
-		return
-	}
-	if err = oprot.WriteMessageEnd(); err != nil {
-		return
-	}
-	return oprot.Flush()
-}
-
-func (p *WPWithinClient) recvInitHTE() (err error) {
-	iprot := p.InputProtocol
-	if iprot == nil {
-		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
-		p.InputProtocol = iprot
-	}
-	method, mTypeId, seqId, err := iprot.ReadMessageBegin()
-	if err != nil {
-		return
-	}
-	if method != "initHTE" {
-		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "initHTE failed: wrong method name")
-		return
-	}
-	if p.SeqId != seqId {
-		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "initHTE failed: out of sequence response")
-		return
-	}
-	if mTypeId == thrift.EXCEPTION {
-		error8 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error9 error
-		error9, err = error8.Read(iprot)
-		if err != nil {
-			return
-		}
-		if err = iprot.ReadMessageEnd(); err != nil {
-			return
-		}
-		err = error9
-		return
-	}
-	if mTypeId != thrift.REPLY {
-		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "initHTE failed: invalid message type")
-		return
-	}
-	result := WPWithinInitHTEResult{}
-	if err = result.Read(iprot); err != nil {
-		return
-	}
-	if err = iprot.ReadMessageEnd(); err != nil {
-		return
-	}
-	if result.Err != nil {
-		err = result.Err
-		return
-	}
-	return
-}
-
-// Parameters:
 //  - Scheme
 //  - Hostname
 //  - Port
 //  - UrlPrefix
-//  - ServiceId
-func (p *WPWithinClient) InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serviceId string) (err error) {
-	if err = p.sendInitConsumer(scheme, hostname, port, urlPrefix, serviceId); err != nil {
+//  - ServerId
+//  - HceCard
+func (p *WPWithinClient) InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serverId string, hceCard *wpthrift_types.HCECard) (err error) {
+	if err = p.sendInitConsumer(scheme, hostname, port, urlPrefix, serverId, hceCard); err != nil {
 		return
 	}
 	return p.recvInitConsumer()
 }
 
-func (p *WPWithinClient) sendInitConsumer(scheme string, hostname string, port int32, urlPrefix string, serviceId string) (err error) {
+func (p *WPWithinClient) sendInitConsumer(scheme string, hostname string, port int32, urlPrefix string, serverId string, hceCard *wpthrift_types.HCECard) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -525,7 +372,8 @@ func (p *WPWithinClient) sendInitConsumer(scheme string, hostname string, port i
 		Hostname:  hostname,
 		Port:      port,
 		UrlPrefix: urlPrefix,
-		ServiceId: serviceId,
+		ServerId:  serverId,
+		HceCard:   hceCard,
 	}
 	if err = args.Write(oprot); err != nil {
 		return
@@ -555,16 +403,16 @@ func (p *WPWithinClient) recvInitConsumer() (err error) {
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error10 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error11 error
-		error11, err = error10.Read(iprot)
+		error6 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error7 error
+		error7, err = error6.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error11
+		err = error7
 		return
 	}
 	if mTypeId != thrift.REPLY {
@@ -585,14 +433,17 @@ func (p *WPWithinClient) recvInitConsumer() (err error) {
 	return
 }
 
-func (p *WPWithinClient) InitProducer() (err error) {
-	if err = p.sendInitProducer(); err != nil {
+// Parameters:
+//  - MerchantClientKey
+//  - MerchantServiceKey
+func (p *WPWithinClient) InitProducer(merchantClientKey string, merchantServiceKey string) (err error) {
+	if err = p.sendInitProducer(merchantClientKey, merchantServiceKey); err != nil {
 		return
 	}
 	return p.recvInitProducer()
 }
 
-func (p *WPWithinClient) sendInitProducer() (err error) {
+func (p *WPWithinClient) sendInitProducer(merchantClientKey string, merchantServiceKey string) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -602,7 +453,10 @@ func (p *WPWithinClient) sendInitProducer() (err error) {
 	if err = oprot.WriteMessageBegin("initProducer", thrift.CALL, p.SeqId); err != nil {
 		return
 	}
-	args := WPWithinInitProducerArgs{}
+	args := WPWithinInitProducerArgs{
+		MerchantClientKey:  merchantClientKey,
+		MerchantServiceKey: merchantServiceKey,
+	}
 	if err = args.Write(oprot); err != nil {
 		return
 	}
@@ -631,16 +485,16 @@ func (p *WPWithinClient) recvInitProducer() (err error) {
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error12 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error13 error
-		error13, err = error12.Read(iprot)
+		error8 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error9 error
+		error9, err = error8.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error13
+		err = error9
 		return
 	}
 	if mTypeId != thrift.REPLY {
@@ -707,16 +561,16 @@ func (p *WPWithinClient) recvGetDevice() (value *wpthrift_types.Device, err erro
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error14 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error15 error
-		error15, err = error14.Read(iprot)
+		error10 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error11 error
+		error11, err = error10.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error15
+		err = error11
 		return
 	}
 	if mTypeId != thrift.REPLY {
@@ -784,16 +638,16 @@ func (p *WPWithinClient) recvStartServiceBroadcast() (err error) {
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error16 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error17 error
-		error17, err = error16.Read(iprot)
+		error12 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error13 error
+		error13, err = error12.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error17
+		err = error13
 		return
 	}
 	if mTypeId != thrift.REPLY {
@@ -860,16 +714,16 @@ func (p *WPWithinClient) recvStopServiceBroadcast() (err error) {
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error18 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error19 error
-		error19, err = error18.Read(iprot)
+		error14 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error15 error
+		error15, err = error14.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error19
+		err = error15
 		return
 	}
 	if mTypeId != thrift.REPLY {
@@ -892,24 +746,24 @@ func (p *WPWithinClient) recvStopServiceBroadcast() (err error) {
 
 // Parameters:
 //  - TimeoutMillis
-func (p *WPWithinClient) ServiceDiscovery(timeoutMillis int32) (r map[*wpthrift_types.ServiceMessage]bool, err error) {
-	if err = p.sendServiceDiscovery(timeoutMillis); err != nil {
+func (p *WPWithinClient) DeviceDiscovery(timeoutMillis int32) (r map[*wpthrift_types.ServiceMessage]bool, err error) {
+	if err = p.sendDeviceDiscovery(timeoutMillis); err != nil {
 		return
 	}
-	return p.recvServiceDiscovery()
+	return p.recvDeviceDiscovery()
 }
 
-func (p *WPWithinClient) sendServiceDiscovery(timeoutMillis int32) (err error) {
+func (p *WPWithinClient) sendDeviceDiscovery(timeoutMillis int32) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
 		p.OutputProtocol = oprot
 	}
 	p.SeqId++
-	if err = oprot.WriteMessageBegin("serviceDiscovery", thrift.CALL, p.SeqId); err != nil {
+	if err = oprot.WriteMessageBegin("deviceDiscovery", thrift.CALL, p.SeqId); err != nil {
 		return
 	}
-	args := WPWithinServiceDiscoveryArgs{
+	args := WPWithinDeviceDiscoveryArgs{
 		TimeoutMillis: timeoutMillis,
 	}
 	if err = args.Write(oprot); err != nil {
@@ -921,7 +775,7 @@ func (p *WPWithinClient) sendServiceDiscovery(timeoutMillis int32) (err error) {
 	return oprot.Flush()
 }
 
-func (p *WPWithinClient) recvServiceDiscovery() (value map[*wpthrift_types.ServiceMessage]bool, err error) {
+func (p *WPWithinClient) recvDeviceDiscovery() (value map[*wpthrift_types.ServiceMessage]bool, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -931,32 +785,32 @@ func (p *WPWithinClient) recvServiceDiscovery() (value map[*wpthrift_types.Servi
 	if err != nil {
 		return
 	}
-	if method != "serviceDiscovery" {
-		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "serviceDiscovery failed: wrong method name")
+	if method != "deviceDiscovery" {
+		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "deviceDiscovery failed: wrong method name")
 		return
 	}
 	if p.SeqId != seqId {
-		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "serviceDiscovery failed: out of sequence response")
+		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "deviceDiscovery failed: out of sequence response")
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error20 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error21 error
-		error21, err = error20.Read(iprot)
+		error16 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error17 error
+		error17, err = error16.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error21
+		err = error17
 		return
 	}
 	if mTypeId != thrift.REPLY {
-		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "serviceDiscovery failed: invalid message type")
+		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "deviceDiscovery failed: invalid message type")
 		return
 	}
-	result := WPWithinServiceDiscoveryResult{}
+	result := WPWithinDeviceDiscoveryResult{}
 	if err = result.Read(iprot); err != nil {
 		return
 	}
@@ -1017,16 +871,16 @@ func (p *WPWithinClient) recvRequestServices() (value map[*wpthrift_types.Servic
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error22 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error23 error
-		error23, err = error22.Read(iprot)
+		error18 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error19 error
+		error19, err = error18.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error23
+		err = error19
 		return
 	}
 	if mTypeId != thrift.REPLY {
@@ -1098,16 +952,16 @@ func (p *WPWithinClient) recvGetServicePrices() (value map[*wpthrift_types.Price
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error24 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error25 error
-		error25, err = error24.Read(iprot)
+		error20 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error21 error
+		error21, err = error20.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error25
+		err = error21
 		return
 	}
 	if mTypeId != thrift.REPLY {
@@ -1183,16 +1037,16 @@ func (p *WPWithinClient) recvSelectService() (value *wpthrift_types.TotalPriceRe
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error26 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error27 error
-		error27, err = error26.Read(iprot)
+		error22 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error23 error
+		error23, err = error22.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error27
+		err = error23
 		return
 	}
 	if mTypeId != thrift.REPLY {
@@ -1264,16 +1118,16 @@ func (p *WPWithinClient) recvMakePayment() (value *wpthrift_types.PaymentRespons
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error28 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error29 error
-		error29, err = error28.Read(iprot)
+		error24 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error25 error
+		error25, err = error24.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error29
+		err = error25
 		return
 	}
 	if mTypeId != thrift.REPLY {
@@ -1292,6 +1146,174 @@ func (p *WPWithinClient) recvMakePayment() (value *wpthrift_types.PaymentRespons
 		return
 	}
 	value = result.GetSuccess()
+	return
+}
+
+// Parameters:
+//  - ClientId
+//  - ServiceDeliveryToken
+//  - UnitsToSupply
+func (p *WPWithinClient) BeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+	if err = p.sendBeginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply); err != nil {
+		return
+	}
+	return p.recvBeginServiceDelivery()
+}
+
+func (p *WPWithinClient) sendBeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+	oprot := p.OutputProtocol
+	if oprot == nil {
+		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.OutputProtocol = oprot
+	}
+	p.SeqId++
+	if err = oprot.WriteMessageBegin("beginServiceDelivery", thrift.CALL, p.SeqId); err != nil {
+		return
+	}
+	args := WPWithinBeginServiceDeliveryArgs{
+		ClientId:             clientId,
+		ServiceDeliveryToken: serviceDeliveryToken,
+		UnitsToSupply:        unitsToSupply,
+	}
+	if err = args.Write(oprot); err != nil {
+		return
+	}
+	if err = oprot.WriteMessageEnd(); err != nil {
+		return
+	}
+	return oprot.Flush()
+}
+
+func (p *WPWithinClient) recvBeginServiceDelivery() (err error) {
+	iprot := p.InputProtocol
+	if iprot == nil {
+		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.InputProtocol = iprot
+	}
+	method, mTypeId, seqId, err := iprot.ReadMessageBegin()
+	if err != nil {
+		return
+	}
+	if method != "beginServiceDelivery" {
+		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "beginServiceDelivery failed: wrong method name")
+		return
+	}
+	if p.SeqId != seqId {
+		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "beginServiceDelivery failed: out of sequence response")
+		return
+	}
+	if mTypeId == thrift.EXCEPTION {
+		error26 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error27 error
+		error27, err = error26.Read(iprot)
+		if err != nil {
+			return
+		}
+		if err = iprot.ReadMessageEnd(); err != nil {
+			return
+		}
+		err = error27
+		return
+	}
+	if mTypeId != thrift.REPLY {
+		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "beginServiceDelivery failed: invalid message type")
+		return
+	}
+	result := WPWithinBeginServiceDeliveryResult{}
+	if err = result.Read(iprot); err != nil {
+		return
+	}
+	if err = iprot.ReadMessageEnd(); err != nil {
+		return
+	}
+	if result.Err != nil {
+		err = result.Err
+		return
+	}
+	return
+}
+
+// Parameters:
+//  - ClientId
+//  - ServiceDeliveryToken
+//  - UnitsReceived
+func (p *WPWithinClient) EndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
+	if err = p.sendEndServiceDelivery(clientId, serviceDeliveryToken, unitsReceived); err != nil {
+		return
+	}
+	return p.recvEndServiceDelivery()
+}
+
+func (p *WPWithinClient) sendEndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
+	oprot := p.OutputProtocol
+	if oprot == nil {
+		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.OutputProtocol = oprot
+	}
+	p.SeqId++
+	if err = oprot.WriteMessageBegin("endServiceDelivery", thrift.CALL, p.SeqId); err != nil {
+		return
+	}
+	args := WPWithinEndServiceDeliveryArgs{
+		ClientId:             clientId,
+		ServiceDeliveryToken: serviceDeliveryToken,
+		UnitsReceived:        unitsReceived,
+	}
+	if err = args.Write(oprot); err != nil {
+		return
+	}
+	if err = oprot.WriteMessageEnd(); err != nil {
+		return
+	}
+	return oprot.Flush()
+}
+
+func (p *WPWithinClient) recvEndServiceDelivery() (err error) {
+	iprot := p.InputProtocol
+	if iprot == nil {
+		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.InputProtocol = iprot
+	}
+	method, mTypeId, seqId, err := iprot.ReadMessageBegin()
+	if err != nil {
+		return
+	}
+	if method != "endServiceDelivery" {
+		err = thrift.NewTApplicationException(thrift.WRONG_METHOD_NAME, "endServiceDelivery failed: wrong method name")
+		return
+	}
+	if p.SeqId != seqId {
+		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "endServiceDelivery failed: out of sequence response")
+		return
+	}
+	if mTypeId == thrift.EXCEPTION {
+		error28 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error29 error
+		error29, err = error28.Read(iprot)
+		if err != nil {
+			return
+		}
+		if err = iprot.ReadMessageEnd(); err != nil {
+			return
+		}
+		err = error29
+		return
+	}
+	if mTypeId != thrift.REPLY {
+		err = thrift.NewTApplicationException(thrift.INVALID_MESSAGE_TYPE_EXCEPTION, "endServiceDelivery failed: invalid message type")
+		return
+	}
+	result := WPWithinEndServiceDeliveryResult{}
+	if err = result.Read(iprot); err != nil {
+		return
+	}
+	if err = iprot.ReadMessageEnd(); err != nil {
+		return
+	}
+	if result.Err != nil {
+		err = result.Err
+		return
+	}
 	return
 }
 
@@ -1319,18 +1341,18 @@ func NewWPWithinProcessor(handler WPWithin) *WPWithinProcessor {
 	self30.processorMap["setup"] = &wPWithinProcessorSetup{handler: handler}
 	self30.processorMap["addService"] = &wPWithinProcessorAddService{handler: handler}
 	self30.processorMap["removeService"] = &wPWithinProcessorRemoveService{handler: handler}
-	self30.processorMap["initHCE"] = &wPWithinProcessorInitHCE{handler: handler}
-	self30.processorMap["initHTE"] = &wPWithinProcessorInitHTE{handler: handler}
 	self30.processorMap["initConsumer"] = &wPWithinProcessorInitConsumer{handler: handler}
 	self30.processorMap["initProducer"] = &wPWithinProcessorInitProducer{handler: handler}
 	self30.processorMap["getDevice"] = &wPWithinProcessorGetDevice{handler: handler}
 	self30.processorMap["startServiceBroadcast"] = &wPWithinProcessorStartServiceBroadcast{handler: handler}
 	self30.processorMap["stopServiceBroadcast"] = &wPWithinProcessorStopServiceBroadcast{handler: handler}
-	self30.processorMap["serviceDiscovery"] = &wPWithinProcessorServiceDiscovery{handler: handler}
+	self30.processorMap["deviceDiscovery"] = &wPWithinProcessorDeviceDiscovery{handler: handler}
 	self30.processorMap["requestServices"] = &wPWithinProcessorRequestServices{handler: handler}
 	self30.processorMap["getServicePrices"] = &wPWithinProcessorGetServicePrices{handler: handler}
 	self30.processorMap["selectService"] = &wPWithinProcessorSelectService{handler: handler}
 	self30.processorMap["makePayment"] = &wPWithinProcessorMakePayment{handler: handler}
+	self30.processorMap["beginServiceDelivery"] = &wPWithinProcessorBeginServiceDelivery{handler: handler}
+	self30.processorMap["endServiceDelivery"] = &wPWithinProcessorEndServiceDelivery{handler: handler}
 	return self30
 }
 
@@ -1503,106 +1525,6 @@ func (p *wPWithinProcessorRemoveService) Process(seqId int32, iprot, oprot thrif
 	return true, err
 }
 
-type wPWithinProcessorInitHCE struct {
-	handler WPWithin
-}
-
-func (p *wPWithinProcessorInitHCE) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := WPWithinInitHCEArgs{}
-	if err = args.Read(iprot); err != nil {
-		iprot.ReadMessageEnd()
-		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("initHCE", thrift.EXCEPTION, seqId)
-		x.Write(oprot)
-		oprot.WriteMessageEnd()
-		oprot.Flush()
-		return false, err
-	}
-
-	iprot.ReadMessageEnd()
-	result := WPWithinInitHCEResult{}
-	var err2 error
-	if err2 = p.handler.InitHCE(args.HceCard); err2 != nil {
-		switch v := err2.(type) {
-		case *wpthrift_types.Error:
-			result.Err = v
-		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing initHCE: "+err2.Error())
-			oprot.WriteMessageBegin("initHCE", thrift.EXCEPTION, seqId)
-			x.Write(oprot)
-			oprot.WriteMessageEnd()
-			oprot.Flush()
-			return true, err2
-		}
-	}
-	if err2 = oprot.WriteMessageBegin("initHCE", thrift.REPLY, seqId); err2 != nil {
-		err = err2
-	}
-	if err2 = result.Write(oprot); err == nil && err2 != nil {
-		err = err2
-	}
-	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
-		err = err2
-	}
-	if err2 = oprot.Flush(); err == nil && err2 != nil {
-		err = err2
-	}
-	if err != nil {
-		return
-	}
-	return true, err
-}
-
-type wPWithinProcessorInitHTE struct {
-	handler WPWithin
-}
-
-func (p *wPWithinProcessorInitHTE) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := WPWithinInitHTEArgs{}
-	if err = args.Read(iprot); err != nil {
-		iprot.ReadMessageEnd()
-		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("initHTE", thrift.EXCEPTION, seqId)
-		x.Write(oprot)
-		oprot.WriteMessageEnd()
-		oprot.Flush()
-		return false, err
-	}
-
-	iprot.ReadMessageEnd()
-	result := WPWithinInitHTEResult{}
-	var err2 error
-	if err2 = p.handler.InitHTE(args.MerchantClientKey, args.MerchantServiceKey); err2 != nil {
-		switch v := err2.(type) {
-		case *wpthrift_types.Error:
-			result.Err = v
-		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing initHTE: "+err2.Error())
-			oprot.WriteMessageBegin("initHTE", thrift.EXCEPTION, seqId)
-			x.Write(oprot)
-			oprot.WriteMessageEnd()
-			oprot.Flush()
-			return true, err2
-		}
-	}
-	if err2 = oprot.WriteMessageBegin("initHTE", thrift.REPLY, seqId); err2 != nil {
-		err = err2
-	}
-	if err2 = result.Write(oprot); err == nil && err2 != nil {
-		err = err2
-	}
-	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
-		err = err2
-	}
-	if err2 = oprot.Flush(); err == nil && err2 != nil {
-		err = err2
-	}
-	if err != nil {
-		return
-	}
-	return true, err
-}
-
 type wPWithinProcessorInitConsumer struct {
 	handler WPWithin
 }
@@ -1622,7 +1544,7 @@ func (p *wPWithinProcessorInitConsumer) Process(seqId int32, iprot, oprot thrift
 	iprot.ReadMessageEnd()
 	result := WPWithinInitConsumerResult{}
 	var err2 error
-	if err2 = p.handler.InitConsumer(args.Scheme, args.Hostname, args.Port, args.UrlPrefix, args.ServiceId); err2 != nil {
+	if err2 = p.handler.InitConsumer(args.Scheme, args.Hostname, args.Port, args.UrlPrefix, args.ServerId, args.HceCard); err2 != nil {
 		switch v := err2.(type) {
 		case *wpthrift_types.Error:
 			result.Err = v
@@ -1672,7 +1594,7 @@ func (p *wPWithinProcessorInitProducer) Process(seqId int32, iprot, oprot thrift
 	iprot.ReadMessageEnd()
 	result := WPWithinInitProducerResult{}
 	var err2 error
-	if err2 = p.handler.InitProducer(); err2 != nil {
+	if err2 = p.handler.InitProducer(args.MerchantClientKey, args.MerchantServiceKey); err2 != nil {
 		switch v := err2.(type) {
 		case *wpthrift_types.Error:
 			result.Err = v
@@ -1851,16 +1773,16 @@ func (p *wPWithinProcessorStopServiceBroadcast) Process(seqId int32, iprot, opro
 	return true, err
 }
 
-type wPWithinProcessorServiceDiscovery struct {
+type wPWithinProcessorDeviceDiscovery struct {
 	handler WPWithin
 }
 
-func (p *wPWithinProcessorServiceDiscovery) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := WPWithinServiceDiscoveryArgs{}
+func (p *wPWithinProcessorDeviceDiscovery) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := WPWithinDeviceDiscoveryArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("serviceDiscovery", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("deviceDiscovery", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush()
@@ -1868,16 +1790,16 @@ func (p *wPWithinProcessorServiceDiscovery) Process(seqId int32, iprot, oprot th
 	}
 
 	iprot.ReadMessageEnd()
-	result := WPWithinServiceDiscoveryResult{}
+	result := WPWithinDeviceDiscoveryResult{}
 	var retval map[*wpthrift_types.ServiceMessage]bool
 	var err2 error
-	if retval, err2 = p.handler.ServiceDiscovery(args.TimeoutMillis); err2 != nil {
+	if retval, err2 = p.handler.DeviceDiscovery(args.TimeoutMillis); err2 != nil {
 		switch v := err2.(type) {
 		case *wpthrift_types.Error:
 			result.Err = v
 		default:
-			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing serviceDiscovery: "+err2.Error())
-			oprot.WriteMessageBegin("serviceDiscovery", thrift.EXCEPTION, seqId)
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing deviceDiscovery: "+err2.Error())
+			oprot.WriteMessageBegin("deviceDiscovery", thrift.EXCEPTION, seqId)
 			x.Write(oprot)
 			oprot.WriteMessageEnd()
 			oprot.Flush()
@@ -1886,7 +1808,7 @@ func (p *wPWithinProcessorServiceDiscovery) Process(seqId int32, iprot, oprot th
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("serviceDiscovery", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("deviceDiscovery", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2099,6 +2021,106 @@ func (p *wPWithinProcessorMakePayment) Process(seqId int32, iprot, oprot thrift.
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("makePayment", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type wPWithinProcessorBeginServiceDelivery struct {
+	handler WPWithin
+}
+
+func (p *wPWithinProcessorBeginServiceDelivery) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := WPWithinBeginServiceDeliveryArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("beginServiceDelivery", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush()
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	result := WPWithinBeginServiceDeliveryResult{}
+	var err2 error
+	if err2 = p.handler.BeginServiceDelivery(args.ClientId, args.ServiceDeliveryToken, args.UnitsToSupply); err2 != nil {
+		switch v := err2.(type) {
+		case *wpthrift_types.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing beginServiceDelivery: "+err2.Error())
+			oprot.WriteMessageBegin("beginServiceDelivery", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush()
+			return true, err2
+		}
+	}
+	if err2 = oprot.WriteMessageBegin("beginServiceDelivery", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type wPWithinProcessorEndServiceDelivery struct {
+	handler WPWithin
+}
+
+func (p *wPWithinProcessorEndServiceDelivery) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := WPWithinEndServiceDeliveryArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("endServiceDelivery", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush()
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	result := WPWithinEndServiceDeliveryResult{}
+	var err2 error
+	if err2 = p.handler.EndServiceDelivery(args.ClientId, args.ServiceDeliveryToken, args.UnitsReceived); err2 != nil {
+		switch v := err2.(type) {
+		case *wpthrift_types.Error:
+			result.Err = v
+		default:
+			x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing endServiceDelivery: "+err2.Error())
+			oprot.WriteMessageBegin("endServiceDelivery", thrift.EXCEPTION, seqId)
+			x.Write(oprot)
+			oprot.WriteMessageEnd()
+			oprot.Flush()
+			return true, err2
+		}
+	}
+	if err2 = oprot.WriteMessageBegin("endServiceDelivery", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2746,444 +2768,19 @@ func (p *WPWithinRemoveServiceResult) String() string {
 }
 
 // Attributes:
-//  - HceCard
-type WPWithinInitHCEArgs struct {
-	HceCard *wpthrift_types.HCECard `thrift:"hceCard,1" json:"hceCard"`
-}
-
-func NewWPWithinInitHCEArgs() *WPWithinInitHCEArgs {
-	return &WPWithinInitHCEArgs{}
-}
-
-var WPWithinInitHCEArgs_HceCard_DEFAULT *wpthrift_types.HCECard
-
-func (p *WPWithinInitHCEArgs) GetHceCard() *wpthrift_types.HCECard {
-	if !p.IsSetHceCard() {
-		return WPWithinInitHCEArgs_HceCard_DEFAULT
-	}
-	return p.HceCard
-}
-func (p *WPWithinInitHCEArgs) IsSetHceCard() bool {
-	return p.HceCard != nil
-}
-
-func (p *WPWithinInitHCEArgs) Read(iprot thrift.TProtocol) error {
-	if _, err := iprot.ReadStructBegin(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
-		if err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-		switch fieldId {
-		case 1:
-			if err := p.readField1(iprot); err != nil {
-				return err
-			}
-		default:
-			if err := iprot.Skip(fieldTypeId); err != nil {
-				return err
-			}
-		}
-		if err := iprot.ReadFieldEnd(); err != nil {
-			return err
-		}
-	}
-	if err := iprot.ReadStructEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHCEArgs) readField1(iprot thrift.TProtocol) error {
-	p.HceCard = &wpthrift_types.HCECard{}
-	if err := p.HceCard.Read(iprot); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.HceCard), err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHCEArgs) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("initHCE_args"); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-	}
-	if err := p.writeField1(oprot); err != nil {
-		return err
-	}
-	if err := oprot.WriteFieldStop(); err != nil {
-		return thrift.PrependError("write field stop error: ", err)
-	}
-	if err := oprot.WriteStructEnd(); err != nil {
-		return thrift.PrependError("write struct stop error: ", err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHCEArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("hceCard", thrift.STRUCT, 1); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:hceCard: ", p), err)
-	}
-	if err := p.HceCard.Write(oprot); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.HceCard), err)
-	}
-	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:hceCard: ", p), err)
-	}
-	return err
-}
-
-func (p *WPWithinInitHCEArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("WPWithinInitHCEArgs(%+v)", *p)
-}
-
-// Attributes:
-//  - Err
-type WPWithinInitHCEResult struct {
-	Err *wpthrift_types.Error `thrift:"err,1" json:"err,omitempty"`
-}
-
-func NewWPWithinInitHCEResult() *WPWithinInitHCEResult {
-	return &WPWithinInitHCEResult{}
-}
-
-var WPWithinInitHCEResult_Err_DEFAULT *wpthrift_types.Error
-
-func (p *WPWithinInitHCEResult) GetErr() *wpthrift_types.Error {
-	if !p.IsSetErr() {
-		return WPWithinInitHCEResult_Err_DEFAULT
-	}
-	return p.Err
-}
-func (p *WPWithinInitHCEResult) IsSetErr() bool {
-	return p.Err != nil
-}
-
-func (p *WPWithinInitHCEResult) Read(iprot thrift.TProtocol) error {
-	if _, err := iprot.ReadStructBegin(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
-		if err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-		switch fieldId {
-		case 1:
-			if err := p.readField1(iprot); err != nil {
-				return err
-			}
-		default:
-			if err := iprot.Skip(fieldTypeId); err != nil {
-				return err
-			}
-		}
-		if err := iprot.ReadFieldEnd(); err != nil {
-			return err
-		}
-	}
-	if err := iprot.ReadStructEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHCEResult) readField1(iprot thrift.TProtocol) error {
-	p.Err = &wpthrift_types.Error{}
-	if err := p.Err.Read(iprot); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.Err), err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHCEResult) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("initHCE_result"); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-	}
-	if err := p.writeField1(oprot); err != nil {
-		return err
-	}
-	if err := oprot.WriteFieldStop(); err != nil {
-		return thrift.PrependError("write field stop error: ", err)
-	}
-	if err := oprot.WriteStructEnd(); err != nil {
-		return thrift.PrependError("write struct stop error: ", err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHCEResult) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetErr() {
-		if err := oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:err: ", p), err)
-		}
-		if err := p.Err.Write(oprot); err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.Err), err)
-		}
-		if err := oprot.WriteFieldEnd(); err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T write field end error 1:err: ", p), err)
-		}
-	}
-	return err
-}
-
-func (p *WPWithinInitHCEResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("WPWithinInitHCEResult(%+v)", *p)
-}
-
-// Attributes:
-//  - MerchantClientKey
-//  - MerchantServiceKey
-type WPWithinInitHTEArgs struct {
-	MerchantClientKey  string `thrift:"merchantClientKey,1" json:"merchantClientKey"`
-	MerchantServiceKey string `thrift:"merchantServiceKey,2" json:"merchantServiceKey"`
-}
-
-func NewWPWithinInitHTEArgs() *WPWithinInitHTEArgs {
-	return &WPWithinInitHTEArgs{}
-}
-
-func (p *WPWithinInitHTEArgs) GetMerchantClientKey() string {
-	return p.MerchantClientKey
-}
-
-func (p *WPWithinInitHTEArgs) GetMerchantServiceKey() string {
-	return p.MerchantServiceKey
-}
-func (p *WPWithinInitHTEArgs) Read(iprot thrift.TProtocol) error {
-	if _, err := iprot.ReadStructBegin(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
-		if err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-		switch fieldId {
-		case 1:
-			if err := p.readField1(iprot); err != nil {
-				return err
-			}
-		case 2:
-			if err := p.readField2(iprot); err != nil {
-				return err
-			}
-		default:
-			if err := iprot.Skip(fieldTypeId); err != nil {
-				return err
-			}
-		}
-		if err := iprot.ReadFieldEnd(); err != nil {
-			return err
-		}
-	}
-	if err := iprot.ReadStructEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHTEArgs) readField1(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return thrift.PrependError("error reading field 1: ", err)
-	} else {
-		p.MerchantClientKey = v
-	}
-	return nil
-}
-
-func (p *WPWithinInitHTEArgs) readField2(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return thrift.PrependError("error reading field 2: ", err)
-	} else {
-		p.MerchantServiceKey = v
-	}
-	return nil
-}
-
-func (p *WPWithinInitHTEArgs) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("initHTE_args"); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-	}
-	if err := p.writeField1(oprot); err != nil {
-		return err
-	}
-	if err := p.writeField2(oprot); err != nil {
-		return err
-	}
-	if err := oprot.WriteFieldStop(); err != nil {
-		return thrift.PrependError("write field stop error: ", err)
-	}
-	if err := oprot.WriteStructEnd(); err != nil {
-		return thrift.PrependError("write struct stop error: ", err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHTEArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("merchantClientKey", thrift.STRING, 1); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:merchantClientKey: ", p), err)
-	}
-	if err := oprot.WriteString(string(p.MerchantClientKey)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.merchantClientKey (1) field write error: ", p), err)
-	}
-	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:merchantClientKey: ", p), err)
-	}
-	return err
-}
-
-func (p *WPWithinInitHTEArgs) writeField2(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("merchantServiceKey", thrift.STRING, 2); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:merchantServiceKey: ", p), err)
-	}
-	if err := oprot.WriteString(string(p.MerchantServiceKey)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.merchantServiceKey (2) field write error: ", p), err)
-	}
-	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 2:merchantServiceKey: ", p), err)
-	}
-	return err
-}
-
-func (p *WPWithinInitHTEArgs) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("WPWithinInitHTEArgs(%+v)", *p)
-}
-
-// Attributes:
-//  - Err
-type WPWithinInitHTEResult struct {
-	Err *wpthrift_types.Error `thrift:"err,1" json:"err,omitempty"`
-}
-
-func NewWPWithinInitHTEResult() *WPWithinInitHTEResult {
-	return &WPWithinInitHTEResult{}
-}
-
-var WPWithinInitHTEResult_Err_DEFAULT *wpthrift_types.Error
-
-func (p *WPWithinInitHTEResult) GetErr() *wpthrift_types.Error {
-	if !p.IsSetErr() {
-		return WPWithinInitHTEResult_Err_DEFAULT
-	}
-	return p.Err
-}
-func (p *WPWithinInitHTEResult) IsSetErr() bool {
-	return p.Err != nil
-}
-
-func (p *WPWithinInitHTEResult) Read(iprot thrift.TProtocol) error {
-	if _, err := iprot.ReadStructBegin(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
-		if err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-		switch fieldId {
-		case 1:
-			if err := p.readField1(iprot); err != nil {
-				return err
-			}
-		default:
-			if err := iprot.Skip(fieldTypeId); err != nil {
-				return err
-			}
-		}
-		if err := iprot.ReadFieldEnd(); err != nil {
-			return err
-		}
-	}
-	if err := iprot.ReadStructEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHTEResult) readField1(iprot thrift.TProtocol) error {
-	p.Err = &wpthrift_types.Error{}
-	if err := p.Err.Read(iprot); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.Err), err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHTEResult) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("initHTE_result"); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-	}
-	if err := p.writeField1(oprot); err != nil {
-		return err
-	}
-	if err := oprot.WriteFieldStop(); err != nil {
-		return thrift.PrependError("write field stop error: ", err)
-	}
-	if err := oprot.WriteStructEnd(); err != nil {
-		return thrift.PrependError("write struct stop error: ", err)
-	}
-	return nil
-}
-
-func (p *WPWithinInitHTEResult) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.IsSetErr() {
-		if err := oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:err: ", p), err)
-		}
-		if err := p.Err.Write(oprot); err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.Err), err)
-		}
-		if err := oprot.WriteFieldEnd(); err != nil {
-			return thrift.PrependError(fmt.Sprintf("%T write field end error 1:err: ", p), err)
-		}
-	}
-	return err
-}
-
-func (p *WPWithinInitHTEResult) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("WPWithinInitHTEResult(%+v)", *p)
-}
-
-// Attributes:
 //  - Scheme
 //  - Hostname
 //  - Port
 //  - UrlPrefix
-//  - ServiceId
+//  - ServerId
+//  - HceCard
 type WPWithinInitConsumerArgs struct {
-	Scheme    string `thrift:"scheme,1" json:"scheme"`
-	Hostname  string `thrift:"hostname,2" json:"hostname"`
-	Port      int32  `thrift:"port,3" json:"port"`
-	UrlPrefix string `thrift:"urlPrefix,4" json:"urlPrefix"`
-	ServiceId string `thrift:"serviceId,5" json:"serviceId"`
+	Scheme    string                  `thrift:"scheme,1" json:"scheme"`
+	Hostname  string                  `thrift:"hostname,2" json:"hostname"`
+	Port      int32                   `thrift:"port,3" json:"port"`
+	UrlPrefix string                  `thrift:"urlPrefix,4" json:"urlPrefix"`
+	ServerId  string                  `thrift:"serverId,5" json:"serverId"`
+	HceCard   *wpthrift_types.HCECard `thrift:"hceCard,6" json:"hceCard"`
 }
 
 func NewWPWithinInitConsumerArgs() *WPWithinInitConsumerArgs {
@@ -3206,9 +2803,22 @@ func (p *WPWithinInitConsumerArgs) GetUrlPrefix() string {
 	return p.UrlPrefix
 }
 
-func (p *WPWithinInitConsumerArgs) GetServiceId() string {
-	return p.ServiceId
+func (p *WPWithinInitConsumerArgs) GetServerId() string {
+	return p.ServerId
 }
+
+var WPWithinInitConsumerArgs_HceCard_DEFAULT *wpthrift_types.HCECard
+
+func (p *WPWithinInitConsumerArgs) GetHceCard() *wpthrift_types.HCECard {
+	if !p.IsSetHceCard() {
+		return WPWithinInitConsumerArgs_HceCard_DEFAULT
+	}
+	return p.HceCard
+}
+func (p *WPWithinInitConsumerArgs) IsSetHceCard() bool {
+	return p.HceCard != nil
+}
+
 func (p *WPWithinInitConsumerArgs) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
@@ -3241,6 +2851,10 @@ func (p *WPWithinInitConsumerArgs) Read(iprot thrift.TProtocol) error {
 			}
 		case 5:
 			if err := p.readField5(iprot); err != nil {
+				return err
+			}
+		case 6:
+			if err := p.readField6(iprot); err != nil {
 				return err
 			}
 		default:
@@ -3298,7 +2912,15 @@ func (p *WPWithinInitConsumerArgs) readField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return thrift.PrependError("error reading field 5: ", err)
 	} else {
-		p.ServiceId = v
+		p.ServerId = v
+	}
+	return nil
+}
+
+func (p *WPWithinInitConsumerArgs) readField6(iprot thrift.TProtocol) error {
+	p.HceCard = &wpthrift_types.HCECard{}
+	if err := p.HceCard.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.HceCard), err)
 	}
 	return nil
 }
@@ -3320,6 +2942,9 @@ func (p *WPWithinInitConsumerArgs) Write(oprot thrift.TProtocol) error {
 		return err
 	}
 	if err := p.writeField5(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField6(oprot); err != nil {
 		return err
 	}
 	if err := oprot.WriteFieldStop(); err != nil {
@@ -3384,14 +3009,27 @@ func (p *WPWithinInitConsumerArgs) writeField4(oprot thrift.TProtocol) (err erro
 }
 
 func (p *WPWithinInitConsumerArgs) writeField5(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("serviceId", thrift.STRING, 5); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 5:serviceId: ", p), err)
+	if err := oprot.WriteFieldBegin("serverId", thrift.STRING, 5); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 5:serverId: ", p), err)
 	}
-	if err := oprot.WriteString(string(p.ServiceId)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.serviceId (5) field write error: ", p), err)
+	if err := oprot.WriteString(string(p.ServerId)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.serverId (5) field write error: ", p), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 5:serviceId: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 5:serverId: ", p), err)
+	}
+	return err
+}
+
+func (p *WPWithinInitConsumerArgs) writeField6(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("hceCard", thrift.STRUCT, 6); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 6:hceCard: ", p), err)
+	}
+	if err := p.HceCard.Write(oprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.HceCard), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 6:hceCard: ", p), err)
 	}
 	return err
 }
@@ -3504,13 +3142,25 @@ func (p *WPWithinInitConsumerResult) String() string {
 	return fmt.Sprintf("WPWithinInitConsumerResult(%+v)", *p)
 }
 
+// Attributes:
+//  - MerchantClientKey
+//  - MerchantServiceKey
 type WPWithinInitProducerArgs struct {
+	MerchantClientKey  string `thrift:"merchantClientKey,1" json:"merchantClientKey"`
+	MerchantServiceKey string `thrift:"merchantServiceKey,2" json:"merchantServiceKey"`
 }
 
 func NewWPWithinInitProducerArgs() *WPWithinInitProducerArgs {
 	return &WPWithinInitProducerArgs{}
 }
 
+func (p *WPWithinInitProducerArgs) GetMerchantClientKey() string {
+	return p.MerchantClientKey
+}
+
+func (p *WPWithinInitProducerArgs) GetMerchantServiceKey() string {
+	return p.MerchantServiceKey
+}
 func (p *WPWithinInitProducerArgs) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
@@ -3524,8 +3174,19 @@ func (p *WPWithinInitProducerArgs) Read(iprot thrift.TProtocol) error {
 		if fieldTypeId == thrift.STOP {
 			break
 		}
-		if err := iprot.Skip(fieldTypeId); err != nil {
-			return err
+		switch fieldId {
+		case 1:
+			if err := p.readField1(iprot); err != nil {
+				return err
+			}
+		case 2:
+			if err := p.readField2(iprot); err != nil {
+				return err
+			}
+		default:
+			if err := iprot.Skip(fieldTypeId); err != nil {
+				return err
+			}
 		}
 		if err := iprot.ReadFieldEnd(); err != nil {
 			return err
@@ -3537,9 +3198,33 @@ func (p *WPWithinInitProducerArgs) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *WPWithinInitProducerArgs) readField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return thrift.PrependError("error reading field 1: ", err)
+	} else {
+		p.MerchantClientKey = v
+	}
+	return nil
+}
+
+func (p *WPWithinInitProducerArgs) readField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return thrift.PrependError("error reading field 2: ", err)
+	} else {
+		p.MerchantServiceKey = v
+	}
+	return nil
+}
+
 func (p *WPWithinInitProducerArgs) Write(oprot thrift.TProtocol) error {
 	if err := oprot.WriteStructBegin("initProducer_args"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := p.writeField1(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField2(oprot); err != nil {
+		return err
 	}
 	if err := oprot.WriteFieldStop(); err != nil {
 		return thrift.PrependError("write field stop error: ", err)
@@ -3548,6 +3233,32 @@ func (p *WPWithinInitProducerArgs) Write(oprot thrift.TProtocol) error {
 		return thrift.PrependError("write struct stop error: ", err)
 	}
 	return nil
+}
+
+func (p *WPWithinInitProducerArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("merchantClientKey", thrift.STRING, 1); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:merchantClientKey: ", p), err)
+	}
+	if err := oprot.WriteString(string(p.MerchantClientKey)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.merchantClientKey (1) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:merchantClientKey: ", p), err)
+	}
+	return err
+}
+
+func (p *WPWithinInitProducerArgs) writeField2(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("merchantServiceKey", thrift.STRING, 2); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:merchantServiceKey: ", p), err)
+	}
+	if err := oprot.WriteString(string(p.MerchantServiceKey)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.merchantServiceKey (2) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 2:merchantServiceKey: ", p), err)
+	}
+	return err
 }
 
 func (p *WPWithinInitProducerArgs) String() string {
@@ -4160,18 +3871,18 @@ func (p *WPWithinStopServiceBroadcastResult) String() string {
 
 // Attributes:
 //  - TimeoutMillis
-type WPWithinServiceDiscoveryArgs struct {
+type WPWithinDeviceDiscoveryArgs struct {
 	TimeoutMillis int32 `thrift:"timeoutMillis,1" json:"timeoutMillis"`
 }
 
-func NewWPWithinServiceDiscoveryArgs() *WPWithinServiceDiscoveryArgs {
-	return &WPWithinServiceDiscoveryArgs{}
+func NewWPWithinDeviceDiscoveryArgs() *WPWithinDeviceDiscoveryArgs {
+	return &WPWithinDeviceDiscoveryArgs{}
 }
 
-func (p *WPWithinServiceDiscoveryArgs) GetTimeoutMillis() int32 {
+func (p *WPWithinDeviceDiscoveryArgs) GetTimeoutMillis() int32 {
 	return p.TimeoutMillis
 }
-func (p *WPWithinServiceDiscoveryArgs) Read(iprot thrift.TProtocol) error {
+func (p *WPWithinDeviceDiscoveryArgs) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
 	}
@@ -4204,7 +3915,7 @@ func (p *WPWithinServiceDiscoveryArgs) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *WPWithinServiceDiscoveryArgs) readField1(iprot thrift.TProtocol) error {
+func (p *WPWithinDeviceDiscoveryArgs) readField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return thrift.PrependError("error reading field 1: ", err)
 	} else {
@@ -4213,8 +3924,8 @@ func (p *WPWithinServiceDiscoveryArgs) readField1(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *WPWithinServiceDiscoveryArgs) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("serviceDiscovery_args"); err != nil {
+func (p *WPWithinDeviceDiscoveryArgs) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("deviceDiscovery_args"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
 	}
 	if err := p.writeField1(oprot); err != nil {
@@ -4229,7 +3940,7 @@ func (p *WPWithinServiceDiscoveryArgs) Write(oprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *WPWithinServiceDiscoveryArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *WPWithinDeviceDiscoveryArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err := oprot.WriteFieldBegin("timeoutMillis", thrift.I32, 1); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:timeoutMillis: ", p), err)
 	}
@@ -4242,48 +3953,48 @@ func (p *WPWithinServiceDiscoveryArgs) writeField1(oprot thrift.TProtocol) (err 
 	return err
 }
 
-func (p *WPWithinServiceDiscoveryArgs) String() string {
+func (p *WPWithinDeviceDiscoveryArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("WPWithinServiceDiscoveryArgs(%+v)", *p)
+	return fmt.Sprintf("WPWithinDeviceDiscoveryArgs(%+v)", *p)
 }
 
 // Attributes:
 //  - Success
 //  - Err
-type WPWithinServiceDiscoveryResult struct {
+type WPWithinDeviceDiscoveryResult struct {
 	Success map[*wpthrift_types.ServiceMessage]bool `thrift:"success,0" json:"success,omitempty"`
 	Err     *wpthrift_types.Error                   `thrift:"err,1" json:"err,omitempty"`
 }
 
-func NewWPWithinServiceDiscoveryResult() *WPWithinServiceDiscoveryResult {
-	return &WPWithinServiceDiscoveryResult{}
+func NewWPWithinDeviceDiscoveryResult() *WPWithinDeviceDiscoveryResult {
+	return &WPWithinDeviceDiscoveryResult{}
 }
 
-var WPWithinServiceDiscoveryResult_Success_DEFAULT map[*wpthrift_types.ServiceMessage]bool
+var WPWithinDeviceDiscoveryResult_Success_DEFAULT map[*wpthrift_types.ServiceMessage]bool
 
-func (p *WPWithinServiceDiscoveryResult) GetSuccess() map[*wpthrift_types.ServiceMessage]bool {
+func (p *WPWithinDeviceDiscoveryResult) GetSuccess() map[*wpthrift_types.ServiceMessage]bool {
 	return p.Success
 }
 
-var WPWithinServiceDiscoveryResult_Err_DEFAULT *wpthrift_types.Error
+var WPWithinDeviceDiscoveryResult_Err_DEFAULT *wpthrift_types.Error
 
-func (p *WPWithinServiceDiscoveryResult) GetErr() *wpthrift_types.Error {
+func (p *WPWithinDeviceDiscoveryResult) GetErr() *wpthrift_types.Error {
 	if !p.IsSetErr() {
-		return WPWithinServiceDiscoveryResult_Err_DEFAULT
+		return WPWithinDeviceDiscoveryResult_Err_DEFAULT
 	}
 	return p.Err
 }
-func (p *WPWithinServiceDiscoveryResult) IsSetSuccess() bool {
+func (p *WPWithinDeviceDiscoveryResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *WPWithinServiceDiscoveryResult) IsSetErr() bool {
+func (p *WPWithinDeviceDiscoveryResult) IsSetErr() bool {
 	return p.Err != nil
 }
 
-func (p *WPWithinServiceDiscoveryResult) Read(iprot thrift.TProtocol) error {
+func (p *WPWithinDeviceDiscoveryResult) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
 	}
@@ -4320,7 +4031,7 @@ func (p *WPWithinServiceDiscoveryResult) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *WPWithinServiceDiscoveryResult) readField0(iprot thrift.TProtocol) error {
+func (p *WPWithinDeviceDiscoveryResult) readField0(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadSetBegin()
 	if err != nil {
 		return thrift.PrependError("error reading set begin: ", err)
@@ -4340,7 +4051,7 @@ func (p *WPWithinServiceDiscoveryResult) readField0(iprot thrift.TProtocol) erro
 	return nil
 }
 
-func (p *WPWithinServiceDiscoveryResult) readField1(iprot thrift.TProtocol) error {
+func (p *WPWithinDeviceDiscoveryResult) readField1(iprot thrift.TProtocol) error {
 	p.Err = &wpthrift_types.Error{}
 	if err := p.Err.Read(iprot); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.Err), err)
@@ -4348,8 +4059,8 @@ func (p *WPWithinServiceDiscoveryResult) readField1(iprot thrift.TProtocol) erro
 	return nil
 }
 
-func (p *WPWithinServiceDiscoveryResult) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("serviceDiscovery_result"); err != nil {
+func (p *WPWithinDeviceDiscoveryResult) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("deviceDiscovery_result"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
 	}
 	if err := p.writeField0(oprot); err != nil {
@@ -4367,7 +4078,7 @@ func (p *WPWithinServiceDiscoveryResult) Write(oprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *WPWithinServiceDiscoveryResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *WPWithinDeviceDiscoveryResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err := oprot.WriteFieldBegin("success", thrift.SET, 0); err != nil {
 			return thrift.PrependError(fmt.Sprintf("%T write field begin error 0:success: ", p), err)
@@ -4390,7 +4101,7 @@ func (p *WPWithinServiceDiscoveryResult) writeField0(oprot thrift.TProtocol) (er
 	return err
 }
 
-func (p *WPWithinServiceDiscoveryResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *WPWithinDeviceDiscoveryResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.IsSetErr() {
 		if err := oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
 			return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:err: ", p), err)
@@ -4405,11 +4116,11 @@ func (p *WPWithinServiceDiscoveryResult) writeField1(oprot thrift.TProtocol) (er
 	return err
 }
 
-func (p *WPWithinServiceDiscoveryResult) String() string {
+func (p *WPWithinDeviceDiscoveryResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("WPWithinServiceDiscoveryResult(%+v)", *p)
+	return fmt.Sprintf("WPWithinDeviceDiscoveryResult(%+v)", *p)
 }
 
 type WPWithinRequestServicesArgs struct {
@@ -5432,4 +5143,544 @@ func (p *WPWithinMakePaymentResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("WPWithinMakePaymentResult(%+v)", *p)
+}
+
+// Attributes:
+//  - ClientId
+//  - ServiceDeliveryToken
+//  - UnitsToSupply
+type WPWithinBeginServiceDeliveryArgs struct {
+	ClientId             string                               `thrift:"clientId,1" json:"clientId"`
+	ServiceDeliveryToken *wpthrift_types.ServiceDeliveryToken `thrift:"serviceDeliveryToken,2" json:"serviceDeliveryToken"`
+	UnitsToSupply        int32                                `thrift:"unitsToSupply,3" json:"unitsToSupply"`
+}
+
+func NewWPWithinBeginServiceDeliveryArgs() *WPWithinBeginServiceDeliveryArgs {
+	return &WPWithinBeginServiceDeliveryArgs{}
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) GetClientId() string {
+	return p.ClientId
+}
+
+var WPWithinBeginServiceDeliveryArgs_ServiceDeliveryToken_DEFAULT *wpthrift_types.ServiceDeliveryToken
+
+func (p *WPWithinBeginServiceDeliveryArgs) GetServiceDeliveryToken() *wpthrift_types.ServiceDeliveryToken {
+	if !p.IsSetServiceDeliveryToken() {
+		return WPWithinBeginServiceDeliveryArgs_ServiceDeliveryToken_DEFAULT
+	}
+	return p.ServiceDeliveryToken
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) GetUnitsToSupply() int32 {
+	return p.UnitsToSupply
+}
+func (p *WPWithinBeginServiceDeliveryArgs) IsSetServiceDeliveryToken() bool {
+	return p.ServiceDeliveryToken != nil
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if err := p.readField1(iprot); err != nil {
+				return err
+			}
+		case 2:
+			if err := p.readField2(iprot); err != nil {
+				return err
+			}
+		case 3:
+			if err := p.readField3(iprot); err != nil {
+				return err
+			}
+		default:
+			if err := iprot.Skip(fieldTypeId); err != nil {
+				return err
+			}
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+	}
+	return nil
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) readField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return thrift.PrependError("error reading field 1: ", err)
+	} else {
+		p.ClientId = v
+	}
+	return nil
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) readField2(iprot thrift.TProtocol) error {
+	p.ServiceDeliveryToken = &wpthrift_types.ServiceDeliveryToken{}
+	if err := p.ServiceDeliveryToken.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.ServiceDeliveryToken), err)
+	}
+	return nil
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) readField3(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI32(); err != nil {
+		return thrift.PrependError("error reading field 3: ", err)
+	} else {
+		p.UnitsToSupply = v
+	}
+	return nil
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("beginServiceDelivery_args"); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := p.writeField1(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField2(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField3(oprot); err != nil {
+		return err
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return thrift.PrependError("write field stop error: ", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return thrift.PrependError("write struct stop error: ", err)
+	}
+	return nil
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("clientId", thrift.STRING, 1); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:clientId: ", p), err)
+	}
+	if err := oprot.WriteString(string(p.ClientId)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.clientId (1) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:clientId: ", p), err)
+	}
+	return err
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) writeField2(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("serviceDeliveryToken", thrift.STRUCT, 2); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:serviceDeliveryToken: ", p), err)
+	}
+	if err := p.ServiceDeliveryToken.Write(oprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.ServiceDeliveryToken), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 2:serviceDeliveryToken: ", p), err)
+	}
+	return err
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) writeField3(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("unitsToSupply", thrift.I32, 3); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 3:unitsToSupply: ", p), err)
+	}
+	if err := oprot.WriteI32(int32(p.UnitsToSupply)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.unitsToSupply (3) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 3:unitsToSupply: ", p), err)
+	}
+	return err
+}
+
+func (p *WPWithinBeginServiceDeliveryArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("WPWithinBeginServiceDeliveryArgs(%+v)", *p)
+}
+
+// Attributes:
+//  - Err
+type WPWithinBeginServiceDeliveryResult struct {
+	Err *wpthrift_types.Error `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewWPWithinBeginServiceDeliveryResult() *WPWithinBeginServiceDeliveryResult {
+	return &WPWithinBeginServiceDeliveryResult{}
+}
+
+var WPWithinBeginServiceDeliveryResult_Err_DEFAULT *wpthrift_types.Error
+
+func (p *WPWithinBeginServiceDeliveryResult) GetErr() *wpthrift_types.Error {
+	if !p.IsSetErr() {
+		return WPWithinBeginServiceDeliveryResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *WPWithinBeginServiceDeliveryResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *WPWithinBeginServiceDeliveryResult) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if err := p.readField1(iprot); err != nil {
+				return err
+			}
+		default:
+			if err := iprot.Skip(fieldTypeId); err != nil {
+				return err
+			}
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+	}
+	return nil
+}
+
+func (p *WPWithinBeginServiceDeliveryResult) readField1(iprot thrift.TProtocol) error {
+	p.Err = &wpthrift_types.Error{}
+	if err := p.Err.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.Err), err)
+	}
+	return nil
+}
+
+func (p *WPWithinBeginServiceDeliveryResult) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("beginServiceDelivery_result"); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := p.writeField1(oprot); err != nil {
+		return err
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return thrift.PrependError("write field stop error: ", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return thrift.PrependError("write struct stop error: ", err)
+	}
+	return nil
+}
+
+func (p *WPWithinBeginServiceDeliveryResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err := oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:err: ", p), err)
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.Err), err)
+		}
+		if err := oprot.WriteFieldEnd(); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field end error 1:err: ", p), err)
+		}
+	}
+	return err
+}
+
+func (p *WPWithinBeginServiceDeliveryResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("WPWithinBeginServiceDeliveryResult(%+v)", *p)
+}
+
+// Attributes:
+//  - ClientId
+//  - ServiceDeliveryToken
+//  - UnitsReceived
+type WPWithinEndServiceDeliveryArgs struct {
+	ClientId             string                               `thrift:"clientId,1" json:"clientId"`
+	ServiceDeliveryToken *wpthrift_types.ServiceDeliveryToken `thrift:"serviceDeliveryToken,2" json:"serviceDeliveryToken"`
+	UnitsReceived        int32                                `thrift:"unitsReceived,3" json:"unitsReceived"`
+}
+
+func NewWPWithinEndServiceDeliveryArgs() *WPWithinEndServiceDeliveryArgs {
+	return &WPWithinEndServiceDeliveryArgs{}
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) GetClientId() string {
+	return p.ClientId
+}
+
+var WPWithinEndServiceDeliveryArgs_ServiceDeliveryToken_DEFAULT *wpthrift_types.ServiceDeliveryToken
+
+func (p *WPWithinEndServiceDeliveryArgs) GetServiceDeliveryToken() *wpthrift_types.ServiceDeliveryToken {
+	if !p.IsSetServiceDeliveryToken() {
+		return WPWithinEndServiceDeliveryArgs_ServiceDeliveryToken_DEFAULT
+	}
+	return p.ServiceDeliveryToken
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) GetUnitsReceived() int32 {
+	return p.UnitsReceived
+}
+func (p *WPWithinEndServiceDeliveryArgs) IsSetServiceDeliveryToken() bool {
+	return p.ServiceDeliveryToken != nil
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if err := p.readField1(iprot); err != nil {
+				return err
+			}
+		case 2:
+			if err := p.readField2(iprot); err != nil {
+				return err
+			}
+		case 3:
+			if err := p.readField3(iprot); err != nil {
+				return err
+			}
+		default:
+			if err := iprot.Skip(fieldTypeId); err != nil {
+				return err
+			}
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+	}
+	return nil
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) readField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return thrift.PrependError("error reading field 1: ", err)
+	} else {
+		p.ClientId = v
+	}
+	return nil
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) readField2(iprot thrift.TProtocol) error {
+	p.ServiceDeliveryToken = &wpthrift_types.ServiceDeliveryToken{}
+	if err := p.ServiceDeliveryToken.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.ServiceDeliveryToken), err)
+	}
+	return nil
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) readField3(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI32(); err != nil {
+		return thrift.PrependError("error reading field 3: ", err)
+	} else {
+		p.UnitsReceived = v
+	}
+	return nil
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("endServiceDelivery_args"); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := p.writeField1(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField2(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField3(oprot); err != nil {
+		return err
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return thrift.PrependError("write field stop error: ", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return thrift.PrependError("write struct stop error: ", err)
+	}
+	return nil
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("clientId", thrift.STRING, 1); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:clientId: ", p), err)
+	}
+	if err := oprot.WriteString(string(p.ClientId)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.clientId (1) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:clientId: ", p), err)
+	}
+	return err
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) writeField2(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("serviceDeliveryToken", thrift.STRUCT, 2); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 2:serviceDeliveryToken: ", p), err)
+	}
+	if err := p.ServiceDeliveryToken.Write(oprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.ServiceDeliveryToken), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 2:serviceDeliveryToken: ", p), err)
+	}
+	return err
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) writeField3(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("unitsReceived", thrift.I32, 3); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 3:unitsReceived: ", p), err)
+	}
+	if err := oprot.WriteI32(int32(p.UnitsReceived)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.unitsReceived (3) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 3:unitsReceived: ", p), err)
+	}
+	return err
+}
+
+func (p *WPWithinEndServiceDeliveryArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("WPWithinEndServiceDeliveryArgs(%+v)", *p)
+}
+
+// Attributes:
+//  - Err
+type WPWithinEndServiceDeliveryResult struct {
+	Err *wpthrift_types.Error `thrift:"err,1" json:"err,omitempty"`
+}
+
+func NewWPWithinEndServiceDeliveryResult() *WPWithinEndServiceDeliveryResult {
+	return &WPWithinEndServiceDeliveryResult{}
+}
+
+var WPWithinEndServiceDeliveryResult_Err_DEFAULT *wpthrift_types.Error
+
+func (p *WPWithinEndServiceDeliveryResult) GetErr() *wpthrift_types.Error {
+	if !p.IsSetErr() {
+		return WPWithinEndServiceDeliveryResult_Err_DEFAULT
+	}
+	return p.Err
+}
+func (p *WPWithinEndServiceDeliveryResult) IsSetErr() bool {
+	return p.Err != nil
+}
+
+func (p *WPWithinEndServiceDeliveryResult) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read error: ", p), err)
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T field %d read error: ", p, fieldId), err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if err := p.readField1(iprot); err != nil {
+				return err
+			}
+		default:
+			if err := iprot.Skip(fieldTypeId); err != nil {
+				return err
+			}
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+	}
+	return nil
+}
+
+func (p *WPWithinEndServiceDeliveryResult) readField1(iprot thrift.TProtocol) error {
+	p.Err = &wpthrift_types.Error{}
+	if err := p.Err.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.Err), err)
+	}
+	return nil
+}
+
+func (p *WPWithinEndServiceDeliveryResult) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("endServiceDelivery_result"); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+	}
+	if err := p.writeField1(oprot); err != nil {
+		return err
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return thrift.PrependError("write field stop error: ", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return thrift.PrependError("write struct stop error: ", err)
+	}
+	return nil
+}
+
+func (p *WPWithinEndServiceDeliveryResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetErr() {
+		if err := oprot.WriteFieldBegin("err", thrift.STRUCT, 1); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:err: ", p), err)
+		}
+		if err := p.Err.Write(oprot); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.Err), err)
+		}
+		if err := oprot.WriteFieldEnd(); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field end error 1:err: ", p), err)
+		}
+	}
+	return err
+}
+
+func (p *WPWithinEndServiceDeliveryResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("WPWithinEndServiceDeliveryResult(%+v)", *p)
 }

@@ -7,12 +7,8 @@
 package com.worldpay.innovation;
 
 import com.worldpay.innovation.wpwithin.rpc.WPWithin;
-import com.worldpay.innovation.wpwithin.rpc.types.PaymentResponse;
-import com.worldpay.innovation.wpwithin.rpc.types.Price;
-import com.worldpay.innovation.wpwithin.rpc.types.Service;
-import com.worldpay.innovation.wpwithin.rpc.types.ServiceDetails;
-import com.worldpay.innovation.wpwithin.rpc.types.ServiceMessage;
-import com.worldpay.innovation.wpwithin.rpc.types.TotalPriceResponse;
+import com.worldpay.innovation.wpwithin.rpc.types.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -164,7 +160,7 @@ public class GeneralMenu extends MenuBase {
         HashSet services;
 	log.fine("pre scan for services");
 	try {
-            services = (HashSet)sdk.serviceDiscovery(20000);
+            services = (HashSet)sdk.deviceDiscovery(20000);
         } catch(TException e) {
             return new MenuReturnStruct("Something failed during service discovery", 0);
         }
@@ -179,8 +175,11 @@ public class GeneralMenu extends MenuBase {
 
 		log.fine("Init consumer");
                         
-                try {        
-                    sdk.initConsumer("http://", svc.getHostname(), svc.getPortNumber(), svc.getUrlPrefix(), svc.getServerId());
+                try {
+
+                    HCECard card = new HCECard("Bilbo", "Baggins", 11, 2018, "5555555555554444", "Card", "113");
+
+                    sdk.initConsumer("http://", svc.getHostname(), svc.getPortNumber(), svc.getUrlPrefix(), svc.getServerId(), card);
                 } catch(TException e) {
                     return new MenuReturnStruct("Faild to init the consumer", 0);
                 }

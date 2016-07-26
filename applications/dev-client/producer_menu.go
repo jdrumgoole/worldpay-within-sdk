@@ -39,15 +39,17 @@ func mDefaultProducer() (int, error) {
 		return 0, err
 	}
 
-	if _, err := mDefaultHTECredentials(); err != nil {
-		return 0, err
-	}
+	// Disabling as this just calls initProducer inside, which is called below.
+	// Was causing issue with the HTE port already being bound.
+//	if _, err := mDefaultHTECredentials(); err != nil {
+//		return 0, err
+//	}
 
 	if sdk == nil {
 		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	if _, err := sdk.InitProducer(); err != nil {
+	if err := sdk.InitProducer(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY); err != nil {
 		return 0, err
 	}
 
@@ -77,7 +79,7 @@ func mDefaultHTECredentials() (int, error) {
 		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, sdk.InitHTE(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY)
+	return 0, sdk.InitProducer(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY)
 }
 
 func mNewHTECredentials() (int, error) {
@@ -98,7 +100,7 @@ func mNewHTECredentials() (int, error) {
 		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, sdk.InitHTE(merchantClientKey, merchantServiceKey)
+	return 0, sdk.InitProducer(merchantClientKey, merchantServiceKey)
 }
 
 func mAddRoboWashService() (int, error) {

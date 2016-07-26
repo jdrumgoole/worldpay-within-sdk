@@ -6,6 +6,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
+	"errors"
 )
 
 type WPWithinHandler struct {
@@ -74,11 +75,11 @@ func (wp *WPWithinHandler) RemoveService(svc *wpthrift_types.Service) (err error
 	return wp.wpwithin.RemoveService(gSvc)
 }
 
-func (wp *WPWithinHandler) InitHCE(hceCard *wpthrift_types.HCECard) (err error) {
+func (wp *WPWithinHandler) InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serviceId string, hceCard *wpthrift_types.HCECard) (err error) {
 
-	log.Debug("Begin RPC.WPWithinHandler.InitHCE()")
+	log.Debug("RPC.WPWithinHandler.InitConsumer()")
 
-	gHCECard := types.HCECard{
+	_hceCard := types.HCECard{
 		FirstName: hceCard.FirstName,
 		LastName: hceCard.LastName,
 		ExpMonth: hceCard.ExpMonth,
@@ -88,33 +89,17 @@ func (wp *WPWithinHandler) InitHCE(hceCard *wpthrift_types.HCECard) (err error) 
 		Cvc: hceCard.Cvc,
 	}
 
-	log.Debug("End RPC.WPWithinHandler.InitHCE()")
-
-	return wp.wpwithin.InitHCE(gHCECard)
+	return wp.wpwithin.InitConsumer(scheme, hostname, int(port), urlPrefix, serviceId, &_hceCard)
 }
 
-func (wp *WPWithinHandler) InitHTE(merchantClientKey string, merchantServiceKey string) (err error) {
-
-	log.Debug("RPC.WPWithinHandler.InitHTE()")
-
-	return wp.wpwithin.InitHTE(merchantClientKey, merchantServiceKey)
-}
-
-func (wp *WPWithinHandler) InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serviceId string) (err error) {
-
-	log.Debug("RPC.WPWithinHandler.InitConsumer()")
-
-	return wp.wpwithin.InitConsumer(scheme, hostname, int(port), urlPrefix, serviceId)
-}
-
-func (wp *WPWithinHandler) InitProducer() (err error) {
+func (wp *WPWithinHandler) InitProducer(merchantClientKey string, merchantServiceKey string) (err error) {
 
 	log.Debug("RPC.WPWithinHandler.InitProducer()")
 
 
 	go func(){
 
-		wp.wpwithin.InitProducer()
+		wp.wpwithin.InitProducer(merchantClientKey, merchantServiceKey)
 
 	}()
 
@@ -137,36 +122,54 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 		CurrencyCode: device.CurrencyCode,
 	}
 
-	for i, svc := range device.Services {
+	log.Debugf("Found %d services for device", len(device.Services))
 
-		result.Services[int32(i)] = &wpthrift_types.Service{
+	if device != nil && len(device.Services) > 0 {
 
-			ID: int32(svc.Id),
-			Name: svc.Name,
-			Description: svc.Description,
-			/* TODO CH - Map prices - There seems to be a pointer issue caused by Thrift for optional paramters */
+		log.Debug("Begin convert Go Service type to Thrift Service type")
+
+		// Convert the services to Thrift services
+		for i, svc := range device.Services {
+
+			// Convert the prices to Thrift prices
+			svcPrices := svc.Prices()
+			thriftPrices := make(map[int32]wpthrift_types.Price, 0)
+
+			log.Debugf("Found %d prices for service: %s (%d)", len(svcPrices), svc.Id, svc.Name)
+
+			if len(svcPrices) > 0 {
+
+				log.Debug("Begin convert Go price type to Thrift price type")
+
+				for _, svcPrice := range svcPrices {
+
+					thriftPrices[int32(svcPrice.ID)] = wpthrift_types.Price{
+
+						ID: int32(svcPrice.ID),
+						Description: svcPrice.Description,
+						PricePerUnit: &wpthrift_types.PricePerUnit{
+							Amount: int32(svcPrice.PricePerUnit.Amount),
+							CurrencyCode: svcPrice.PricePerUnit.CurrencyCode,
+						},
+						UnitId: int32(svcPrice.UnitID),
+						UnitDescription: svcPrice.UnitDescription,
+					}
+				}
+
+				log.Debug("End convert Go price type to Thrift price type")
+			}
+
+			result.Services[int32(i)] = &wpthrift_types.Service{
+
+				ID: int32(svc.Id),
+				Name: svc.Name,
+				Description: svc.Description,
+				Prices: thriftPrices,
+			}
 		}
+
+		log.Debug("End convert Go Service type to Thrift Service type")
 	}
-
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("								PRE ALPHA RELEASE WARNING										   ")
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("							Prices is not returns in the result									   ")
-	log.Warn("TODO CH - Map prices - There seems to be a pointer issue caused by Thrift for optional parameters")
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("**********************        CONSIDER YOURSELF WARNED :)       **********************************")
-	log.Warn("*************************************************************************************************")
-	log.Warn("*************************************************************************************************")
-
 
 	log.Debug("End RPC.WPWithinHandler.GetDevice()")
 
@@ -191,11 +194,11 @@ func (wp *WPWithinHandler) StopServiceBroadcast() (err error) {
 	return nil
 }
 
-func (wp *WPWithinHandler) ServiceDiscovery(timeoutMillis int32) (r map[*wpthrift_types.ServiceMessage]bool, err error) {
+func (wp *WPWithinHandler) DeviceDiscovery(timeoutMillis int32) (r map[*wpthrift_types.ServiceMessage]bool, err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.ServiceDiscovery()")
 
-	gSvcMsgs, err := wp.wpwithin.ServiceDiscovery(int(timeoutMillis))
+	gSvcMsgs, err := wp.wpwithin.DeviceDiscovery(int(timeoutMillis))
 
 	if err != nil {
 
@@ -354,4 +357,14 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 	log.Debug("End RPC.WPWithinHandler.MakePayment()")
 
 	return result, nil
+}
+
+func (wp *WPWithinHandler) BeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+
+	return errors.New("Not implemented..")
+}
+
+func (wp *WPWithinHandler) EndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
+
+	return errors.New("Not implemented..")
 }

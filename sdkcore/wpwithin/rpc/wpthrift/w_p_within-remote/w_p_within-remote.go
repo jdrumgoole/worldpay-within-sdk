@@ -23,18 +23,18 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "  void setup(string name, string description)")
 	fmt.Fprintln(os.Stderr, "  void addService(Service svc)")
 	fmt.Fprintln(os.Stderr, "  void removeService(Service svc)")
-	fmt.Fprintln(os.Stderr, "  void initHCE(HCECard hceCard)")
-	fmt.Fprintln(os.Stderr, "  void initHTE(string merchantClientKey, string merchantServiceKey)")
-	fmt.Fprintln(os.Stderr, "  void initConsumer(string scheme, string hostname, i32 port, string urlPrefix, string serviceId)")
-	fmt.Fprintln(os.Stderr, "  void initProducer()")
+	fmt.Fprintln(os.Stderr, "  void initConsumer(string scheme, string hostname, i32 port, string urlPrefix, string serverId, HCECard hceCard)")
+	fmt.Fprintln(os.Stderr, "  void initProducer(string merchantClientKey, string merchantServiceKey)")
 	fmt.Fprintln(os.Stderr, "  Device getDevice()")
 	fmt.Fprintln(os.Stderr, "  void startServiceBroadcast(i32 timeoutMillis)")
 	fmt.Fprintln(os.Stderr, "  void stopServiceBroadcast()")
-	fmt.Fprintln(os.Stderr, "   serviceDiscovery(i32 timeoutMillis)")
+	fmt.Fprintln(os.Stderr, "   deviceDiscovery(i32 timeoutMillis)")
 	fmt.Fprintln(os.Stderr, "   requestServices()")
 	fmt.Fprintln(os.Stderr, "   getServicePrices(i32 serviceId)")
 	fmt.Fprintln(os.Stderr, "  TotalPriceResponse selectService(i32 serviceId, i32 numberOfUnits, i32 priceId)")
 	fmt.Fprintln(os.Stderr, "  PaymentResponse makePayment(TotalPriceResponse request)")
+	fmt.Fprintln(os.Stderr, "  void beginServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, i32 unitsToSupply)")
+	fmt.Fprintln(os.Stderr, "  void endServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, i32 unitsReceived)")
 	fmt.Fprintln(os.Stderr)
 	os.Exit(0)
 }
@@ -191,54 +191,17 @@ func main() {
 		fmt.Print(client.RemoveService(value0))
 		fmt.Print("\n")
 		break
-	case "initHCE":
-		if flag.NArg()-1 != 1 {
-			fmt.Fprintln(os.Stderr, "InitHCE requires 1 args")
-			flag.Usage()
-		}
-		arg49 := flag.Arg(1)
-		mbTrans50 := thrift.NewTMemoryBufferLen(len(arg49))
-		defer mbTrans50.Close()
-		_, err51 := mbTrans50.WriteString(arg49)
-		if err51 != nil {
-			Usage()
-			return
-		}
-		factory52 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt53 := factory52.GetProtocol(mbTrans50)
-		argvalue0 := wpthrift.NewHCECard()
-		err54 := argvalue0.Read(jsProt53)
-		if err54 != nil {
-			Usage()
-			return
-		}
-		value0 := argvalue0
-		fmt.Print(client.InitHCE(value0))
-		fmt.Print("\n")
-		break
-	case "initHTE":
-		if flag.NArg()-1 != 2 {
-			fmt.Fprintln(os.Stderr, "InitHTE requires 2 args")
-			flag.Usage()
-		}
-		argvalue0 := flag.Arg(1)
-		value0 := argvalue0
-		argvalue1 := flag.Arg(2)
-		value1 := argvalue1
-		fmt.Print(client.InitHTE(value0, value1))
-		fmt.Print("\n")
-		break
 	case "initConsumer":
-		if flag.NArg()-1 != 5 {
-			fmt.Fprintln(os.Stderr, "InitConsumer requires 5 args")
+		if flag.NArg()-1 != 6 {
+			fmt.Fprintln(os.Stderr, "InitConsumer requires 6 args")
 			flag.Usage()
 		}
 		argvalue0 := flag.Arg(1)
 		value0 := argvalue0
 		argvalue1 := flag.Arg(2)
 		value1 := argvalue1
-		tmp2, err59 := (strconv.Atoi(flag.Arg(3)))
-		if err59 != nil {
+		tmp2, err51 := (strconv.Atoi(flag.Arg(3)))
+		if err51 != nil {
 			Usage()
 			return
 		}
@@ -248,15 +211,36 @@ func main() {
 		value3 := argvalue3
 		argvalue4 := flag.Arg(5)
 		value4 := argvalue4
-		fmt.Print(client.InitConsumer(value0, value1, value2, value3, value4))
+		arg54 := flag.Arg(6)
+		mbTrans55 := thrift.NewTMemoryBufferLen(len(arg54))
+		defer mbTrans55.Close()
+		_, err56 := mbTrans55.WriteString(arg54)
+		if err56 != nil {
+			Usage()
+			return
+		}
+		factory57 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt58 := factory57.GetProtocol(mbTrans55)
+		argvalue5 := wpthrift.NewHCECard()
+		err59 := argvalue5.Read(jsProt58)
+		if err59 != nil {
+			Usage()
+			return
+		}
+		value5 := argvalue5
+		fmt.Print(client.InitConsumer(value0, value1, value2, value3, value4, value5))
 		fmt.Print("\n")
 		break
 	case "initProducer":
-		if flag.NArg()-1 != 0 {
-			fmt.Fprintln(os.Stderr, "InitProducer requires 0 args")
+		if flag.NArg()-1 != 2 {
+			fmt.Fprintln(os.Stderr, "InitProducer requires 2 args")
 			flag.Usage()
 		}
-		fmt.Print(client.InitProducer())
+		argvalue0 := flag.Arg(1)
+		value0 := argvalue0
+		argvalue1 := flag.Arg(2)
+		value1 := argvalue1
+		fmt.Print(client.InitProducer(value0, value1))
 		fmt.Print("\n")
 		break
 	case "getDevice":
@@ -290,9 +274,9 @@ func main() {
 		fmt.Print(client.StopServiceBroadcast())
 		fmt.Print("\n")
 		break
-	case "serviceDiscovery":
+	case "deviceDiscovery":
 		if flag.NArg()-1 != 1 {
-			fmt.Fprintln(os.Stderr, "ServiceDiscovery requires 1 args")
+			fmt.Fprintln(os.Stderr, "DeviceDiscovery requires 1 args")
 			flag.Usage()
 		}
 		tmp0, err63 := (strconv.Atoi(flag.Arg(1)))
@@ -302,7 +286,7 @@ func main() {
 		}
 		argvalue0 := int32(tmp0)
 		value0 := argvalue0
-		fmt.Print(client.ServiceDiscovery(value0))
+		fmt.Print(client.DeviceDiscovery(value0))
 		fmt.Print("\n")
 		break
 	case "requestServices":
@@ -380,6 +364,74 @@ func main() {
 		}
 		value0 := argvalue0
 		fmt.Print(client.MakePayment(value0))
+		fmt.Print("\n")
+		break
+	case "beginServiceDelivery":
+		if flag.NArg()-1 != 3 {
+			fmt.Fprintln(os.Stderr, "BeginServiceDelivery requires 3 args")
+			flag.Usage()
+		}
+		argvalue0 := flag.Arg(1)
+		value0 := argvalue0
+		arg75 := flag.Arg(2)
+		mbTrans76 := thrift.NewTMemoryBufferLen(len(arg75))
+		defer mbTrans76.Close()
+		_, err77 := mbTrans76.WriteString(arg75)
+		if err77 != nil {
+			Usage()
+			return
+		}
+		factory78 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt79 := factory78.GetProtocol(mbTrans76)
+		argvalue1 := wpthrift.NewServiceDeliveryToken()
+		err80 := argvalue1.Read(jsProt79)
+		if err80 != nil {
+			Usage()
+			return
+		}
+		value1 := argvalue1
+		tmp2, err81 := (strconv.Atoi(flag.Arg(3)))
+		if err81 != nil {
+			Usage()
+			return
+		}
+		argvalue2 := int32(tmp2)
+		value2 := argvalue2
+		fmt.Print(client.BeginServiceDelivery(value0, value1, value2))
+		fmt.Print("\n")
+		break
+	case "endServiceDelivery":
+		if flag.NArg()-1 != 3 {
+			fmt.Fprintln(os.Stderr, "EndServiceDelivery requires 3 args")
+			flag.Usage()
+		}
+		argvalue0 := flag.Arg(1)
+		value0 := argvalue0
+		arg83 := flag.Arg(2)
+		mbTrans84 := thrift.NewTMemoryBufferLen(len(arg83))
+		defer mbTrans84.Close()
+		_, err85 := mbTrans84.WriteString(arg83)
+		if err85 != nil {
+			Usage()
+			return
+		}
+		factory86 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt87 := factory86.GetProtocol(mbTrans84)
+		argvalue1 := wpthrift.NewServiceDeliveryToken()
+		err88 := argvalue1.Read(jsProt87)
+		if err88 != nil {
+			Usage()
+			return
+		}
+		value1 := argvalue1
+		tmp2, err89 := (strconv.Atoi(flag.Arg(3)))
+		if err89 != nil {
+			Usage()
+			return
+		}
+		argvalue2 := int32(tmp2)
+		value2 := argvalue2
+		fmt.Print(client.EndServiceDelivery(value0, value1, value2))
 		fmt.Print("\n")
 		break
 	case "":
