@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Common.Logging;
 using Thrift.Protocol;
 using Thrift.Transport;
@@ -14,22 +16,71 @@ namespace Worldpay.Innovation.WPWithin
 
     public class WPWithinService : IDisposable
     {
-        /*
-   void addService(1: wptypes.Service svc) throws (1: wptypes.Error err),
-   void removeService(1: wptypes.Service svc) throws (1: wptypes.Error err),
-   void initHCE(1: wptypes.HCECard hceCard) throws (1: wptypes.Error err),
-   void initHTE(1: string merchantClientKey, 2: string merchantServiceKey) throws (1: wptypes.Error err),
-   void initConsumer(1: string scheme, 2: string hostname, 3: i32 port, 4: string urlPrefix, 5: string serviceId) throws (1: wptypes.Error err),
-   void initProducer() throws (1: wptypes.Error err),
-   wptypes.Device getDevice(),
-   void startServiceBroadcast(1: i32 timeoutMillis) throws (1: wptypes.Error err),
-   void stopServiceBroadcast() throws (1: wptypes.Error err),
-   set<wptypes.ServiceMessage> serviceDiscovery(1: i32 timeoutMillis) throws (1: wptypes.Error err),
-   set<wptypes.ServiceDetails> requestServices() throws (1: wptypes.Error err),
-   set<wptypes.Price> getServicePrices(1: i32 serviceId) throws (1: wptypes.Error err),
-   wptypes.TotalPriceResponse selectService(1: i32 serviceId, 2: i32 numberOfUnits, 3: i32 priceId) throws (1: wptypes.Error err),
-   wptypes.PaymentResponse makePayment(1: wptypes.TotalPriceResponse request) throws (1: wptypes.Error err),
-*/
+        public void AddService(Service service)
+        {
+            _client.addService(ServiceAdapter.Create(service));
+        }
+
+        public void RemoveService(Service service)
+        {
+            _client.removeService(ServiceAdapter.Create(service));
+        }
+
+        public void InitConsumer(string scheme, string hostname, int port, string urlPrefix, string serviceId,
+            HceCard hceCard)
+        {
+            _client.initConsumer(scheme, hostname, port, urlPrefix, serviceId, HceCardAdapter.Create(hceCard));
+        }
+
+        public void InitProducer(string merchantClientKey, string merchantServiceKey)
+        {
+            _client.initProducer(merchantClientKey, merchantServiceKey);
+        }
+
+        public Device GetDevice()
+        {
+            return DeviceAdapter.Create(_client.getDevice());
+        }
+
+        public void StopServiceBroadcast()
+        {
+            _client.stopServiceBroadcast();
+        }
+
+        public IEnumerable<ServiceMessage> DeviceDiscovery(int timeoutMillis)
+        {
+            return ServiceMessageAdapter.Create(_client.deviceDiscovery(timeoutMillis));
+        }
+
+        public IEnumerable<ServiceDetails> RequestServices()
+        {
+            return ServiceDetailsAdapter.Create(_client.requestServices());
+        }
+
+        public IEnumerable<Price> GetServicePrices(int serviceId)
+        {
+            return PriceAdapter.Create(_client.getServicePrices(serviceId));
+        }
+
+        public TotalPriceResponse SelectService(int serviceId, int numberOfUnits, int priceId)
+        {
+            return TotalPriceResponseAdapter.Create(_client.selectService(serviceId, numberOfUnits, priceId));
+        }
+
+        public void MakePayment(TotalPriceResponse request)
+        {
+            _client.makePayment(TotalPriceResponseAdapter.Create(request));
+        }
+
+        public void BeginServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
+        {
+            _client.beginServiceDelivery(clientId, ServiceDeliveryTokenAdapter.Create(serviceDeliveryToken), unitsToSupply);
+        }
+
+        public void EndServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
+        {
+            _client.endServiceDelivery(clientId, ServiceDeliveryTokenAdapter.Create(serviceDeliveryToken), unitsReceived);
+        }
 
         public void StartServiceBroadcast(int timeoutMillis)
         {
@@ -39,19 +90,6 @@ namespace Worldpay.Innovation.WPWithin
         public void SetupDevice(string deviceName, string deviceDescription)
         {
             _client.setup(deviceName, deviceDescription);
-        }
-
-        public void InitProducer(string clientKey, string serviceKey)
-        {
-            _client.initHTE("cl_key", "srv_key");
-            _client.initProducer();
-        }
-
-        public void InitConsumer(HceCard card)
-        {
-            _client.initHCE(new HceCardAdapter().Create(card));
-            // TODO Identify where we get the parameter for initConsumer from.  Can't be hard-coded, must be from a discovered service
-//          _client.initConsumer("");
         }
         
         private static readonly ILog Log = LogManager.GetLogger<WPWithinService>();

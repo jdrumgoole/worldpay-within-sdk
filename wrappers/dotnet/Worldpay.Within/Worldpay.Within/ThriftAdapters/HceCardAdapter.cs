@@ -9,7 +9,7 @@ namespace Worldpay.Innovation.WPWithin.ThriftAdapters
 {
     internal class HceCardAdapter
     {
-        public ThriftHceCard Create(HceCard card)
+        public static ThriftHceCard Create(HceCard card)
         {
             return new ThriftHceCard()
             {

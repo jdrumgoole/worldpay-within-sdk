@@ -13,5 +13,14 @@ namespace Worldpay.Innovation.WPWithin.ThriftAdapters
                 CurrencyCode = pricePerUnit.CurrencyCode
             };
         }
+
+        public static PricePerUnit Create(ThriftPricePerUnit pricePerUnit)
+        {
+            return new PricePerUnit()
+            {
+                CurrencyCode = pricePerUnit.CurrencyCode,
+                Amount = pricePerUnit.Amount
+            };
+        }
     }
 }

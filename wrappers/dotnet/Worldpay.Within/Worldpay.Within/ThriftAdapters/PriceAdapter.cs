@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Thrift.Collections;
 using ThriftPrice = Worldpay.Innovation.WPWithin.Rpc.Types.Price;
 
 namespace Worldpay.Innovation.WPWithin.ThriftAdapters
@@ -15,6 +18,29 @@ namespace Worldpay.Innovation.WPWithin.ThriftAdapters
                 UnitDescription = price.UnitDescription,
                 UnitId = price.UnitId
             };
+        }
+
+        public static Dictionary<int, Price> Create(Dictionary<int, ThriftPrice> prices)
+        {
+            return prices.ToDictionary(pair => pair.Key, pair => Create(pair.Value));
+        }
+
+        private static Price Create(ThriftPrice prices)
+        {
+            return new Price()
+            {
+                Description = prices.Description,
+
+                Id = prices.Id,
+                PricePerUnit = PricePerUnitAdapter.Create(prices.PricePerUnit),
+                UnitDescription = prices.UnitDescription,
+                UnitId = prices.UnitId,
+            };
+        }
+
+        public static IEnumerable<Price> Create(THashSet<ThriftPrice> getServicePrices)
+        {
+            return getServicePrices.Select(Create);
         }
     }
 }
