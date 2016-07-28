@@ -131,7 +131,6 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 		Description: device.Description,
 		Services: make(map[int32]*wpthrift_types.Service, 0),
 		Ipv4Address: device.IPv4Address,
-		CurrencyCode: device.CurrencyCode,
 	}
 
 	log.Debugf("Found %d services for device", len(device.Services))

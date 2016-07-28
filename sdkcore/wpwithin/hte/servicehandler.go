@@ -290,6 +290,8 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 	order, err := srv.orderManager.GetOrder(paymentRequest.PaymentReferenceID)
 
+	orderCurrency := srv.device.Services[order.ServiceID].Prices()[order.SelectedPriceId].PricePerUnit.CurrencyCode
+
 	if err != nil {
 
 		errorResponse := types.ErrorResponse{
@@ -310,7 +312,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 		} else {
 
 			// TODO CH - Fix order description
-			paymentOrderCode, err := srv.psp.MakePayment(order.TotalPrice, srv.device.CurrencyCode, paymentRequest.ClientToken, "fixme", order.PaymentReference)
+			paymentOrderCode, err := srv.psp.MakePayment(order.TotalPrice, orderCurrency, paymentRequest.ClientToken, "fixme", order.PaymentReference)
 
 			if err != nil {
 
