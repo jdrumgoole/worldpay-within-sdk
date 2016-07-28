@@ -34,7 +34,6 @@ func mGetDeviceInfo() (int, error) {
 	}
 
 	fmt.Printf("IPv4Address: %s\n", sdk.GetDevice().IPv4Address)
-	fmt.Printf("CurrencyCode: %s\n", sdk.GetDevice().CurrencyCode)
 
 	return 0, nil
 }
