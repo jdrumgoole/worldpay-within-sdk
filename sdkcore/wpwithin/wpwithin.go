@@ -11,6 +11,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 
 	log "github.com/Sirupsen/logrus"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
 // Factory to allow easy creation of
@@ -32,6 +33,7 @@ type WPWithin interface {
 	MakePayment(payRequest types.TotalPriceResponse) (types.PaymentResponse, error)
 	BeginServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) error
 	EndServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error
+	SetEventHandler(handler event.Handler) error
 }
 
 // Initialise Initialise the SDK - Returns an implementation of WPWithin
@@ -518,7 +520,12 @@ func (wp *wpWithinImpl) BeginServiceDelivery(clientID string, serviceDeliveryTok
 		}
 	}()
 
-	return errors.New("BeginServiceDelivery() not yet implemented..")
+	if wp.core.EventHandler.BeginServiceDelivery != nil {
+
+		wp.core.EventHandler.EndServiceDelivery(clientID, serviceDeliveryToken, unitsToSupply)
+	}
+
+	return nil
 }
 
 func (wp *wpWithinImpl) EndServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error {
@@ -534,5 +541,17 @@ func (wp *wpWithinImpl) EndServiceDelivery(clientID string, serviceDeliveryToken
 		}
 	}()
 
-	return errors.New("EndServiceDelivery() not yet implemented..")
+	if wp.core.EventHandler.EndServiceDelivery != nil {
+
+		wp.core.EventHandler.EndServiceDelivery(clientID, serviceDeliveryToken, unitsReceived)
+	}
+
+	return nil
+}
+
+func (wp *wpWithinImpl) SetEventHandler(handler event.Handler) error {
+
+	wp.core.EventHandler = handler
+
+	return nil
 }

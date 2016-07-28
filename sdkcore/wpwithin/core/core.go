@@ -4,6 +4,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
 // SDK Core - This acts as a container for dependencies of the SDK
@@ -17,6 +18,7 @@ type Core struct {
 	HCECard *types.HCECard
 	OrderManager hte.OrderManager
 	HTEClient hte.Client
+	EventHandler event.Handler
 }
 
 // Create a new Core
