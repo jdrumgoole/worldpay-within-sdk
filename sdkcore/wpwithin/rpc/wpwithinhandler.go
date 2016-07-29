@@ -6,7 +6,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
-	"errors"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
@@ -373,11 +372,60 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 }
 
 func (wp *WPWithinHandler) BeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+	issueTime, err := utils.ParseISOTime(serviceDeliveryToken.Issued)
 
-	return errors.New("Not implemented..")
+	if err != nil {
+
+		return err
+	}
+
+	expiryTime, err := utils.ParseISOTime(serviceDeliveryToken.Expiry)
+
+	if err != nil {
+
+		return err
+	}
+
+	sdt := types.ServiceDeliveryToken{
+
+		Key: serviceDeliveryToken.Key,
+		Issued: issueTime,
+		Expiry: expiryTime,
+		RefundOnExpiry: serviceDeliveryToken.RefundOnExpiry,
+		Signature: serviceDeliveryToken.Signature,
+	}
+
+	wp.wpwithin.BeginServiceDelivery(clientId, sdt, int(unitsToSupply))
+
+	return nil
 }
 
 func (wp *WPWithinHandler) EndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
 
-	return errors.New("Not implemented..")
+	issueTime, err := utils.ParseISOTime(serviceDeliveryToken.Issued)
+
+	if err != nil {
+
+		return err
+	}
+
+	expiryTime, err := utils.ParseISOTime(serviceDeliveryToken.Expiry)
+
+	if err != nil {
+
+		return err
+	}
+
+	sdt := types.ServiceDeliveryToken{
+
+		Key: serviceDeliveryToken.Key,
+		Issued: issueTime,
+		Expiry: expiryTime,
+		RefundOnExpiry: serviceDeliveryToken.RefundOnExpiry,
+		Signature: serviceDeliveryToken.Signature,
+	}
+
+	wp.wpwithin.EndServiceDelivery(clientId, sdt, int(unitsReceived))
+
+	return nil
 }

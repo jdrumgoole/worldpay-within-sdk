@@ -10,6 +10,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types/event"
+	log "github.com/Sirupsen/logrus"
 )
 
 type CallbackClientImpl struct {
@@ -28,7 +29,13 @@ func (cb *CallbackClientImpl) BeginServiceDelivery(clientID string, serviceDeliv
 		Signature:serviceDeliveryToken.Signature,
 	}
 
-	cb.client.BeginServiceDelivery(clientID, &sdt, int32(unitsToSupply))
+	err := cb.client.BeginServiceDelivery(clientID, &sdt, int32(unitsToSupply))
+
+	if err != nil {
+
+		fmt.Println(err.Error())
+		log.Error(err.Error())
+	}
 }
 
 func (cb *CallbackClientImpl) EndServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) {
@@ -42,7 +49,13 @@ func (cb *CallbackClientImpl) EndServiceDelivery(clientID string, serviceDeliver
 		Signature:serviceDeliveryToken.Signature,
 	}
 
-	cb.client.EndServiceDelivery(clientID, &sdt, int32(unitsReceived))
+	err := cb.client.EndServiceDelivery(clientID, &sdt, int32(unitsReceived))
+
+	if err != nil {
+
+		fmt.Println(err.Error())
+		log.Error(err.Error())
+	}
 }
 
 func NewCallback(cfg Configuration) (event.Handler, error) {
