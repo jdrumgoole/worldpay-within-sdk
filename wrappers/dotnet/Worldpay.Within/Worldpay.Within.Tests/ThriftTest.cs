@@ -11,6 +11,7 @@ namespace Worldpay.Within.Tests
     public class ThriftTest
     {
         private static readonly ILog Log = LogManager.GetLogger<ProducerTest>();
+        private static readonly ILog ThriftRpcAgentLog = LogManager.GetLogger("ThriftRpcAgent");
 
         public static readonly string RpcAgentPathProperty = "ThriftRpcAgent.Path";
         public static readonly string RpcAgentHostProperty = "ThriftRpcAgent.Host";
@@ -93,19 +94,36 @@ namespace Worldpay.Within.Tests
         {
             Log.InfoFormat("Attempting to launch Thrift RPC Agent {0}", RpcAgentPath);
 
-            ProcessStartInfo thriftRpcService =
-                new ProcessStartInfo(RpcAgentPath, string.Join(" ",
-                    "-host", RpcAgentServiceHost,
-                    "-port", RpcAgentServicePort,
-                    "-protocol",
-                    ConfigurationManager.AppSettings[RpcAgentProtocolProperty] ?? RpcAgentProtocolPropertyDefault
-                    ));
-            _thriftRpcProcess = Process.Start(thriftRpcService);
+            Process thriftRpcProcess = new Process();
+            thriftRpcProcess.StartInfo = new ProcessStartInfo(RpcAgentPath, string.Join(" ",
+                "-host", RpcAgentServiceHost,
+                "-port", RpcAgentServicePort,
+                "-protocol",
+                ConfigurationManager.AppSettings[RpcAgentProtocolProperty] ?? RpcAgentProtocolPropertyDefault
+                ))
+            {
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            thriftRpcProcess.OutputDataReceived += (sender, args) => ThriftRpcAgentLog.Info(args.Data);
+            thriftRpcProcess.ErrorDataReceived += (sender, args) => ThriftRpcAgentLog.Error(args.Data);
+            thriftRpcProcess.Start();
+            thriftRpcProcess.BeginOutputReadLine();
+            thriftRpcProcess.BeginErrorReadLine();
         }
 
         public static void KillThriftRpcAgentProcess()
         {
-            _thriftRpcProcess.Kill();
+            if (!_thriftRpcProcess.HasExited)
+            {
+                _thriftRpcProcess.Kill();
+            }
+            else
+            {
+                Log.Warn("Thrift RPC Agent process wasn't running.  Did you kill it manually or did it never start?");
+            }
         }
     }
 }
