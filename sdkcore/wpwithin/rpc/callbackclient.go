@@ -67,7 +67,8 @@ func NewCallback(cfg Configuration) (event.Handler, error) {
 		return nil, err
 	}
 	transport = transportFactory.GetTransport(transport)
-	defer transport.Close()
+	// TODO - How to close this later?
+//	defer transport.Close()
 	if err := transport.Open(); err != nil {
 		return nil, err
 	}
