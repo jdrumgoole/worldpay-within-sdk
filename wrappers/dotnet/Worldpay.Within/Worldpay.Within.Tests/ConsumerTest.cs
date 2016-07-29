@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using Common.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Worldpay.Innovation.WPWithin;
 
@@ -12,6 +13,8 @@ namespace Worldpay.Within.Tests
     [TestClass]
     public class ConsumerTest : ThriftTest
     {
+
+        private static readonly ILog Log = LogManager.GetLogger<ConsumerTest>();
 
         #region Additional test attributes
         //
@@ -48,8 +51,16 @@ namespace Worldpay.Within.Tests
         }
 
         [TestMethod]
-        public void TestMethod1()
+        public void CarWashConsumer()
         {
+            string defaultDeviceName = Environment.MachineName;
+            string defaultDeviceDescription =
+                $".net wrapper unit test.  Class: {this.GetType().Name}.  Method: {System.Reflection.MethodBase.GetCurrentMethod().Name}";
+            ThriftClient.SetupDevice(defaultDeviceName, defaultDeviceDescription);
+            foreach (ServiceMessage service in ThriftClient.DeviceDiscovery(20000))
+            {
+                Log.InfoFormat("Found service: ", service);
+            }
 
         }
     }
