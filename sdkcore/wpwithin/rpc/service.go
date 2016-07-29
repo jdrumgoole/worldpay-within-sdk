@@ -6,6 +6,7 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"crypto/tls"
 	"errors"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
 type ServiceImpl struct {
@@ -16,7 +17,7 @@ type ServiceImpl struct {
 	host string
 	port int
 	secure bool
-	callback CallbackClient
+	callback event.Handler
 }
 
 func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, error) {

@@ -9,13 +9,8 @@ import (
 "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
-
-type CallbackClient interface {
-
-	BeginServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int)
-	EndServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int)
-}
 
 type CallbackClientImpl struct {
 
@@ -50,7 +45,7 @@ func (cb *CallbackClientImpl) EndServiceDelivery(clientID string, serviceDeliver
 	cb.client.EndServiceDelivery(clientID, &sdt, int32(unitsReceived))
 }
 
-func NewCallback(cfg Configuration) (CallbackClient, error) {
+func NewCallback(cfg Configuration) (event.Handler, error) {
 
 	protocolFactory := thrift.NewTBinaryProtocolFactory(true, true)
 	transportFactory := thrift.NewTBufferedTransportFactory(8192)

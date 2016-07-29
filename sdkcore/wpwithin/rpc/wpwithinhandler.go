@@ -13,10 +13,10 @@ import (
 type WPWithinHandler struct {
 
 	wpwithin wpwithin.WPWithin
-	callback CallbackClient
+	callback event.Handler
 }
 
-func NewWPWithinHandler(wpWithin wpwithin.WPWithin, callback CallbackClient) *WPWithinHandler {
+func NewWPWithinHandler(wpWithin wpwithin.WPWithin, callback event.Handler) *WPWithinHandler {
 
 	log.Debug("Begin RPC.WPWithinHandler.NewWPWithinHander()")
 
@@ -46,19 +46,8 @@ func (wp *WPWithinHandler) Setup(name, description string) (err error) {
 	if wp.callback != nil {
 
 		log.Debug("Callback is set within WPWithinHandler - setting in wpwithin instance now")
-
-		// TODO figure out a better way of implementing this callback wrapper and wiring it up.
-		eventHandler := event.Handler{
-			BeginServiceDelivery: func(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) {
-
-				wp.callback.BeginServiceDelivery(clientID, serviceDeliveryToken, unitsToSupply)
-			},
-			EndServiceDelivery: func(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) {
-
-				wp.callback.EndServiceDelivery(clientID, serviceDeliveryToken, unitsReceived)
-			},
-		}
-		wp.wpwithin.SetEventHandler(eventHandler)
+		
+		wp.wpwithin.SetEventHandler(wp.callback)
 	} else {
 
 		log.Debug("Callback is now set within WPWithinHandler")

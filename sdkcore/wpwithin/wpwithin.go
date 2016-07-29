@@ -522,7 +522,7 @@ func (wp *wpWithinImpl) BeginServiceDelivery(clientID string, serviceDeliveryTok
 
 	if wp.core.EventHandler.BeginServiceDelivery != nil {
 
-		wp.core.EventHandler.EndServiceDelivery(clientID, serviceDeliveryToken, unitsToSupply)
+		wp.core.EventHandler.BeginServiceDelivery(clientID, serviceDeliveryToken, unitsToSupply)
 	}
 
 	return nil
