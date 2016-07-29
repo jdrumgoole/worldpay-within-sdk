@@ -7,19 +7,22 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"errors"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
 type WPWithinHandler struct {
 
 	wpwithin wpwithin.WPWithin
+	callback CallbackClient
 }
 
-func NewWPWithinHandler(wpWithin wpwithin.WPWithin) *WPWithinHandler {
+func NewWPWithinHandler(wpWithin wpwithin.WPWithin, callback CallbackClient) *WPWithinHandler {
 
 	log.Debug("Begin RPC.WPWithinHandler.NewWPWithinHander()")
 
 	result := &WPWithinHandler{
 		wpwithin: wpWithin,
+		callback: callback,
 	}
 
 	log.Debug("End RPC.WPWithinHandler.NewWPWithinHander()")
@@ -39,6 +42,27 @@ func (wp *WPWithinHandler) Setup(name, description string) (err error) {
 	}
 
 	wp.wpwithin = wpw
+
+	if wp.callback != nil {
+
+		log.Debug("Callback is set within WPWithinHandler - setting in wpwithin instance now")
+
+		// TODO figure out a better way of implementing this callback wrapper and wiring it up.
+		eventHandler := event.Handler{
+			BeginServiceDelivery: func(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) {
+
+				wp.callback.BeginServiceDelivery(clientID, serviceDeliveryToken, unitsToSupply)
+			},
+			EndServiceDelivery: func(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) {
+
+				wp.callback.EndServiceDelivery(clientID, serviceDeliveryToken, unitsReceived)
+			},
+		}
+		wp.wpwithin.SetEventHandler(eventHandler)
+	} else {
+
+		log.Debug("Callback is now set within WPWithinHandler")
+	}
 
 	log.Debug("End RPC.WPWithinHandler.Setup()")
 

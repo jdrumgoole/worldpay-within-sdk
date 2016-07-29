@@ -16,6 +16,7 @@ type ServiceImpl struct {
 	host string
 	port int
 	secure bool
+	callback CallbackClient
 }
 
 func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, error) {
@@ -55,6 +56,18 @@ func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, erro
 	result.secure = config.Secure
 	result.wpWithin = wpWithin
 
+	// Only setup callbacks if there is a callback port specified
+	if config.CallbackPort > 0 {
+
+		if cb, err := NewCallback(config); err != nil {
+
+			return nil, err
+		} else {
+
+			result.callback = cb
+		}
+	}
+
 	return result, nil
 }
 
@@ -80,7 +93,7 @@ func (svc *ServiceImpl) Start() error {
 		return err
 	}
 	fmt.Printf("Transport: %T\n", transport)
-	handler := NewWPWithinHandler(svc.wpWithin)
+	handler := NewWPWithinHandler(svc.wpWithin, svc.callback)
 	processor := wpthrift.NewWPWithinProcessor(handler)
 	server := thrift.NewTSimpleServer4(processor, transport, svc.transportFactory, svc.protocolFactory)
 

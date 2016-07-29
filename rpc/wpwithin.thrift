@@ -34,3 +34,12 @@ service WPWithin {
    void beginServiceDelivery(1: string clientId, 2: wptypes.ServiceDeliveryToken serviceDeliveryToken, 3: i32 unitsToSupply) throws (1: wptypes.Error err),
    void endServiceDelivery(1: string clientId, 2: wptypes.ServiceDeliveryToken serviceDeliveryToken, 3: i32 unitsReceived) throws (1: wptypes.Error err),
 }
+
+/**
+ * WorldpayWithin Callback Service - RPC clients implement this service to enable callbacks from WorldpayWithin Service
+ */
+service WPWithinCallback {
+
+  void beginServiceDelivery(1: string clientId, 2: wptypes.ServiceDeliveryToken serviceDeliveryToken, 3: i32 unitsToSupply) throws (1: wptypes.Error err),
+  void endServiceDelivery(1: string clientId, 2: wptypes.ServiceDeliveryToken serviceDeliveryToken, 3: i32 unitsReceived) throws (1: wptypes.Error err),
+}

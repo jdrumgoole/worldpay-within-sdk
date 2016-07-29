@@ -11,4 +11,5 @@ type Configuration struct {
 	BufferSize int
 	Loglevel string
 	Logfile string
+	CallbackPort int
 }
