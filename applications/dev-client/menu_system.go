@@ -57,7 +57,7 @@ func doUI() {
 	//menuItems = append(menuItems, MenuItem{"Make payment", mMakePayment})
 	//menuItems = append(menuItems, MenuItem{"Consumer status", mConsumerStatus})
 	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Consumer)", mCarWashDemoConsumer})
-	menuItems = append(menuItems, MenuItem{"Auto consume from profile info"}, mAutoConsume)
+	//menuItems = append(menuItems, MenuItem{"Auto consume from profile info"}, mAutoConsume)
 	menuItems = append(menuItems, MenuItem{"--------------------------------------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Exit", mQuit})
 
