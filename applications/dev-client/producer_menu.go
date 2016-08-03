@@ -3,13 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-defaults"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
-
-// TODO: put this somewhere sensible
-var ERR_DEVICE_NOT_INITIALISED = "Error: Device not initialised"
-var DEFAULT_HTE_MERCHANT_CLIENT_KEY = "T_C_03eaa1d3-4642-4079-b030-b543ee04b5af"
-var DEFAULT_HTE_MERCHANT_SERVICE_KEY = "T_S_f50ecb46-ca82-44a7-9c40-421818af5996"
 
 /*
 func mBroadcast() (int, error) {
@@ -24,92 +21,92 @@ func mBroadcast() (int, error) {
 }
 */
 
-func mProducerStatus() (int, error) {
+func mProducerStatus() error {
 
 	// Show all services
 	// Show all prices
 	// Status of broadcast
 
-	return 0, errors.New("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mDefaultProducer() (int, error) {
+func mDefaultProducer() error {
 
-	if _, err := mInitDefaultDevice(); err != nil {
-		return 0, err
+	if err := mInitDefaultDevice(); err != nil {
+		return err
 	}
 
-	if _, err := mDefaultHTECredentials(); err != nil {
-		return 0, err
+	if err := mDefaultHTECredentials(); err != nil {
+		return err
 	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	if _, err := sdk.InitProducer(); err != nil {
-		return 0, err
+		return err
 	}
 
 	fmt.Println("Initialised default producer")
 
-	return 0, nil
+	return nil
 }
 
-func mNewProducer() (int, error) {
+func mNewProducer() error {
 
-	fmt.Println("Initialising new producer")
-
-	if _, err := mInitNewDevice(); err != nil {
-		return 0, err
+	if err := mInitNewDevice(); err != nil {
+		return err
 	}
 
-	if _, err := mNewHTECredentials(); err != nil {
-		return 0, err
+	if err := mNewHTECredentials(); err != nil {
+		return err
 	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, nil
+	fmt.Println("Initialised new producer")
+
+	return nil
 }
 
-func mDefaultHTECredentials() (int, error) {
-
-	fmt.Println("Adding default HTE credentials")
+func mDefaultHTECredentials() error {
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, sdk.InitHTE(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY)
+	fmt.Println("Added default HTE credentials")
+
+	return sdk.InitHTE(devclientdefaults.DEFAULT_HTE_MERCHANT_CLIENT_KEY, devclientdefaults.DEFAULT_HTE_MERCHANT_SERVICE_KEY)
 }
 
-func mNewHTECredentials() (int, error) {
+func mNewHTECredentials() error {
 
 	fmt.Println("Add new HTE credentials")
 
 	fmt.Print("Merchant Client Key: ")
 	var merchantClientKey string
-	if _, err := getUserInput(&merchantClientKey); err != nil {
-		return 0, err
+	if err := getUserInput(&merchantClientKey); err != nil {
+		return err
 	}
 
 	fmt.Print("Merchant Service Key: ")
 	var merchantServiceKey string
-	if _, err := getUserInput(&merchantServiceKey); err != nil {
-		return 0, err
+	if err := getUserInput(&merchantServiceKey); err != nil {
+		return err
 	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, sdk.InitHTE(merchantClientKey, merchantServiceKey)
+	return sdk.InitHTE(merchantClientKey, merchantServiceKey)
 }
 
-func mAddRoboWashService() (int, error) {
+func mAddRoboWashService() error {
 
 	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
@@ -144,20 +141,20 @@ func mAddRoboWashService() (int, error) {
 	roboWash.AddPrice(washPriceSUV)
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	if err := sdk.AddService(roboWash); err != nil {
 
-		return 0, err
+		return err
 	}
 
 	fmt.Println("Added robowash service")
 
-	return 0, nil
+	return nil
 }
 
-func mAddRoboAirService() (int, error) {
+func mAddRoboAirService() error {
 
 	roboAir, _ := types.NewService()
 	roboAir.Name = "RoboAir"
@@ -192,70 +189,70 @@ func mAddRoboAirService() (int, error) {
 	roboAir.AddPrice(airFourPrice)
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	if err := sdk.AddService(roboAir); err != nil {
 
-		return 0, err
+		return err
 	}
 
 	fmt.Println("Added roboair service")
 
-	return 0, nil
+	return nil
 }
 
-func mStartBroadcast() (int, error) {
+func mStartBroadcast() error {
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	fmt.Print("Broadcast timeout in milliseconds: ")
 	var timeout int
-	if _, err := getUserInput(&timeout); err != nil {
-		return 0, err
+	if err := getUserInput(&timeout); err != nil {
+		return err
 	}
 
 	if err := sdk.StartServiceBroadcast(timeout); err != nil {
-		return 0, err
+		return err
 	}
 
 	fmt.Println("Broadcast started...")
-	return 0, nil
+	return nil
 }
 
-func mStopBroadcast() (int, error) {
+func mStopBroadcast() error {
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	sdk.StopServiceBroadcast()
 
-	fmt.Println("Broadcast stopped...")
-	return 0, nil
+	fmt.Println("Broadcast stopped")
+	return nil
 }
 
-func mCarWashDemoProducer() (int, error) {
+func mCarWashDemoProducer() error {
 
 	fmt.Println("Starting car wash demo (Producer)")
 
-	if _, err := mDefaultProducer(); err != nil {
-		return 0, err
+	if err := mDefaultProducer(); err != nil {
+		return err
 	}
 
-	if _, err := mAddRoboWashService(); err != nil {
-		return 0, err
+	if err := mAddRoboWashService(); err != nil {
+		return err
 	}
 
-	if _, err := mAddRoboAirService(); err != nil {
-		return 0, err
+	if err := mAddRoboAirService(); err != nil {
+		return err
 	}
 
 	if err := sdk.StartServiceBroadcast(20000); err != nil {
-		return 0, err
+		return err
 	}
 
-	return 0, nil
+	return nil
 }
