@@ -1,23 +1,27 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-defaults"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 )
 
-// TODO: put these somewhere sensible
-var DEFAULT_DEVICE_NAME = "conorhwp-macbook"
-var DEFAULT_DEVICE_DESCRIPTION = "Conor H WP - Raspberry Pi"
-
-func mGetDeviceInfo() (int, error) {
+func mGetDeviceInfo() error {
 
 	fmt.Println("Device Info:")
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	fmt.Printf("Uid of device: %s\n", sdk.GetDevice().Uid)
@@ -35,79 +39,79 @@ func mGetDeviceInfo() (int, error) {
 
 	fmt.Printf("IPv4Address: %s\n", sdk.GetDevice().IPv4Address)
 
-	return 0, nil
+	return nil
 }
 
-func mInitDefaultDevice() (int, error) {
+func mInitDefaultDevice() error {
 
 	fmt.Println("Initialising default device...")
 
-	_sdk, err := wpwithin.Initialise(DEFAULT_DEVICE_NAME, DEFAULT_DEVICE_DESCRIPTION)
+	_sdk, err := wpwithin.Initialise(devclientdefaults.DEFAULT_DEVICE_NAME, devclientdefaults.DEFAULT_DEVICE_DESCRIPTION)
 
 	if err != nil {
 
-		return 0, err
+		return err
 	}
 
 	sdk = _sdk
 
-	return 0, nil
+	return nil
 }
 
-func mInitNewDevice() (int, error) {
+func mInitNewDevice() error {
 
 	fmt.Println("Initialising new device")
 
 	fmt.Print("Name of device: ")
 	var nameOfDevice string
-	if _, err := getUserInput(&nameOfDevice); err != nil {
-		return 0, err
+	if err := getUserInput(&nameOfDevice); err != nil {
+		return err
 	}
 
 	fmt.Print("Description: ")
 	var description string
-	if _, err := getUserInput(&description); err != nil {
-		return 0, err
+	if err := getUserInput(&description); err != nil {
+		return err
 	}
 
 	_sdk, err := wpwithin.Initialise(nameOfDevice, description)
 
 	if err != nil {
 
-		return 0, err
+		return err
 	}
 
 	sdk = _sdk
 
-	return 0, err
+	return err
 }
 
-func mResetSessionState() (int, error) {
+func mResetSessionState() error {
 
 	fmt.Println("Resetting session state")
 
 	sdk = nil
 
-	return 0, nil
+	return nil
 }
 
-func mLoadConfig() (int, error) {
+func mLoadConfig() error {
 
 	// Ask user for path to config file
 	// (And password if secured)
 
-	return 0, errors.New("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mReadConfig() (int, error) {
+func mReadConfig() error {
 
 	// Print out loaded configuration
 	// Print out the path to file that was loaded (Need to keep reference during load stage)
 
-	return 0, errors.New("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mStartRPCService() (int, error) {
+func mStartRPCService() error {
 
 	fmt.Println("Starting rpc service...")
 
@@ -124,26 +128,138 @@ func mStartRPCService() (int, error) {
 	rpc, err := rpc.NewService(config, sdk)
 
 	if err != nil {
-		return 0, err
+		return err
 	}
 
-	// Error channel allows us to get the error out of the go routine
 	chErr := make(chan error, 1)
 
 	go func() {
 		chErr <- rpc.Start()
 	}()
 
+	var rpcErr error
+
 	// Error handling go routine
 	go func() {
-		err := <-chErr
-		if err != nil {
-			log.Debug("error ", err)
+		rpcErr := <-chErr
+		if rpcErr != nil {
+			log.Debug("error ", rpcErr)
 		}
 
 		close(chErr)
 	}()
 
-	// return here (error will be logged if it occurs)
-	return 0, nil
+	return rpcErr
+}
+
+func mLoadDeviceProfile() error {
+
+	fmt.Print("Name of profile: ")
+	var profileStr string
+	if err := getUserInput(&profileStr); err != nil {
+		return err
+	}
+
+	wd, _ := os.Getwd()
+
+	file, err := ioutil.ReadFile(filepath.Join(wd, profileStr))
+	if err != nil {
+		log.Debug("error ", err)
+		return err
+	}
+
+	//deviceProfile devclienttypes.DeviceProfile
+	json.Unmarshal(file, &deviceProfile)
+
+	if deviceProfile.DeviceEntity != nil {
+		if err := initialiseDevice(deviceProfile.DeviceEntity); err != nil {
+			return err
+		}
+		fmt.Println("Setup device...")
+	}
+
+	if deviceProfile.DeviceEntity.Producer != nil {
+		if err := setupProducer(deviceProfile.DeviceEntity.Producer); err != nil {
+			return err
+		}
+		fmt.Println("Setup producer...")
+	}
+
+	if deviceProfile.DeviceEntity.Consumer != nil {
+		if err := setupConsumer(deviceProfile.DeviceEntity.Consumer); err != nil {
+			return err
+		}
+		fmt.Println("Setup consumer...")
+	}
+
+	return nil
+}
+
+func setupProducer(producer *devclienttypes.Producer) error {
+	if err := addHTECredentials(producer.ProducerConfig); err != nil {
+		return err
+	}
+
+	if _, err := sdk.InitProducer(); err != nil {
+		return err
+	}
+
+	if err := addServicesAndPrices(producer.Services); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func initialiseDevice(deviceEntity *devclienttypes.DeviceEntity) error {
+	_sdk, err := wpwithin.Initialise(deviceEntity.Name, deviceEntity.Description)
+
+	if err != nil {
+		return err
+	}
+
+	sdk = _sdk
+
+	return nil
+}
+
+func addHTECredentials(producerConfig *devclienttypes.ProducerConfig) error {
+	return sdk.InitHTE(producerConfig.PspMerchantClientKey, producerConfig.PspMerchantServiceKey)
+}
+
+func addServicesAndPrices(services []*devclienttypes.ServiceProfile) error {
+
+	for _, service := range services {
+
+		newService, _ := types.NewService()
+		newService.Id = service.Id
+		newService.Name = service.Name
+		newService.Description = service.Description
+
+		for _, price := range service.Prices {
+
+			newPrice := types.Price{
+				UnitID:          price.UnitID,
+				ID:              price.ID,
+				Description:     price.Description,
+				UnitDescription: price.UnitDescription,
+				PricePerUnit: &types.PricePerUnit{
+					Amount:       price.PricePerUnit.Amount,
+					CurrencyCode: price.PricePerUnit.CurrencyCode,
+				},
+			}
+
+			newService.AddPrice(newPrice)
+		}
+
+		if err := sdk.AddService(newService); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func setupConsumer(consumer *devclienttypes.Consumer) error {
+	return sdk.InitHCE(*consumer.HCECard)
 }

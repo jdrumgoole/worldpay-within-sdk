@@ -4,57 +4,58 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-func mDefaultConsumer() (int, error) {
+func mDefaultConsumer() error {
 
-	if _, err := mInitDefaultDevice(); err != nil {
-		return 0, err
+	if err := mInitDefaultDevice(); err != nil {
+		return err
 	}
 
-	if _, err := mDefaultHCECredential(); err != nil {
-		return 0, err
+	if err := mDefaultHCECredential(); err != nil {
+		return err
 	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	fmt.Println("Initialised default consumer")
 
-	return 0, nil
+	return nil
 }
 
-func mNewConsumer() (int, error) {
+func mNewConsumer() error {
 
 	fmt.Println("Initialising new consumer")
 
-	if _, err := mInitNewDevice(); err != nil {
-		return 0, err
+	if err := mInitNewDevice(); err != nil {
+		return err
 	}
 
-	if _, err := mNewHCECredential(); err != nil {
-		return 0, err
+	if err := mNewHCECredential(); err != nil {
+		return err
 	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, nil
+	return nil
 }
 
-func mScanService() (int, error) {
+func mScanService() error {
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	fmt.Print("Scan timeout in milliseconds: ")
 	var timeout int
-	if _, err := getUserInput(&timeout); err != nil {
-		return 0, err
+	if err := getUserInput(&timeout); err != nil {
+		return err
 	}
 
 	log.Debug("pre scan for services")
@@ -62,16 +63,16 @@ func mScanService() (int, error) {
 	log.Debug("end scan for services")
 
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	for _, svc := range services {
 		log.Debug("(%s:%d/%s) - %s", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
 	}
-	return 0, nil
+	return nil
 }
 
-func mDefaultHCECredential() (int, error) {
+func mDefaultHCECredential() error {
 
 	card := types.HCECard{
 
@@ -85,60 +86,60 @@ func mDefaultHCECredential() (int, error) {
 	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	fmt.Println("Added default HCE credential")
 
-	return 0, sdk.InitHCE(card)
+	return sdk.InitHCE(card)
 }
 
-func mNewHCECredential() (int, error) {
+func mNewHCECredential() error {
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	fmt.Print("First Name: ")
 	var firstName string
-	if _, err := getUserInput(&firstName); err != nil {
-		return 0, err
+	if err := getUserInput(&firstName); err != nil {
+		return err
 	}
 
 	fmt.Print("Last Name: ")
 	var lastName string
-	if _, err := getUserInput(&lastName); err != nil {
-		return 0, err
+	if err := getUserInput(&lastName); err != nil {
+		return err
 	}
 
 	fmt.Print("Expiry month: ")
 	var expMonth int32
-	if _, err := getUserInput(&expMonth); err != nil {
-		return 0, err
+	if err := getUserInput(&expMonth); err != nil {
+		return err
 	}
 
 	fmt.Print("Expiry year: ")
 	var expYear int32
-	if _, err := getUserInput(&expYear); err != nil {
-		return 0, err
+	if err := getUserInput(&expYear); err != nil {
+		return err
 	}
 
 	fmt.Print("CardNumber: ")
 	var cardNumber string
-	if _, err := getUserInput(&cardNumber); err != nil {
-		return 0, err
+	if err := getUserInput(&cardNumber); err != nil {
+		return err
 	}
 
 	fmt.Print("Type: ")
 	var cardType string
-	if _, err := getUserInput(&cardType); err != nil {
-		return 0, err
+	if err := getUserInput(&cardType); err != nil {
+		return err
 	}
 
 	fmt.Print("CVC: ")
 	var cvc string
-	if _, err := getUserInput(&cvc); err != nil {
-		return 0, err
+	if err := getUserInput(&cvc); err != nil {
+		return err
 	}
 
 	card := types.HCECard{
@@ -154,23 +155,23 @@ func mNewHCECredential() (int, error) {
 
 	fmt.Println("Added HCE credential")
 
-	return 0, sdk.InitHCE(card)
+	return sdk.InitHCE(card)
 }
 
-func mCarWashDemoConsumer() (int, error) {
+func mCarWashDemoConsumer() error {
 
 	fmt.Println("Starting car wash demo (Consumer)")
 
-	if _, err := mInitDefaultDevice(); err != nil {
-		return 0, err
+	if err := mInitDefaultDevice(); err != nil {
+		return err
 	}
 
-	if _, err := mDefaultHCECredential(); err != nil {
-		return 0, err
+	if err := mDefaultHCECredential(); err != nil {
+		return err
 	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	log.Debug("pre scan for services")
@@ -179,21 +180,21 @@ func mCarWashDemoConsumer() (int, error) {
 
 	if err != nil {
 
-		return 0, err
+		return err
 	}
 
 	if len(services) >= 1 {
 
 		svc := services[0]
 
-		fmt.Println("# Service:: (%s:%d/%s) - %s", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
+		fmt.Printf("# Service:: (%s:%d/%s) - %s\n", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
 
 		log.Debug("Init consumer")
 		err := sdk.InitConsumer("http://", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.ServerID)
 
 		if err != nil {
 
-			return 0, err
+			return err
 		}
 
 		log.Debug("Client created..")
@@ -202,7 +203,7 @@ func mCarWashDemoConsumer() (int, error) {
 
 		if err != nil {
 
-			return 0, err
+			return err
 		}
 
 		if len(serviceDetails) >= 1 {
@@ -215,7 +216,7 @@ func mCarWashDemoConsumer() (int, error) {
 
 			if err != nil {
 
-				return 0, err
+				return err
 			}
 
 			fmt.Printf("------- Prices -------\n")
@@ -223,13 +224,13 @@ func mCarWashDemoConsumer() (int, error) {
 
 				price := prices[0]
 
-				fmt.Printf("(%d) %s @ %d, %s (Unit id = %d)\n", price.ID, price.Description, price.PricePerUnit, price.UnitDescription, price.UnitID)
+				fmt.Printf("(%d) %s @ %d%s, %s (Unit id = %d)\n", price.ID, price.Description, price.PricePerUnit.Amount, price.PricePerUnit.CurrencyCode, price.UnitDescription, price.UnitID)
 
 				tpr, err := sdk.SelectService(svcDetails.ServiceID, 2, price.ID)
 
 				if err != nil {
 
-					return 0, err
+					return err
 				}
 
 				fmt.Println("#Begin Request#")
@@ -244,7 +245,7 @@ func mCarWashDemoConsumer() (int, error) {
 
 				if err != nil {
 
-					return 0, err
+					return err
 				}
 
 				fmt.Printf("Payment of %d made successfully\n", payResp.TotalPaid)
@@ -254,30 +255,30 @@ func mCarWashDemoConsumer() (int, error) {
 			}
 		}
 	}
-	return 0, nil
+	return nil
 }
 
-func mDiscoverSvcs() (int, error) {
+func mDiscoverSvcs() error {
 
-	return 0, errors.New("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mGetSvcPrices() (int, error) {
+func mGetSvcPrices() error {
 
-	return 0, errors.New("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mSelectService() (int, error) {
+func mSelectService() error {
 
-	return 0, errors.New("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mMakePayment() (int, error) {
+func mMakePayment() error {
 
-	return 0, errors.New("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
 
-func mConsumerStatus() (int, error) {
+func mConsumerStatus() error {
 
-	return 0, errors.New("Not implemented yet..")
+	return errors.New("Not implemented yet..")
 }
