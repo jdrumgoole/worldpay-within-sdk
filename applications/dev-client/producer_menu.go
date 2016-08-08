@@ -8,28 +8,6 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-/*
-func mBroadcast() (int, error) {
-
-	fmt.Print("Broadcast timeout in milliseconds: ")
-	var input int
-	if _, err := mGetUserInput(&input); err != nil {
-		return 0, err
-	}
-
-	return 0, nil
-}
-*/
-
-func mProducerStatus() error {
-
-	// Show all services
-	// Show all prices
-	// Status of broadcast
-
-	return errors.New("Not implemented yet..")
-}
-
 func mDefaultProducer() error {
 
 	if err := mInitDefaultDevice(); err != nil {

@@ -158,6 +158,125 @@ func mNewHCECredential() error {
 	return sdk.InitHCE(card)
 }
 
+func mAutoConsume() error {
+
+	fmt.Println("Starting auto consume...")
+
+	log.Debug("pre scan for services")
+	services, err := sdk.ServiceDiscovery(deviceProfile.DeviceEntity.Consumer.ConsumerConfig.DeviceDiscoveryTimeout)
+	log.Debug("end scan for services")
+
+	if err != nil {
+
+		return err
+	}
+
+	if len(services) >= 1 {
+
+		var foundServiceIdx int = -1
+		for i, service := range services {
+			if service.ServerID == deviceProfile.DeviceEntity.Consumer.AutoConsume.DeviceUid {
+				foundServiceIdx = i
+				break
+			}
+		}
+
+		if foundServiceIdx == -1 {
+			fmt.Println("Could not find service - is the device id in the autoconsume section correct?")
+		} else {
+
+			fmt.Printf("Found Service:: (%s:%d/%s) - %s\n", services[foundServiceIdx].Hostname, services[foundServiceIdx].PortNumber, services[foundServiceIdx].UrlPrefix, services[foundServiceIdx].DeviceDescription)
+
+			log.Debug("Init consumer")
+			err := sdk.InitConsumer("http://", services[foundServiceIdx].Hostname, services[foundServiceIdx].PortNumber, services[foundServiceIdx].UrlPrefix, services[foundServiceIdx].ServerID)
+
+			if err != nil {
+
+				return err
+			}
+
+			log.Debug("Client created..")
+
+			serviceDetails, err := sdk.RequestServices()
+
+			if err != nil {
+
+				return err
+			}
+
+			if len(serviceDetails) >= 1 {
+
+				var foundDetailsIdx int = -1
+				for i, serviceDetail := range serviceDetails {
+					fmt.Printf("%d - %s\n", serviceDetail.ServiceID, serviceDetail.ServiceDescription)
+					if serviceDetail.ServiceID == deviceProfile.DeviceEntity.Consumer.AutoConsume.ServiceID {
+						foundDetailsIdx = i
+						break
+					}
+				}
+
+				if foundDetailsIdx == -1 {
+					fmt.Println("Could not find service details - is the service id in the autoconsume section correct?")
+				} else {
+					fmt.Printf("Selecting service: %d - %s\n", serviceDetails[foundDetailsIdx].ServiceID, serviceDetails[foundDetailsIdx].ServiceDescription)
+
+					prices, err := sdk.GetServicePrices(serviceDetails[foundDetailsIdx].ServiceID)
+
+					if err != nil {
+
+						return err
+					}
+
+					if len(prices) >= 1 {
+
+						var foundUnitIdIdx int = -1
+						for i, price := range prices {
+							fmt.Printf("(%d) %s @ %d%s, %s (Unit id = %d)\n", price.ID, price.Description, price.PricePerUnit.Amount, price.PricePerUnit.CurrencyCode, price.UnitDescription, price.UnitID)
+							if price.UnitID == deviceProfile.DeviceEntity.Consumer.AutoConsume.UnitID {
+								foundUnitIdIdx = i
+								break
+							}
+						}
+
+						if foundUnitIdIdx == -1 {
+							fmt.Println("Could not find unit id - is the unit id in the autoconsume section correct?")
+						} else {
+
+							fmt.Printf("Selecting price: (%d) %s @ %d%s, %s (Unit id = %d)\n", prices[foundUnitIdIdx].ID, prices[foundUnitIdIdx].Description, prices[foundUnitIdIdx].PricePerUnit.Amount, prices[foundUnitIdIdx].PricePerUnit.CurrencyCode, prices[foundUnitIdIdx].UnitDescription, prices[foundUnitIdIdx].UnitID)
+
+							tpr, err := sdk.SelectService(serviceDetails[foundDetailsIdx].ServiceID, 1, prices[foundUnitIdIdx].ID)
+
+							if err != nil {
+
+								return err
+							}
+
+							//fmt.Println("#Begin Request#")
+							//fmt.Printf("ServerID: %s\n", tpr.ServerID)
+							//fmt.Printf("PriceID = %d - %d units = %d\n", tpr.PriceID, tpr.UnitsToSupply, tpr.TotalPrice)
+							//fmt.Printf("ClientID: %s, MerchantClientKey: %s, PaymentRef: %s\n", tpr.ClientID, tpr.MerchantClientKey, tpr.PaymentReferenceID)
+							//fmt.Println("#End Request#")
+
+							log.Debug("Making payment of %d\n", tpr.TotalPrice)
+
+							payResp, err := sdk.MakePayment(tpr)
+
+							if err != nil {
+
+								return err
+							}
+
+							fmt.Printf("Payment of %d made successfully\n", payResp.TotalPaid)
+						}
+					}
+				}
+			}
+		}
+	}
+	return nil
+
+}
+
 func mCarWashDemoConsumer() error {
 
 	fmt.Println("Starting car wash demo (Consumer)")
@@ -256,29 +375,4 @@ func mCarWashDemoConsumer() error {
 		}
 	}
 	return nil
-}
-
-func mDiscoverSvcs() error {
-
-	return errors.New("Not implemented yet..")
-}
-
-func mGetSvcPrices() error {
-
-	return errors.New("Not implemented yet..")
-}
-
-func mSelectService() error {
-
-	return errors.New("Not implemented yet..")
-}
-
-func mMakePayment() error {
-
-	return errors.New("Not implemented yet..")
-}
-
-func mConsumerStatus() error {
-
-	return errors.New("Not implemented yet..")
 }

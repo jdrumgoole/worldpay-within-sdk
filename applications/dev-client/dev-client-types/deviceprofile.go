@@ -9,7 +9,7 @@ type DeviceProfile struct {
 }
 
 type DeviceEntity struct {
-	Uid         string    `json:"uid"`
+	//Uid         string    `json:"uid"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Producer    *Producer `json:"producer"`
@@ -51,13 +51,14 @@ type AutoConsume struct {
 }
 
 type ProducerConfig struct {
-	BroadcastTimeout      int    `json:"broadcastTimeout"`
+	//BroadcastTimeout      int    `json:"broadcastTimeout"`
 	PspMerchantServiceKey string `json:"pspMerchantServiceKey"`
 	PspMerchantClientKey  string `json:"pspMerchantClientKey"`
-	HTEPort               int    `json:"htePort"`
-	HTEURLPrefix          string `json:"hteURLPrefix"`
-	HTEScheme             string `json:"hteScheme"`
+	//HTEPort               int    `json:"htePort"`
+	//HTEURLPrefix          string `json:"hteURLPrefix"`
+	//HTEScheme             string `json:"hteScheme"`
 }
 
 type ConsumerConfig struct {
+	DeviceDiscoveryTimeout int `json:"deviceDiscoveryTimeout"`
 }
