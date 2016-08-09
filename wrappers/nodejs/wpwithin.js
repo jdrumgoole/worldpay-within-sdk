@@ -185,6 +185,6 @@ function createClient(host, port, callback) {
 
   } catch (err) {
 
-    throw err;
+    callback(err, null);
   }
 };
