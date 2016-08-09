@@ -30,8 +30,6 @@ func doUI() {
 	menuItems = append(menuItems, MenuItem{"Get device info", mGetDeviceInfo})
 	menuItems = append(menuItems, MenuItem{"Reset session", mResetSessionState})
 	menuItems = append(menuItems, MenuItem{"Load device profile", mLoadDeviceProfile})
-	//menuItems = append(menuItems, MenuItem{"Load configuration", mLoadConfig})
-	//menuItems = append(menuItems, MenuItem{"Read loaded configuration", mReadConfig})
 	menuItems = append(menuItems, MenuItem{"-------------------- PRODUCER --------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Create default producer", mDefaultProducer})
 	menuItems = append(menuItems, MenuItem{"Create new producer", mNewProducer})
@@ -39,23 +37,15 @@ func doUI() {
 	menuItems = append(menuItems, MenuItem{"Add new HTE credentials", mNewHTECredentials})
 	menuItems = append(menuItems, MenuItem{"Add RoboWash service", mAddRoboWashService})
 	menuItems = append(menuItems, MenuItem{"Add RoboAir service", mAddRoboAirService})
-	//menuItems = append(menuItems, MenuItem{"Initialise producer", mBroadcast})
 	menuItems = append(menuItems, MenuItem{"Start service broadcast", mStartBroadcast})
 	menuItems = append(menuItems, MenuItem{"Stop broadcast", mStopBroadcast})
-	//menuItems = append(menuItems, MenuItem{"Producer status", mProducerStatus})
 	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Producer)", mCarWashDemoProducer})
 	menuItems = append(menuItems, MenuItem{"-------------------- CONSUMER --------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Create default consumer", mDefaultConsumer})
 	menuItems = append(menuItems, MenuItem{"Create new consumer", mNewConsumer})
-
 	menuItems = append(menuItems, MenuItem{"Add default HCE credential", mDefaultHCECredential})
 	menuItems = append(menuItems, MenuItem{"Add new HCE credential", mNewHCECredential})
 	menuItems = append(menuItems, MenuItem{"Scan services", mScanService})
-	//menuItems = append(menuItems, MenuItem{"Discover services", mDiscoverSvcs})
-	//menuItems = append(menuItems, MenuItem{"Get service prices", mGetSvcPrices})
-	//menuItems = append(menuItems, MenuItem{"Select service", mSelectService})
-	//menuItems = append(menuItems, MenuItem{"Make payment", mMakePayment})
-	//menuItems = append(menuItems, MenuItem{"Consumer status", mConsumerStatus})
 	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Consumer)", mCarWashDemoConsumer})
 	menuItems = append(menuItems, MenuItem{"Auto consume from profile info", mAutoConsume})
 	menuItems = append(menuItems, MenuItem{"--------------------------------------------------", mInvalidSelection})
@@ -122,22 +112,18 @@ func renderMenu() {
 		return
 	}
 
-	//var exitCode int
-
 	if err = menuItems[inputInt].Action(); err != nil {
 
 		fmt.Println(err.Error())
 	}
 
-	//if exitCode != 1 {
 	if promptContinue() {
 		renderMenu()
 	} else {
+		fmt.Println("Goodbye...")
 		os.Exit(1)
-		//exitCode = 1
 	}
 
-	//}
 }
 
 func setUp() {

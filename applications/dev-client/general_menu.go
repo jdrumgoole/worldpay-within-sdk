@@ -154,7 +154,7 @@ func mStartRPCService() error {
 
 func mLoadDeviceProfile() error {
 
-	fmt.Print("Name of profile: ")
+	fmt.Print("Name of profile to load: ")
 	var profileStr string
 	if err := getUserInput(&profileStr); err != nil {
 		return err
@@ -175,21 +175,21 @@ func mLoadDeviceProfile() error {
 		if err := initialiseDevice(deviceProfile.DeviceEntity); err != nil {
 			return err
 		}
-		fmt.Println("Setup device...")
+		fmt.Println("Setup device.")
 	}
 
 	if deviceProfile.DeviceEntity.Producer != nil {
 		if err := setupProducer(deviceProfile.DeviceEntity.Producer); err != nil {
 			return err
 		}
-		fmt.Println("Setup producer...")
+		fmt.Println("Setup producer.")
 	}
 
 	if deviceProfile.DeviceEntity.Consumer != nil {
 		if err := setupConsumer(deviceProfile.DeviceEntity.Consumer); err != nil {
 			return err
 		}
-		fmt.Println("Setup consumer...")
+		fmt.Println("Setup consumer.")
 	}
 
 	return nil
