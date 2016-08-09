@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
 	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"os"
@@ -55,7 +56,7 @@ func doUI() {
 }
 func mInvalidSelection() error {
 
-	return errors.New("*** Invalid menu selection - please choose another item ***")
+	return errors.New(devclienterrors.ERR_INVALID_MENU_SELECTION)
 }
 
 func promptContinue() bool {

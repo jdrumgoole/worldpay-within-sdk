@@ -88,27 +88,11 @@ func mInitNewDevice() error {
 
 func mResetSessionState() error {
 
-	fmt.Println("Resetting session state")
-
 	sdk = nil
 
+	fmt.Println("Reset session state")
+
 	return nil
-}
-
-func mLoadConfig() error {
-
-	// Ask user for path to config file
-	// (And password if secured)
-
-	return errors.New("Not implemented yet..")
-}
-
-func mReadConfig() error {
-
-	// Print out loaded configuration
-	// Print out the path to file that was loaded (Need to keep reference during load stage)
-
-	return errors.New("Not implemented yet..")
 }
 
 func mStartRPCService() error {
@@ -168,7 +152,6 @@ func mLoadDeviceProfile() error {
 		return err
 	}
 
-	//deviceProfile devclienttypes.DeviceProfile
 	json.Unmarshal(file, &deviceProfile)
 
 	if deviceProfile.DeviceEntity != nil {
