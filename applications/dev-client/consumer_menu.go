@@ -251,12 +251,6 @@ func mAutoConsume() error {
 								return err
 							}
 
-							//fmt.Println("#Begin Request#")
-							//fmt.Printf("ServerID: %s\n", tpr.ServerID)
-							//fmt.Printf("PriceID = %d - %d units = %d\n", tpr.PriceID, tpr.UnitsToSupply, tpr.TotalPrice)
-							//fmt.Printf("ClientID: %s, MerchantClientKey: %s, PaymentRef: %s\n", tpr.ClientID, tpr.MerchantClientKey, tpr.PaymentReferenceID)
-							//fmt.Println("#End Request#")
-
 							log.Debug("Making payment of %d\n", tpr.TotalPrice)
 
 							payResp, err := sdk.MakePayment(tpr)
