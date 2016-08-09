@@ -121,6 +121,7 @@ func renderMenu() {
 	if promptContinue() {
 		renderMenu()
 	} else {
+		fmt.Println("")
 		fmt.Println("Goodbye...")
 		os.Exit(1)
 	}

@@ -12,8 +12,6 @@ import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"io/ioutil"
-	"os"
-	"path/filepath"
 )
 
 func mGetDeviceInfo() error {
@@ -144,9 +142,7 @@ func mLoadDeviceProfile() error {
 		return err
 	}
 
-	wd, _ := os.Getwd()
-
-	file, err := ioutil.ReadFile(filepath.Join(wd, profileStr))
+	file, err := ioutil.ReadFile(profileStr)
 	if err != nil {
 		log.Debug("error ", err)
 		return err
