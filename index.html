@@ -37,7 +37,7 @@
 
                     <div class="large-3 columns">
                             
-                  
+                  <!--
                                   <label>Select Wrapper Language</label>
                                   <select>
                                     <option value="golang">Golang</option>
@@ -45,6 +45,7 @@
                                     <option value="java" selected>Java</option>
                                     <option value="nodejs">Node.js</option>
                                   </select>
+                                -->
                                 
                                   <div class="callout">
                                     <p><a href="/">Introduction</a></p>                                    
@@ -60,7 +61,14 @@
                                     <p>Release the service</p>
                                     <p>Consume the service</p>
                                     <hr/>
-                                    <p>API specification</p>
+                                    <p><a href="/api-spec.html">API specification</a>
+                                        <ul>
+                                          <li><a href="/wrapper-doc/javadoc/" target="_blank">Java (Javadoc)</a></li>
+                                          <li>.net C#</li>
+                                          <li>GOLANG</li>
+                                          <li>node.js</li>
+                                        </ul>
+                                    </p>
                                     <p><a href="architecture.html">Architecture</a></p>
                                   </div>
                             
@@ -82,7 +90,8 @@
                               <p>The core of this SDK is written in Go with a native Go interface. Along with the native Go interface is an RPC layer (Apache Thrift) to allow communication through other languages. It is intended that we will develop a number of complementary wrapper libraries for other languages which should include C#.NET, Java, Python at a minimum.</p>
 
                               <a href="/getting-started.html" class="alert button">Getting started guide</a>
-                              <a href="/getit.html" class="alert button">Get the SDK</a>    
+                              <a href="/getit.html" class="alert button">Get the SDK</a>
+                              <a href="/architecture.html" class="alert button">The Worldpay Within Architecture</a>      
 
                               <h3>What is Worldpay Within and what does Worldpay within do</h3>
                               
