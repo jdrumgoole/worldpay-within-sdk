@@ -1273,6 +1273,16 @@ a {
   a img {
     border: 0; }
 
+a.whiteLink {
+  color: white;
+  text-decoration: none;
+  line-height: inherit;
+  cursor: pointer; }
+  a:hover, a:focus {
+    color: #EEEEEE; }
+  a img {
+    border: 0; }
+
 hr {
   max-width: 75rem;
   height: 0;

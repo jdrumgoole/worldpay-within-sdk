@@ -13,7 +13,7 @@
     <div class="row">
       <div class="large-12 columns">
         <img style="padding-top: 5px; padding-bottom: 5px;" src="/images/worldpaylogosmall.png" alt="Worldpay Logo"/>
-        <div style="padding-left: 5px; color: white; background-color: red;"><a href="/"><h1 style="font-size: 1.8em !important;">Worldpay Within Documentation</h1></a></div>
+        <div style="padding-left: 5px; color: white; background-color: red;"><a class="whiteLink" href="/"><h1 style="font-size: 1.8em !important;">Worldpay Within Documentation</h1></a></div>
       </div>
     </div>
 
@@ -392,15 +392,17 @@ payment_status of SUCCESS being returned to Thing B.</p>
 
 <h5 id="thing-b-to-thing-a-service-token">Thing B to Thing A service token</h5>
 
-<p><strong>Key</strong>                      <strong>Parameters</strong>                                                      <strong>Purpose</strong>
-  —————————- ——————————————————————- ———————————————–
-  payment_request_response   service_delivery_token, server_UUID, client_UUID, total_paid   service_delivery_token is passed to ThingB.</p>
 
 
 
 
 
-
+<table>
+<tbody>
+<tr><td><strong>Key</strong></td><td><strong>Parameters</strong></td><td><strong>Purpose</strong></td></tr>
+<tr><td>payment_request_response</td><td>service_delivery_token, server_UUID, client_UUID, total_paid</td><td>service_delivery_token is passed to ThingB.</td></tr>
+</tbody>
+</table>
 
 
 
@@ -417,12 +419,20 @@ provision of services from Thing B.</p>
 
 <h3 id="service-delivery">Service Delivery</h3>
 
-<p><img src="media/image10.emf" alt="">{width=”3.8020833333333335in”
-height=”3.3333333333333335in”}Once the payment has been made, Thing B
+<p>Once the payment has been made, Thing B
 shall return to broadcasting its available services. Thing A will now be
 able to consume the service from Thing B by providing the
 service_delivery_token. The service delivery may be in a single step,
 or over time. An overview of service delivery is shown in Figure 8.</p>
+
+
+
+<div style="text-align: center;"><figure>
+<img src="/images/architecture/serviceDelivery.png" alt="Service delivery">
+<figcaption>Figure 8. Service delivery.</figcaption>
+</figure></div>
+
+
 
 <p>Once in possession of a service_token, Thing A may then request the
 service be provided. The service could be consumed in one session, or in
@@ -432,13 +442,23 @@ requests until Thing B indicates that the service has been delivered.</p>
 
 <h4 id="service-delivery-apis">Service Delivery APIs</h4>
 
-<p><strong>Key</strong>                     <strong>Parameters</strong>                                                                                                          <strong>Purpose</strong>
-  ————————— ———————————————————————————————————————– ——————————————————————————————————————————————-
-  broadcast                   server_UUID                                                                                                            Advertising services and identifying the sender.
-  delivery_begin_request    service_delivery_token, client_UUID, number_of_units_to_supply                                                   Request the service item, with the service_delivery_token providing right to receive the service, and amount of service to be supplied.
-  delivery_begin_response   server_UUID, service_delivery_token, client_UUID, number_of_units_to_be_supplied                               Response for the service delivery. Confirmation of number of service units to be supplied (Allowing for less units than requested).
-  delivery_end               client_UUID, number_of_units_received                                                                               Confirmation of service received.
-  delivery_end_response     server_UUID, service_delivery_token, client_UUID, number_of_units_just_supplied, number_of_units_remaining   Service end indicating outstanding service credits and token for subsequent delivery.</p>
+
+
+<table>
+<tbody>
+<tr><td><strong>Key</strong></td><td><strong>Parameters</strong></td><td><strong>Purpose</strong></td></tr>
+<tr><td>payment_request_response</td><td>service_delivery_token, server_UUID, client_UUID, total_paid</td><td>service_delivery_token is passed to ThingB.</td></tr>
+<tr><td>broadcast</td><td>server_UUID</td><td>Advertising services and identifying the sender.</td></tr>
+<tr><td>delivery_begin_request</td><td>service_delivery_token, client_UUID, number_of_units_to_supply</td><td>Request the service item, with the service_delivery_token providing right to receive the service, and amount of service to be supplied.</td></tr>
+<tr><td>delivery_begin_response</td><td>server_UUID, service_delivery_token, client_UUID, number_of_units_to_be_supplied</td><td>Response for the service delivery. Confirmation of number of service units to be supplied (Allowing for less units than requested).</td></tr>
+<tr><td>delivery_end</td><td>client_UUID, number_of_units_received</td><td>Confirmation of service received.</td></tr>
+<tr><td>delivery_end_response</td><td>server_UUID, service_delivery_token, client_UUID, number_of_units_just_supplied, number_of_units_remaining</td><td>Service end indicating outstanding service credits and token for subsequent delivery.</td></tr>
+</tbody>
+</table>
+
+
+
+
 
 <p>Thing A sends a message with the service_delivery_token to Thing B,
 along with the amount of service it wishes to consume. The response
@@ -453,23 +473,26 @@ any.</p>
 
 
 
+<h2>Useful terms</h2>
+
+<p>A few useful terms we're making quite a lot of use of, and if you are new to the world of payments these may be unfamiliar to you!</p>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<table>
+<tbody>
+<tr><td><strong>Term</strong></td><td><strong>Definition</strong></td></tr>
+<tr><td>API</td><td>Application Programming Interface</td></tr>
+<tr><td>Online.worldpay.com</td><td>Worldpay Open Payment API, <a href="https://online.worldpay.com/">https://online.worldpay.com/</td></tr>
+<tr><td>HCE</td><td>Host Card Emulation</td></tr>
+<tr><td>HTE</td><td>Host Terminal Emulation</td></tr>
+<tr><td>HTTPS</td><td>HyperText Transfer Protocol Secure</td></tr>
+<tr><td>IoT</td><td>Internet of Things</td></tr>
+<tr><td>P2PE</td><td>Point to Point Encryption</td></tr>
+<tr><td>TLS</td><td>Transport Layer Security</td></tr>
+<tr><td>UUID</td><td>Universally Unique Identifier</td></tr>
+<tr><td>RPC</td><td>Remote Procedure Call</td></tr>
+</tbody>
+</table>
 
 
 <!-- Insert page content above -->
@@ -481,16 +504,6 @@ any.</p>
 
 
 
-<!--
-        
-            
-
-  
-        <
-
-
-
--->
 
 
 
