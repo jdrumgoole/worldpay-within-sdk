@@ -1,0 +1,115 @@
+<!doctype html>
+<html class="no-js" lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started | Worldpay Within</title>
+    <link rel="stylesheet" href="css/foundation.css">
+    <link rel="stylesheet" href="css/app.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">    
+  </head>
+  <body>
+    <div class="row">
+      <div class="large-12 columns">
+        <img style="padding-top: 5px; padding-bottom: 5px;" src="/images/worldpaylogosmall.png" alt="Worldpay Logo"/>
+        <div style="padding-left: 5px; color: white; background-color: red;"><a href="/"><h1 style="font-size: 1.8em !important;">Worldpay Within Documentation</h1></a></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="large-12 columns">
+        <div class="callout">
+          
+                <form>
+                  <div class="row">
+                    <div class="large-12 columns">
+                      <label>Search for a topic or question</label>
+                    </div>
+                    <div class="large-12 columns">
+                      <input type="text" placeholder="Search for a topic or question" />
+                    </div>
+                  </div>
+                </form>
+
+
+              <div class="row">
+
+           
+                    <div class="large-12 columns">
+<!-- Insert page content below -->
+
+
+                      
+
+                              <h3>Getting started</h3>
+
+                              <p>You will at the very least need to install Go and the Golang SDK, thereafter you can code against the raw Go SDK or alterantively against one of the mulitple language wrappers, which give access to the SDK. The Golang SDK communicates with these other languages using RPC calls (in both directions), and the wrappers in the background interface using Thrift, this is not exposed to you as a developer, you work with the Interface layer in your language of choice.</p>
+      
+
+                              <h3>Install</h3>
+
+                              <div class="callout">
+                              <ol>
+                              <li>Install Go command line</li>
+                              <li>Set up the environmental variables correctly; you only need to set $GOPATH, and that should be set as //, where is wherever you want the code, is /src/innovation.worldpay.com</li>
+                              <li>clone the repo to $GOPATH/src/innovation.worldpay.com</li>
+                              <li>Get the dependencies; go get github.com/Sirupsen/logrus</li>
+                              <li>Get the dependencies; go get github.com/gorilla/mux</li>
+                              <li>Get the dependencies; go get github.com/nu7hatch/gouuid</li>
+                              <li>Get the dependencies; go get git.apache.org/thrift.git/lib/go/thrift</li>
+                              </ol>
+                              </div>
+
+                              <h3>Configuration file versus command line flags</h3>
+
+                                <p>The RPC client takes command line flags e.g. -port 9091 but it can also take the flag -configfile 'conf.json' so you can specify the configuration in a config file. For example:</p>
+
+                                <div class="callout" style="background-color: #EEEEEE;">
+                                <pre>
+{
+    "WorldpayWithinConfig": {
+        "BufferSize" : 100,
+        "Buffered": false,
+        "Framed": false,
+        "Host": "127.0.0.1",
+        "Logfile": "worldpayWithin.log",
+        "Loglevel": "warn",
+        "Port": 9081,
+        "Protocol": "binary",
+        "Secure": false
+    }
+}
+                                </pre>
+                                </div>
+
+
+
+<!-- Insert page content above -->
+                    </div>                       
+              </div>
+            </div>
+        </div>
+     </div>
+
+
+
+<!--
+        
+            
+
+  
+        <
+
+
+
+-->
+
+
+
+    <script src="js/vendor/jquery.js"></script>
+    <script src="js/vendor/what-input.js"></script>
+    <script src="js/vendor/foundation.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

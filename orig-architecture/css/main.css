@@ -1,0 +1,8 @@
+@font-face {
+    font-family: Calibri;
+    src: url(fonts/Calibri.ttf);
+}
+body {
+	font-family: Calibri;
+	padding: 15px;
+}
