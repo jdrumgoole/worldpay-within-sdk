@@ -36,7 +36,6 @@ func mGetDeviceInfo() error {
 	}
 
 	fmt.Printf("IPv4Address: %s\n", sdk.GetDevice().IPv4Address)
-	fmt.Printf("CurrencyCode: %s\n", sdk.GetDevice().CurrencyCode)
 
 	return nil
 }
@@ -110,6 +109,10 @@ func mStartRPCService() error {
 
 	rpc, err := rpc.NewService(config, sdk)
 
+	//log.Debug("pre scan for services")
+	//services, err := sdk.DeviceDiscovery(20000)
+	//log.Debug("end scan for services")
+
 	if err != nil {
 		return err
 	}
@@ -127,6 +130,12 @@ func mStartRPCService() error {
 		rpcErr := <-chErr
 		if rpcErr != nil {
 			log.Debug("error ", rpcErr)
+			//log.Debug("Init consumer")
+			//err := sdk.InitConsumer("http://", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.ServerID, &hceCard)
+
+			//if err != nil {
+
+			//	return 0, err
 		}
 
 		close(chErr)
@@ -165,22 +174,22 @@ func mLoadDeviceProfile() error {
 		fmt.Println("Setup producer.")
 	}
 
-	if deviceProfile.DeviceEntity.Consumer != nil {
-		if err := setupConsumer(deviceProfile.DeviceEntity.Consumer); err != nil {
-			return err
-		}
-		fmt.Println("Setup consumer.")
-	}
+	//	if deviceProfile.DeviceEntity.Consumer != nil {
+	//		if err := setupConsumer(deviceProfile.DeviceEntity.Consumer); err != nil {
+	//			return err
+	//		}
+	//		fmt.Println("Setup consumer.")
+	//	}
 
 	return nil
 }
 
 func setupProducer(producer *devclienttypes.Producer) error {
-	if err := addHTECredentials(producer.ProducerConfig); err != nil {
-		return err
-	}
+	//if err := addHTECredentials(producer.ProducerConfig); err != nil {
+	//	return err
+	//}
 
-	if _, err := sdk.InitProducer(); err != nil {
+	if err := sdk.InitProducer(producer.ProducerConfig.PspMerchantClientKey, producer.ProducerConfig.PspMerchantServiceKey); err != nil {
 		return err
 	}
 
@@ -203,9 +212,9 @@ func initialiseDevice(deviceEntity *devclienttypes.DeviceEntity) error {
 	return nil
 }
 
-func addHTECredentials(producerConfig *devclienttypes.ProducerConfig) error {
-	return sdk.InitHTE(producerConfig.PspMerchantClientKey, producerConfig.PspMerchantServiceKey)
-}
+//func addHTECredentials(producerConfig *devclienttypes.ProducerConfig) error {
+//	return sdk.InitHTE(producerConfig.PspMerchantClientKey, producerConfig.PspMerchantServiceKey)
+//}
 
 func addServicesAndPrices(services []*devclienttypes.ServiceProfile) error {
 
@@ -240,6 +249,6 @@ func addServicesAndPrices(services []*devclienttypes.ServiceProfile) error {
 	return nil
 }
 
-func setupConsumer(consumer *devclienttypes.Consumer) error {
-	return sdk.InitHCE(*consumer.HCECard)
-}
+//func setupConsumer(consumer *devclienttypes.Consumer) error {
+//	return sdk.InitHCE(*consumer.HCECard)
+//}

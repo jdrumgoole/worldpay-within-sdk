@@ -59,7 +59,7 @@ func mScanService() error {
 	}
 
 	log.Debug("pre scan for services")
-	services, err := sdk.ServiceDiscovery(timeout)
+	services, err := sdk.DeviceDiscovery(timeout)
 	log.Debug("end scan for services")
 
 	if err != nil {
@@ -85,13 +85,9 @@ func mDefaultHCECredential() error {
 		Cvc:        "113",
 	}
 
-	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
-	}
+	hceCard = card
 
-	fmt.Println("Added default HCE credential")
-
-	return sdk.InitHCE(card)
+	return nil
 }
 
 func mNewHCECredential() error {
@@ -153,9 +149,9 @@ func mNewHCECredential() error {
 		Cvc:        cvc,
 	}
 
-	fmt.Println("Added HCE credential")
+	hceCard = card
 
-	return sdk.InitHCE(card)
+	return nil
 }
 
 func mAutoConsume() error {
@@ -163,7 +159,7 @@ func mAutoConsume() error {
 	fmt.Println("Starting auto consume...")
 
 	log.Debug("pre scan for services")
-	services, err := sdk.ServiceDiscovery(deviceProfile.DeviceEntity.Consumer.ConsumerConfig.DeviceDiscoveryTimeout)
+	services, err := sdk.DeviceDiscovery(deviceProfile.DeviceEntity.Consumer.ConsumerConfig.DeviceDiscoveryTimeout)
 	log.Debug("end scan for services")
 
 	if err != nil {
@@ -188,8 +184,7 @@ func mAutoConsume() error {
 			fmt.Printf("Found Service:: (%s:%d/%s) - %s\n", services[foundServiceIdx].Hostname, services[foundServiceIdx].PortNumber, services[foundServiceIdx].UrlPrefix, services[foundServiceIdx].DeviceDescription)
 
 			log.Debug("Init consumer")
-			err := sdk.InitConsumer("http://", services[foundServiceIdx].Hostname, services[foundServiceIdx].PortNumber, services[foundServiceIdx].UrlPrefix, services[foundServiceIdx].ServerID)
-
+			err := sdk.InitConsumer("http://", services[foundServiceIdx].Hostname, services[foundServiceIdx].PortNumber, services[foundServiceIdx].UrlPrefix, services[foundServiceIdx].ServerID, deviceProfile.DeviceEntity.Consumer.HCECard)
 			if err != nil {
 
 				return err
@@ -288,7 +283,7 @@ func mCarWashDemoConsumer() error {
 	}
 
 	log.Debug("pre scan for services")
-	services, err := sdk.ServiceDiscovery(20000)
+	services, err := sdk.DeviceDiscovery(20000)
 	log.Debug("end scan for services")
 
 	if err != nil {
@@ -303,7 +298,7 @@ func mCarWashDemoConsumer() error {
 		fmt.Printf("# Service:: (%s:%d/%s) - %s\n", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
 
 		log.Debug("Init consumer")
-		err := sdk.InitConsumer("http://", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.ServerID)
+		err := sdk.InitConsumer("http://", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.ServerID, &hceCard)
 
 		if err != nil {
 

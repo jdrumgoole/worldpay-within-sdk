@@ -7,7 +7,6 @@ type Device struct {
 	Description string
 	Services map[int]*Service
 	IPv4Address string
-	CurrencyCode string
 }
 
 func NewDevice(name, description, uid, ipv4Address, currencyCode string) (*Device, error) {
@@ -17,7 +16,6 @@ func NewDevice(name, description, uid, ipv4Address, currencyCode string) (*Devic
 		Description:description,
 		Uid:uid,
 		IPv4Address: ipv4Address,
-		CurrencyCode: currencyCode,
 	}
 
 	return result, nil

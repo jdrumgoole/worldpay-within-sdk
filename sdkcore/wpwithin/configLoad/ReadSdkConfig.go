@@ -23,8 +23,14 @@ type ConfigurationLocal struct {
     WorldpayWithinConfig    IndividualConfig
 }
 
-func loadConfig() (configuration ConfigurationLocal) {
-    file, _ := os.Open("conf.json")
+func loadConfig(configPath string) (configuration ConfigurationLocal) {
+
+    if configPath == "" {
+
+        configPath = "conf.json"
+    }
+
+    file, _ := os.Open(configPath)
     decoder := json.NewDecoder(file)
     configuration = ConfigurationLocal{}
     err := decoder.Decode(&configuration)
@@ -34,9 +40,9 @@ func loadConfig() (configuration ConfigurationLocal) {
     return
 }
 
-func PopulateConfiguration(rpcConfig rpc.Configuration) (rpcConfigReturn rpc.Configuration) {
+func PopulateConfiguration(configPath string, rpcConfig rpc.Configuration) (rpcConfigReturn rpc.Configuration) {
 
-    configuration := loadConfig()
+    configuration := loadConfig(configPath)
 
     rpcConfig.Protocol = configuration.WorldpayWithinConfig.Protocol
     rpcConfig.Framed = configuration.WorldpayWithinConfig.Framed

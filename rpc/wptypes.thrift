@@ -6,9 +6,10 @@
 #
 #############################################
 
-namespace csharp worldpaywithin.rpc.types
+namespace csharp Worldpay.Innovation.WPWithin.Rpc.Types
 namespace java com.worldpay.innovation.wpwithin.rpc.types
 namespace go wpthrift_types
+namespace js wpthrift_types
 
 exception Error {
 	

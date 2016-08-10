@@ -3,10 +3,13 @@ package main
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
 	"os"
 	"time"
 )
+
+var hceCard types.HCECard
 
 func main() {
 
