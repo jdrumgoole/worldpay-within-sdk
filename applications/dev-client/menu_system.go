@@ -3,17 +3,21 @@ package main
 import (
 	"errors"
 	"fmt"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	"os"
 	"strconv"
 	"strings"
 )
 
 var sdk wpwithin.WPWithin
 var menuItems []MenuItem
+var deviceProfile devclienttypes.DeviceProfile
 
 type MenuItem struct {
 	Label  string
-	Action func() (int, error)
+	Action func() error
 }
 
 func doUI() {
@@ -25,11 +29,8 @@ func doUI() {
 	menuItems = append(menuItems, MenuItem{"Start RPC Service", mStartRPCService})
 	menuItems = append(menuItems, MenuItem{"Init new device", mInitNewDevice})
 	menuItems = append(menuItems, MenuItem{"Get device info", mGetDeviceInfo})
-	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Producer)", mCarWashDemoProducer})
-	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Consumer)", mCarWashDemoConsumer})
 	menuItems = append(menuItems, MenuItem{"Reset session", mResetSessionState})
-	menuItems = append(menuItems, MenuItem{"Load configuration", mLoadConfig})
-	menuItems = append(menuItems, MenuItem{"Read loaded configuration", mReadConfig})
+	menuItems = append(menuItems, MenuItem{"Load device profile", mLoadDeviceProfile})
 	menuItems = append(menuItems, MenuItem{"-------------------- PRODUCER --------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Create default producer", mDefaultProducer})
 	menuItems = append(menuItems, MenuItem{"Create new producer", mNewProducer})
@@ -37,29 +38,25 @@ func doUI() {
 	menuItems = append(menuItems, MenuItem{"Add new HTE credentials", mNewHTECredentials})
 	menuItems = append(menuItems, MenuItem{"Add RoboWash service", mAddRoboWashService})
 	menuItems = append(menuItems, MenuItem{"Add RoboAir service", mAddRoboAirService})
-	//menuItems = append(menuItems, MenuItem{"Initialise producer", mBroadcast})
 	menuItems = append(menuItems, MenuItem{"Start service broadcast", mStartBroadcast})
 	menuItems = append(menuItems, MenuItem{"Stop broadcast", mStopBroadcast})
-	menuItems = append(menuItems, MenuItem{"Producer status", mProducerStatus})
+	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Producer)", mCarWashDemoProducer})
 	menuItems = append(menuItems, MenuItem{"-------------------- CONSUMER --------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Create default consumer", mDefaultConsumer})
 	menuItems = append(menuItems, MenuItem{"Create new consumer", mNewConsumer})
+	menuItems = append(menuItems, MenuItem{"Add default HCE credential", mDefaultHCECredential})
+	menuItems = append(menuItems, MenuItem{"Add new HCE credential", mNewHCECredential})
 	menuItems = append(menuItems, MenuItem{"Scan services", mScanService})
-	menuItems = append(menuItems, MenuItem{"Create default HCE credential", mDefaultHCECredential})
-	menuItems = append(menuItems, MenuItem{"Create new HCE credential", mNewHCECredential})
-	menuItems = append(menuItems, MenuItem{"Discover services", mDiscoverSvcs})
-	menuItems = append(menuItems, MenuItem{"Get service prices", mGetSvcPrices})
-	menuItems = append(menuItems, MenuItem{"Select service", mSelectService})
-	menuItems = append(menuItems, MenuItem{"Make payment", mMakePayment})
-	menuItems = append(menuItems, MenuItem{"Consumer status", mConsumerStatus})
+	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Consumer)", mCarWashDemoConsumer})
+	menuItems = append(menuItems, MenuItem{"Auto consume from profile info", mAutoConsume})
 	menuItems = append(menuItems, MenuItem{"--------------------------------------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Exit", mQuit})
 
 	renderMenu()
 }
-func mInvalidSelection() (int, error) {
+func mInvalidSelection() error {
 
-	return 0, errors.New("*** Invalid menu selection - please choose another item ***")
+	return errors.New(devclienterrors.ERR_INVALID_MENU_SELECTION)
 }
 
 func promptContinue() bool {
@@ -116,16 +113,19 @@ func renderMenu() {
 		return
 	}
 
-	var exitCode int
-
-	if exitCode, err = menuItems[inputInt].Action(); err != nil {
+	if err = menuItems[inputInt].Action(); err != nil {
 
 		fmt.Println(err.Error())
 	}
 
-	if exitCode != 1 {
+	if promptContinue() {
 		renderMenu()
+	} else {
+		fmt.Println("")
+		fmt.Println("Goodbye...")
+		os.Exit(1)
 	}
+
 }
 
 func setUp() {
@@ -133,9 +133,34 @@ func setUp() {
 	fmt.Println("Setup")
 }
 
-func mQuit() (int, error) {
+func mQuit() error {
 
 	fmt.Println("")
 	fmt.Println("Goodbye...")
-	return 1, nil
+
+	os.Exit(1)
+
+	return nil
+}
+
+func getUserInput(input interface{}) error {
+
+	var err error
+
+	switch t := input.(type) {
+	case *int:
+		_, err = fmt.Scanf("%d", input)
+	case *int32:
+		_, err = fmt.Scanf("%d", input)
+	case *string:
+		_, err = fmt.Scanf("%s", input)
+	default:
+		fmt.Printf("unexpected type %T", t)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

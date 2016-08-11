@@ -3,107 +3,94 @@ package main
 import (
 	"errors"
 	"fmt"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-defaults"
+	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-// TODO: put this somewhere sensible
-var ERR_DEVICE_NOT_INITIALISED = "Error: Device not initialised"
-var DEFAULT_HTE_MERCHANT_CLIENT_KEY = "T_C_03eaa1d3-4642-4079-b030-b543ee04b5af"
-var DEFAULT_HTE_MERCHANT_SERVICE_KEY = "T_S_f50ecb46-ca82-44a7-9c40-421818af5996"
+func mDefaultProducer() error {
 
-/*
-func mBroadcast() (int, error) {
-
-	fmt.Print("Broadcast timeout in milliseconds: ")
-	var input int
-	if _, err := mGetUserInput(&input); err != nil {
-		return 0, err
+	if err := mInitDefaultDevice(); err != nil {
+		return err
 	}
 
-	return 0, nil
-}
-*/
-
-func mProducerStatus() (int, error) {
-
-	// Show all services
-	// Show all prices
-	// Status of broadcast
-
-	return 0, errors.New("Not implemented yet..")
-}
-
-func mDefaultProducer() (int, error) {
-
-	if _, err := mInitDefaultDevice(); err != nil {
-		return 0, err
-	}
+	//if err := mDefaultHTECredentials(); err != nil {
+	//	return err
+	//}
 
 	// Disabling as this just calls initProducer inside, which is called below.
 	// Was causing issue with the HTE port already being bound.
-//	if _, err := mDefaultHTECredentials(); err != nil {
-//		return 0, err
-//	}
+	//	if _, err := mDefaultHTECredentials(); err != nil {
+	//		return 0, err
+	//	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	if err := sdk.InitProducer(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY); err != nil {
-		return 0, err
+	if err := sdk.InitProducer(devclientdefaults.DEFAULT_HTE_MERCHANT_CLIENT_KEY, devclientdefaults.DEFAULT_HTE_MERCHANT_SERVICE_KEY); err != nil {
+		return err
 	}
 
-	return 0, nil
+	fmt.Println("Initialised default producer")
+
+	return nil
 }
 
-func mNewProducer() (int, error) {
+func mNewProducer() error {
 
-	if _, err := mInitNewDevice(); err != nil {
-		return 0, err
+	if err := mInitNewDevice(); err != nil {
+		return err
 	}
 
-	if _, err := mNewHTECredentials(); err != nil {
-		return 0, err
+	if err := mNewHTECredentials(); err != nil {
+		return err
 	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, nil
+	fmt.Println("Initialised new producer")
+
+	return nil
 }
 
-func mDefaultHTECredentials() (int, error) {
+func mDefaultHTECredentials() error {
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, sdk.InitProducer(DEFAULT_HTE_MERCHANT_CLIENT_KEY, DEFAULT_HTE_MERCHANT_SERVICE_KEY)
+	fmt.Println("Added default HTE credentials")
+
+	return sdk.InitProducer(devclientdefaults.DEFAULT_HTE_MERCHANT_CLIENT_KEY, devclientdefaults.DEFAULT_HTE_MERCHANT_SERVICE_KEY)
 }
 
-func mNewHTECredentials() (int, error) {
+func mNewHTECredentials() error {
+
+	fmt.Println("Add new HTE credentials")
 
 	fmt.Print("Merchant Client Key: ")
 	var merchantClientKey string
-	if _, err := mGetUserInput(&merchantClientKey); err != nil {
-		return 0, err
+	if err := getUserInput(&merchantClientKey); err != nil {
+		return err
 	}
 
 	fmt.Print("Merchant Service Key: ")
 	var merchantServiceKey string
-	if _, err := mGetUserInput(&merchantServiceKey); err != nil {
-		return 0, err
+	if err := getUserInput(&merchantServiceKey); err != nil {
+		return err
 	}
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
-	return 0, sdk.InitProducer(merchantClientKey, merchantServiceKey)
+	return sdk.InitProducer(merchantClientKey, merchantServiceKey)
 }
 
-func mAddRoboWashService() (int, error) {
+func mAddRoboWashService() error {
 
 	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
@@ -116,8 +103,8 @@ func mAddRoboWashService() (int, error) {
 		ID:              1,
 		Description:     "Car wash",
 		UnitDescription: "Single wash",
-		PricePerUnit: &types.PricePerUnit {
-			Amount: 500,
+		PricePerUnit: &types.PricePerUnit{
+			Amount:       500,
 			CurrencyCode: "GBP",
 		},
 	}
@@ -128,8 +115,8 @@ func mAddRoboWashService() (int, error) {
 		ID:              2,
 		Description:     "SUV Wash",
 		UnitDescription: "Single wash",
-		PricePerUnit: &types.PricePerUnit {
-			Amount: 650,
+		PricePerUnit: &types.PricePerUnit{
+			Amount:       650,
 			CurrencyCode: "GBP",
 		},
 	}
@@ -138,18 +125,20 @@ func mAddRoboWashService() (int, error) {
 	roboWash.AddPrice(washPriceSUV)
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	if err := sdk.AddService(roboWash); err != nil {
 
-		return 0, err
+		return err
 	}
 
-	return 0, nil
+	fmt.Println("Added robowash service")
+
+	return nil
 }
 
-func mAddRoboAirService() (int, error) {
+func mAddRoboAirService() error {
 
 	roboAir, _ := types.NewService()
 	roboAir.Name = "RoboAir"
@@ -162,8 +151,8 @@ func mAddRoboAirService() (int, error) {
 		ID:              1,
 		Description:     "Measure and adjust pressure",
 		UnitDescription: "Tyre",
-		PricePerUnit: &types.PricePerUnit {
-			Amount: 25,
+		PricePerUnit: &types.PricePerUnit{
+			Amount:       25,
 			CurrencyCode: "GBP",
 		},
 	}
@@ -174,8 +163,8 @@ func mAddRoboAirService() (int, error) {
 		ID:              2,
 		Description:     "Measure and adjust pressure - four tyres for the price of three",
 		UnitDescription: "4 Tyre",
-		PricePerUnit: &types.PricePerUnit {
-			Amount: airSinglePrice.PricePerUnit.Amount * 3,
+		PricePerUnit: &types.PricePerUnit{
+			Amount:       airSinglePrice.PricePerUnit.Amount * 3,
 			CurrencyCode: "GBP",
 		},
 	}
@@ -184,58 +173,70 @@ func mAddRoboAirService() (int, error) {
 	roboAir.AddPrice(airFourPrice)
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	if err := sdk.AddService(roboAir); err != nil {
 
-		return 0, err
+		return err
 	}
 
-	return 0, nil
+	fmt.Println("Added roboair service")
+
+	return nil
 }
 
-func mStartBroadcast() (int, error) {
+func mStartBroadcast() error {
 
 	if sdk == nil {
-		return 0, errors.New(ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
 	}
 
 	fmt.Print("Broadcast timeout in milliseconds: ")
 	var timeout int
-	if _, err := mGetUserInput(&timeout); err != nil {
-		return 0, err
+	if err := getUserInput(&timeout); err != nil {
+		return err
 	}
 
 	if err := sdk.StartServiceBroadcast(timeout); err != nil {
-		return 0, err
+		return err
 	}
 
-	return 0, nil
+	fmt.Println("Broadcast started...")
+	return nil
 }
 
-func mStopBroadcast() (int, error) {
+func mStopBroadcast() error {
 
-	return 0, errors.New("Not implemented yet..")
+	if sdk == nil {
+		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
+	}
+
+	sdk.StopServiceBroadcast()
+
+	fmt.Println("Broadcast stopped")
+	return nil
 }
 
-func mCarWashDemoProducer() (int, error) {
+func mCarWashDemoProducer() error {
 
-	if _, err := mDefaultProducer(); err != nil {
-		return 0, err
+	fmt.Println("Starting car wash demo (Producer)")
+
+	if err := mDefaultProducer(); err != nil {
+		return err
 	}
 
-	if _, err := mAddRoboWashService(); err != nil {
-		return 0, err
+	if err := mAddRoboWashService(); err != nil {
+		return err
 	}
 
-	if _, err := mAddRoboAirService(); err != nil {
-		return 0, err
+	if err := mAddRoboAirService(); err != nil {
+		return err
 	}
 
 	if err := sdk.StartServiceBroadcast(20000); err != nil {
-		return 0, err
+		return err
 	}
 
-	return 0, nil
+	return nil
 }

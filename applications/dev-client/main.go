@@ -1,13 +1,12 @@
 package main
-import
-(
 
+import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"time"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
 	"os"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"time"
 )
 
 var hceCard types.HCECard
@@ -18,7 +17,7 @@ func main() {
 
 	doUI()
 
-//	doWebSocketLogger()
+	//	doWebSocketLogger()
 }
 
 func initLog() {
@@ -59,7 +58,7 @@ func doWebSocketLogger() {
 
 		return
 	}
-	
+
 	time.Sleep(time.Duration(10) * time.Second)
 
 	log.Debug("This is debug :)")
