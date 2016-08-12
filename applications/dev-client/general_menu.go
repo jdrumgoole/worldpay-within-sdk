@@ -5,9 +5,7 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-defaults"
-	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
-	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-types"
+	devclienttypes "innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
@@ -19,7 +17,7 @@ func mGetDeviceInfo() error {
 	fmt.Println("Device Info:")
 
 	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
 	fmt.Printf("Uid of device: %s\n", sdk.GetDevice().Uid)
@@ -36,22 +34,6 @@ func mGetDeviceInfo() error {
 	}
 
 	fmt.Printf("IPv4Address: %s\n", sdk.GetDevice().IPv4Address)
-
-	return nil
-}
-
-func mInitDefaultDevice() error {
-
-	fmt.Println("Initialising default device...")
-
-	_sdk, err := wpwithin.Initialise(devclientdefaults.DEFAULT_DEVICE_NAME, devclientdefaults.DEFAULT_DEVICE_DESCRIPTION)
-
-	if err != nil {
-
-		return err
-	}
-
-	sdk = _sdk
 
 	return nil
 }
@@ -164,22 +146,12 @@ func mLoadDeviceProfile() error {
 		fmt.Println("Setup producer.")
 	}
 
-	if deviceProfile.DeviceEntity.Consumer != nil {
-		if err := setupConsumer(deviceProfile.DeviceEntity.Consumer); err != nil {
-			return err
-		}
-		fmt.Println("Setup consumer.")
-	}
-
 	return nil
 }
 
 func setupProducer(producer *devclienttypes.Producer) error {
-	if err := addHTECredentials(producer.ProducerConfig); err != nil {
-		return err
-	}
 
-	if _, err := sdk.InitProducer(); err != nil {
+	if err := sdk.InitProducer(producer.ProducerConfig.PspMerchantClientKey, producer.ProducerConfig.PspMerchantServiceKey); err != nil {
 		return err
 	}
 
@@ -200,10 +172,6 @@ func initialiseDevice(deviceEntity *devclienttypes.DeviceEntity) error {
 	sdk = _sdk
 
 	return nil
-}
-
-func addHTECredentials(producerConfig *devclienttypes.ProducerConfig) error {
-	return sdk.InitHTE(producerConfig.PspMerchantClientKey, producerConfig.PspMerchantServiceKey)
 }
 
 func addServicesAndPrices(services []*devclienttypes.ServiceProfile) error {
@@ -237,8 +205,4 @@ func addServicesAndPrices(services []*devclienttypes.ServiceProfile) error {
 	}
 
 	return nil
-}
-
-func setupConsumer(consumer *devclienttypes.Consumer) error {
-	return sdk.InitHCE(*consumer.HCECard)
 }
