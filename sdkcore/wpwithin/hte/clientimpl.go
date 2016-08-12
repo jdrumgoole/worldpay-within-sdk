@@ -101,7 +101,7 @@ func (client *clientImpl) GetPrices(serviceID int) (types.ServicePriceResponse, 
 
 func (client *clientImpl) NegotiatePrice(serviceID, priceID, numberOfUnits int) (types.TotalPriceResponse, error) {
 
-	url := fmt.Sprintf("%s/service/%d/requestTotal", client.baseUrl, serviceID)
+	url := fmt.Sprintf("%s/service/%d/requestTotal", client.baseURL, serviceID)
 
 	req := types.TotalPriceRequest{
 		ClientID:              client.clientID,

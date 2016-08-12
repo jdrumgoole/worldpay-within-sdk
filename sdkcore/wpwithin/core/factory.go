@@ -1,7 +1,6 @@
 package core
 
 import (
-	"errors"
 	"fmt"
 
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
@@ -80,7 +79,7 @@ func (factory *SDKFactoryImpl) GetDevice(name, description string) (*types.Devic
 
 		if err := utils.WriteString(UUIDFilePath, deviceGUID, true); err != nil {
 
-			return nil, New(fmt.Errorf("Could not save UUID to %s", UUIDFilePath)
+			return nil, fmt.Errorf("Could not save UUID to %s", UUIDFilePath)
 		}
 	}
 

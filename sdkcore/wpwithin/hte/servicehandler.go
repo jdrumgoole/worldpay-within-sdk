@@ -177,12 +177,12 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 	if svc, ok := srv.device.Services[svcID]; ok {
 
-		if price, ok := svc.Prices()[totalPriceRequest.SelectedPriceId]; ok {
+		if price, ok := svc.Prices()[totalPriceRequest.SelectedPriceID]; ok {
 
 			response := types.TotalPriceResponse{}
 			response.ServerID = srv.device.UID
 			response.ClientID = totalPriceRequest.ClientID
-			response.PriceID = totalPriceRequest.SelectedPriceId
+			response.PriceID = totalPriceRequest.SelectedPriceID
 			response.UnitsToSupply = totalPriceRequest.SelectedNumberOfUnits
 			response.TotalPrice = price.PricePerUnit.Amount * totalPriceRequest.SelectedNumberOfUnits
 			response.CurrencyCode = price.PricePerUnit.CurrencyCode
@@ -227,7 +227,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 		} else {
 
 			errorResponse := types.ErrorResponse{
-				Message: fmt.Sprintf("Price not found for id %d", totalPriceRequest.SelectedPriceId),
+				Message: fmt.Sprintf("Price not found for id %d", totalPriceRequest.SelectedPriceID),
 			}
 
 			returnMessage(w, http.StatusNotFound, errorResponse)

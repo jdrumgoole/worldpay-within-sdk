@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+
 	log "github.com/Sirupsen/logrus"
 	devclienttypes "innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
-	"io/ioutil"
 )
 
 func mGetDeviceInfo() error {
@@ -20,7 +21,7 @@ func mGetDeviceInfo() error {
 		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
-	fmt.Printf("Uid of device: %s\n", sdk.GetDevice().Uid)
+	fmt.Printf("Uid of device: %s\n", sdk.GetDevice().UID)
 	fmt.Printf("Name of device: %s\n", sdk.GetDevice().Name)
 	fmt.Printf("Description: %s\n", sdk.GetDevice().Description)
 	fmt.Printf("Services: \n")

@@ -1,16 +1,16 @@
 package rpc
-import (
 
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+import (
+	"errors"
+
 	log "github.com/Sirupsen/logrus"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
-	"errors"
 )
 
 type WPWithinHandler struct {
-
 	wpwithin wpwithin.WPWithin
 }
 
@@ -50,8 +50,8 @@ func (wp *WPWithinHandler) AddService(svc *wpthrift_types.Service) (err error) {
 	log.Debug("Begin RPC.WPWithinHandler.AddService()")
 
 	gSvc := &types.Service{
-		Id: int(svc.ID),
-		Name: svc.Name,
+		Id:          int(svc.ID),
+		Name:        svc.Name,
 		Description: svc.Description,
 	}
 
@@ -65,8 +65,8 @@ func (wp *WPWithinHandler) RemoveService(svc *wpthrift_types.Service) (err error
 	log.Debug("Begin RPC.WPWithinHandler.RemoveService()")
 
 	gSvc := &types.Service{
-		Id: int(svc.ID),
-		Name: svc.Name,
+		Id:          int(svc.ID),
+		Name:        svc.Name,
 		Description: svc.Description,
 	}
 
@@ -80,13 +80,13 @@ func (wp *WPWithinHandler) InitConsumer(scheme string, hostname string, port int
 	log.Debug("RPC.WPWithinHandler.InitConsumer()")
 
 	_hceCard := types.HCECard{
-		FirstName: hceCard.FirstName,
-		LastName: hceCard.LastName,
-		ExpMonth: hceCard.ExpMonth,
-		ExpYear: hceCard.ExpYear,
+		FirstName:  hceCard.FirstName,
+		LastName:   hceCard.LastName,
+		ExpMonth:   hceCard.ExpMonth,
+		ExpYear:    hceCard.ExpYear,
 		CardNumber: hceCard.CardNumber,
-		Type: hceCard.Type,
-		Cvc: hceCard.Cvc,
+		Type:       hceCard.Type,
+		Cvc:        hceCard.Cvc,
 	}
 
 	return wp.wpwithin.InitConsumer(scheme, hostname, int(port), urlPrefix, serviceId, &_hceCard)
@@ -96,8 +96,7 @@ func (wp *WPWithinHandler) InitProducer(merchantClientKey string, merchantServic
 
 	log.Debug("RPC.WPWithinHandler.InitProducer()")
 
-
-	go func(){
+	go func() {
 
 		wp.wpwithin.InitProducer(merchantClientKey, merchantServiceKey)
 
@@ -112,12 +111,12 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 
 	device := wp.wpwithin.GetDevice()
 
-	result := &wpthrift_types.Device {
+	result := &wpthrift_types.Device{
 
-		UID: device.Uid,
-		Name: device.Name,
+		UID:         device.UID,
+		Name:        device.Name,
 		Description: device.Description,
-		Services: make(map[int32]*wpthrift_types.Service, 0),
+		Services:    make(map[int32]*wpthrift_types.Service, 0),
 		Ipv4Address: device.IPv4Address,
 	}
 
@@ -144,13 +143,13 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 
 					thriftPrices[int32(svcPrice.ID)] = wpthrift_types.Price{
 
-						ID: int32(svcPrice.ID),
+						ID:          int32(svcPrice.ID),
 						Description: svcPrice.Description,
 						PricePerUnit: &wpthrift_types.PricePerUnit{
-							Amount: int32(svcPrice.PricePerUnit.Amount),
+							Amount:       int32(svcPrice.PricePerUnit.Amount),
 							CurrencyCode: svcPrice.PricePerUnit.CurrencyCode,
 						},
-						UnitId: int32(svcPrice.UnitID),
+						UnitId:          int32(svcPrice.UnitID),
 						UnitDescription: svcPrice.UnitDescription,
 					}
 				}
@@ -160,10 +159,10 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 
 			result.Services[int32(i)] = &wpthrift_types.Service{
 
-				ID: int32(svc.Id),
-				Name: svc.Name,
+				ID:          int32(svc.Id),
+				Name:        svc.Name,
 				Description: svc.Description,
-				Prices: thriftPrices,
+				Prices:      thriftPrices,
 			}
 		}
 
@@ -210,10 +209,10 @@ func (wp *WPWithinHandler) DeviceDiscovery(timeoutMillis int32) (r map[*wpthrift
 
 		tmp := &wpthrift_types.ServiceMessage{
 			DeviceDescription: gSvcMsg.DeviceDescription,
-			Hostname: gSvcMsg.Hostname,
-			PortNumber: int32(gSvcMsg.PortNumber),
-			ServerId: gSvcMsg.ServerID,
-			UrlPrefix: gSvcMsg.UrlPrefix,
+			Hostname:          gSvcMsg.Hostname,
+			PortNumber:        int32(gSvcMsg.PortNumber),
+			ServerId:          gSvcMsg.ServerID,
+			UrlPrefix:         gSvcMsg.UrlPrefix,
 		}
 
 		result[tmp] = true
@@ -240,7 +239,7 @@ func (wp *WPWithinHandler) RequestServices() (r map[*wpthrift_types.ServiceDetai
 	for _, gService := range gServices {
 
 		tmp := &wpthrift_types.ServiceDetails{
-			ServiceId: int32(gService.ServiceID),
+			ServiceId:          int32(gService.ServiceID),
 			ServiceDescription: gService.ServiceDescription,
 		}
 
@@ -268,13 +267,13 @@ func (wp *WPWithinHandler) GetServicePrices(serviceId int32) (r map[*wpthrift_ty
 	for _, gSvcPrice := range gSvcPrices {
 
 		tmp := &wpthrift_types.Price{
-			ID: int32(gSvcPrice.ID),
+			ID:          int32(gSvcPrice.ID),
 			Description: gSvcPrice.Description,
-			PricePerUnit: &wpthrift_types.PricePerUnit {
-				Amount: int32(gSvcPrice.PricePerUnit.Amount),
+			PricePerUnit: &wpthrift_types.PricePerUnit{
+				Amount:       int32(gSvcPrice.PricePerUnit.Amount),
 				CurrencyCode: gSvcPrice.PricePerUnit.CurrencyCode,
 			},
-			UnitId: int32(gSvcPrice.UnitID),
+			UnitId:          int32(gSvcPrice.UnitID),
 			UnitDescription: gSvcPrice.UnitDescription,
 		}
 
@@ -296,13 +295,13 @@ func (wp *WPWithinHandler) SelectService(serviceId int32, numberOfUnits int32, p
 	}
 
 	result := &wpthrift_types.TotalPriceResponse{
-		ServerId: gPriceResponse.ServerID,
-		ClientId: gPriceResponse.ClientID,
-		PriceId: int32(gPriceResponse.PriceID),
-		UnitsToSupply: int32(gPriceResponse.UnitsToSupply),
-		TotalPrice: int32(gPriceResponse.TotalPrice),
+		ServerId:           gPriceResponse.ServerID,
+		ClientId:           gPriceResponse.ClientID,
+		PriceId:            int32(gPriceResponse.PriceID),
+		UnitsToSupply:      int32(gPriceResponse.UnitsToSupply),
+		TotalPrice:         int32(gPriceResponse.TotalPrice),
 		PaymentReferenceId: gPriceResponse.PaymentReferenceID,
-		MerchantClientKey: gPriceResponse.MerchantClientKey,
+		MerchantClientKey:  gPriceResponse.MerchantClientKey,
 	}
 
 	log.Debug("End RPC.WPWithinHandler.SelectService()")
@@ -315,13 +314,13 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 	log.Debug("Begin RPC.WPWithinHandler.MakePayment()")
 
 	gRequest := types.TotalPriceResponse{
-		ServerID: request.ServerId,
-		ClientID: request.ClientId,
-		PriceID: int(request.PriceId),
-		UnitsToSupply: int(request.UnitsToSupply),
-		TotalPrice: int(request.TotalPrice),
+		ServerID:           request.ServerId,
+		ClientID:           request.ClientId,
+		PriceID:            int(request.PriceId),
+		UnitsToSupply:      int(request.UnitsToSupply),
+		TotalPrice:         int(request.TotalPrice),
 		PaymentReferenceID: request.PaymentReferenceId,
-		MerchantClientKey: request.MerchantClientKey,
+		MerchantClientKey:  request.MerchantClientKey,
 	}
 
 	log.Debug("Finised converting thrift.TotalPriceResponse to go.TotalPriceResponse")
@@ -338,19 +337,19 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 	// TODO create delivery token manually and assign to paymentresponse - need automatpping
 	deliveryToken := &wpthrift_types.ServiceDeliveryToken{
 
-		Key: gPaymentResponse.ServiceDeliveryToken.Key,
-		Issued: utils.TimeFormatISO(gPaymentResponse.ServiceDeliveryToken.Issued),
-		Expiry: utils.TimeFormatISO(gPaymentResponse.ServiceDeliveryToken.Expiry),
+		Key:            gPaymentResponse.ServiceDeliveryToken.Key,
+		Issued:         utils.TimeFormatISO(gPaymentResponse.ServiceDeliveryToken.Issued),
+		Expiry:         utils.TimeFormatISO(gPaymentResponse.ServiceDeliveryToken.Expiry),
 		RefundOnExpiry: gPaymentResponse.ServiceDeliveryToken.RefundOnExpiry,
-		Signature: gPaymentResponse.ServiceDeliveryToken.Signature,
+		Signature:      gPaymentResponse.ServiceDeliveryToken.Signature,
 	}
 
 	result := &wpthrift_types.PaymentResponse{
-		ServerId: gPaymentResponse.ServerID,
-		ClientId: gPaymentResponse.ClientID,
-		TotalPaid: int32(gPaymentResponse.TotalPaid),
+		ServerId:             gPaymentResponse.ServerID,
+		ClientId:             gPaymentResponse.ClientID,
+		TotalPaid:            int32(gPaymentResponse.TotalPaid),
 		ServiceDeliveryToken: deliveryToken,
-		ClientUUID: gPaymentResponse.ClientUUID,
+		ClientUUID:           gPaymentResponse.ClientUUID,
 	}
 
 	log.Debug("End RPC.WPWithinHandler.MakePayment()")

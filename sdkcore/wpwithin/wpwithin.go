@@ -320,7 +320,7 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 
 		DeviceDescription: wp.core.Device.Description,
 		Hostname:          wp.core.HTE.IPAddr(),
-		ServerID:          wp.core.Device.Uid,
+		ServerID:          wp.core.Device.UID,
 		UrlPrefix:         wp.core.HTE.UrlPrefix(),
 		PortNumber:        wp.core.HTE.Port(),
 	}
