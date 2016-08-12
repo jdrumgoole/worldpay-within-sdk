@@ -2,13 +2,20 @@ var wpwithin = require('./wpwithin');
 var types = require('./types/types');
 var typesConverter = require('./types/converter');
 
-client = wpwithin.createClient("localhost", 9090, null);
+client = wpwithin.createClient("localhost", 9090, function(err, response){
+
+  console.log("Err: " + err)
+  console.log("Response: " + response);
+});
+
+
 
 client.setup("conor-njs", "conors node.js client", function(err, response){
 
   console.log("setup.callback.err: %j", err);
   console.log("setup.callback.response: %j", response);
 
+  console.log("Calling discoer devices...");
   discoverDevices();
 });
 

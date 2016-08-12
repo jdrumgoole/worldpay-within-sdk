@@ -6,6 +6,7 @@ function WPWithin(thriftClient) {
 
   this.thriftClient = thriftClient;
 
+  this.startRPC = fnStartRPC;
   this.setup = fnSetup;
   this.addService = fnAddService;
   this.removeService = fnRemoveService;
@@ -166,6 +167,13 @@ function createClient(host, port, callback) {
 
   try {
 
+    fnStartRPC(port, function(err, stdout, stderr) {
+
+      console.log("Err: ", err);
+      console.log("STDOUT: ", stdout);
+      console.log("STDERR: ", stderr);
+    });
+
     var thrift = require('thrift');
     var WPWithinLib = require('./wpwithin-thrift/WPWithin');
 
@@ -185,6 +193,15 @@ function createClient(host, port, callback) {
 
   } catch (err) {
 
+    console.log("Caught error: %s", err)
+
     callback(err, null);
   }
 };
+
+function fnStartRPC(port) {
+
+  var rpc = require('./rpc');
+
+  rpc.startRPC(port);
+}
