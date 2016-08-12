@@ -48,9 +48,3 @@ The RPC client takes command line flags e.g. -port 9091 but it can also take the
 
 
 # Next steps
-
-* Document, document, document...
-* Will programatically add feedback Mustafa Kasmani, Andy Brodie to start discussion on features, security concerns etc
-* Did I already say documentation - need to convert Architecture document to HTML/XML based format. Also need to comment Go core and auto generate via GoDoc.
-* Andy Brodie will be kindly developing a C# wrapper library via the RPC interface
-* Conor H to convert the reference Java application into a wrapper library.
