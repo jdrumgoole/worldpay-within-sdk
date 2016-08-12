@@ -1,18 +1,19 @@
 package servicediscovery
+
 import (
 	"fmt"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"encoding/json"
+
+	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 type scannerImpl struct {
-
-	run bool /* Used to stop scanning before timeout */
-	stepSleep int /* Time to sleep before connection reads */
-	comm Communicator
+	run       bool /* Used to stop scanning before timeout */
+	stepSleep int  /* Time to sleep before connection reads */
+	comm      Communicator
 }
 
 func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.ServiceMessage, error) {
@@ -22,7 +23,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 		informing when scanning is finished.
 		Inside the result is an error object and also a list of scanned services
 		Error is != nil if there was a problem
-	 */
+	*/
 
 	log.Debugf("Begin ScanForServices(timeout = %d)", timeout)
 
@@ -52,7 +53,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 		defer srvConn.Close()
 
 		// Wait for incoming message
-		srvConn.SetProperty("ReadDeadLine", time.Now().Add(time.Duration(scanner.stepSleep) * time.Millisecond))
+		srvConn.SetProperty("ReadDeadLine", time.Now().Add(time.Duration(scanner.stepSleep)*time.Millisecond))
 
 		nRecv, addrRecv, err := srvConn.Read(buf)
 
@@ -69,7 +70,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 
 			// Try to deserialize the message into a broadcast message
 			// NB: Anybody can send a message here so not all messages are expected to be valid
-			err = json.Unmarshal(buf[0:nRecv], &msg);
+			err = json.Unmarshal(buf[0:nRecv], &msg)
 
 			if err != nil {
 
@@ -86,7 +87,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 		timedOut = timeoutTime.Unix() <= time.Now().Unix()
 	}
 
-	log.WithFields(log.Fields{ "Timed out": timedOut, "Run": scanner.run, "Found": len(result)}).Debug("Finish ScanForServices()")
+	log.WithFields(log.Fields{"Timed out": timedOut, "Run": scanner.run, "Found": len(result)}).Debug("Finish ScanForServices()")
 
 	return result, nil
 }

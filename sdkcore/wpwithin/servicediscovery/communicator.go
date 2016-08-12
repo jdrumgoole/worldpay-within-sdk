@@ -1,50 +1,47 @@
 package servicediscovery
+
 import (
-	"net"
-	"time"
-	"strings"
 	"errors"
+	"net"
+	"strings"
+	"time"
 )
 
 // TODO CH : This is largely linked to UDP I/O at the moment - should generalise further
 
 // Abstracted means of communication ..  Should allow for I/O over UDP/TCP/NFC/Bluetooth etc
 type Communicator interface {
-
 	Listen() (Connection, error)
 	Connect(host string, port int) (Connection, error)
 }
 
 // Abstracted connection
 type Connection interface {
-
 	Read([]byte) (int, string, error)
 	Write([]byte) (int, error)
 	Close() error
 	SetProperty(key string, value interface{}) error
 }
 
-// A UDP Communicator
+// UDPComm A UDP Communicator
 type UDPComm struct {
-
 	protocol string
-	port int
-	udpConn *UDPConn
+	port     int
+	udpConn  *UDPConn
 }
 
-// A wrapped UDP connection - to allow mocking
+// UDPConn A wrapped UDP connection - to allow mocking
 type UDPConn struct {
-
 	conn *net.UDPConn
 }
 
-// Create a new UDP Communicator
+// NewUDPComm Create a new UDP Communicator
 // Port is the port to communicate on and the protocol is the protocol required i.e. udp, udp4, udp6
 func NewUDPComm(port int, protocol string) (Communicator, error) {
 
 	result := &UDPComm{
 		protocol: protocol,
-		port: port,
+		port:     port,
 	}
 
 	return result, nil
@@ -53,7 +50,7 @@ func NewUDPComm(port int, protocol string) (Communicator, error) {
 func (pc *UDPComm) Listen() (Connection, error) {
 
 	srvAddr := &net.UDPAddr{
-		IP: net.IPv4allrouter,
+		IP:   net.IPv4allrouter,
 		Port: pc.port,
 	}
 
@@ -74,7 +71,7 @@ func (pc *UDPComm) Listen() (Connection, error) {
 func (pc *UDPComm) Connect(host string, port int) (Connection, error) {
 
 	_udpConn, err := net.DialUDP(pc.protocol, nil, &net.UDPAddr{
-		IP: net.ParseIP(host),
+		IP:   net.ParseIP(host),
 		Port: port,
 	})
 
@@ -110,9 +107,7 @@ func (conn *UDPConn) SetProperty(key string, value interface{}) error {
 
 		return conn.conn.SetDeadline(value.(time.Time))
 
-	} else {
-
-		return errors.New("Property not found...")
 	}
-}
 
+	return errors.New("Property not found...")
+}

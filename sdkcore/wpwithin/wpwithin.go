@@ -375,7 +375,7 @@ func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessa
 		}
 	}()
 
-	svcResults := make([]types.ServiceMessage, 0)
+	var svcResults []types.ServiceMessage
 
 	if scanResult, err := wp.core.SvcScanner.ScanForServices(timeoutMillis); err != nil {
 
@@ -405,7 +405,7 @@ func (wp *wpWithinImpl) GetServicePrices(serviceID int) ([]types.Price, error) {
 		}
 	}()
 
-	result := make([]types.Price, 0)
+	var result []types.Price
 
 	priceResponse, err := wp.core.HTEClient.GetPrices(serviceID)
 
@@ -474,7 +474,7 @@ func (wp *wpWithinImpl) RequestServices() ([]types.ServiceDetails, error) {
 		}
 	}()
 
-	result := make([]types.ServiceDetails, 0)
+	var result []types.ServiceDetails
 
 	serviceResponse, err := wp.core.HTEClient.DiscoverServices()
 

@@ -1,4 +1,5 @@
 package wslog
+
 import "html/template"
 
 var homeTemplate = template.Must(template.New("").Parse(`

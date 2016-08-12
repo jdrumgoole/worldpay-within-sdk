@@ -1,26 +1,27 @@
 package wslog
 
 import (
+	"errors"
+	"fmt"
+	"net/http"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/websocket"
-	"net/http"
-	"fmt"
-	"time"
-	"errors"
 )
 
-// A logrus hook to enable outputting logs to web browser via Web Socket
+// WSHook A logrus hook to enable outputting logs to web browser via Web Socket
 // Websocket implementation by Kevin Gordon Worldpay
-
 type WSHook struct {
-
-	ip string
-	port int
-	levels []log.Level
+	ip       string
+	port     int
+	levels   []log.Level
 	upgrader websocket.Upgrader
-	wsConn *websocket.Conn
+	wsConn   *websocket.Conn
 }
 
+// Initialise initialise the logger by specifing the IP and Port to listen on
+// along with the levels to log out to
 func Initialise(ip string, port int, levels []log.Level) error {
 
 	hook := new(WSHook)
@@ -45,11 +46,13 @@ func Initialise(ip string, port int, levels []log.Level) error {
 	return nil
 }
 
+// Levels avalable log levels
 func (hook *WSHook) Levels() []log.Level {
 
 	return hook.levels
 }
 
+// Fire fire an event
 func (hook *WSHook) Fire(entry *log.Entry) error {
 
 	var err error
@@ -72,9 +75,10 @@ func (hook *WSHook) wsHome(w http.ResponseWriter, r *http.Request) {
 	homeTemplate.Execute(w, data)
 }
 
+// SocketClosedMsg build a message notifying that the socket is closed
 func (hook *WSHook) SocketClosedMsg() string {
 
-	return fmt.Sprintf("Please open %s:%d in your browser and click Open to view logs", hook.ip, hook.port);
+	return fmt.Sprintf("Please open %s:%d in your browser and click Open to view logs", hook.ip, hook.port)
 }
 
 func (hook *WSHook) wsConnect(w http.ResponseWriter, r *http.Request) {

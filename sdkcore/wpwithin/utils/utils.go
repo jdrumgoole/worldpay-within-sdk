@@ -1,12 +1,14 @@
 package utils
+
 import (
-	"github.com/nu7hatch/gouuid"
-	"os"
 	"bufio"
+	"os"
 	"time"
+
+	"github.com/nu7hatch/gouuid"
 )
 
-// Generate a new UUID
+// NewUUID Generate a new UUID
 // This function outputs a version 4 (Random) UUID as per https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_.28random.29
 func NewUUID() (string, error) {
 
@@ -20,7 +22,7 @@ func NewUUID() (string, error) {
 	return uuid.String(), nil
 }
 
-// Read a local UUID value
+// ReadLocalUUID Read a local UUID value
 // Input a file path that contains the UUID string, only on one line with no line break
 func ReadLocalUUID(path string) (string, error) {
 
@@ -45,7 +47,7 @@ func ReadLocalUUID(path string) (string, error) {
 	return string(line), nil
 }
 
-// Checks if a path exists (Directory or File)
+// FileExists Checks if a path exists (Directory or File)
 // Returns true if exists, false if not
 func FileExists(path string) (bool, error) {
 
@@ -57,12 +59,12 @@ func FileExists(path string) (bool, error) {
 	return true, nil
 }
 
-// Write a string to a file
+// WriteString Write a string to a file
 // Input the path to file and input string to be written
 // Set truncate to true if you would like to truncate the file before writing or false if appending is desired
 func WriteString(path, input string, truncate bool) error {
 
-	flags := os.O_RDWR|os.O_CREATE
+	flags := os.O_RDWR | os.O_CREATE
 
 	if truncate {
 
@@ -78,7 +80,7 @@ func WriteString(path, input string, truncate bool) error {
 		return err
 	}
 
-	defer file.Close();
+	defer file.Close()
 
 	_, err = file.Write([]byte(input))
 
@@ -97,6 +99,7 @@ func WriteString(path, input string, truncate bool) error {
 	return nil
 }
 
+// TimeFormatISO convert an instance of time.time into an ISO8601 formatted timestamp
 func TimeFormatISO(input time.Time) string {
 
 	return input.Format("2006-01-02T15:04:05Z")

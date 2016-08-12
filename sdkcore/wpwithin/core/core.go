@@ -1,22 +1,22 @@
 package core
+
 import (
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 // SDK Core - This acts as a container for dependencies of the SDK
 type Core struct {
-
-	Device *types.Device
-	Psp psp.Psp
+	Device         *types.Device
+	Psp            psp.Psp
 	SvcBroadcaster servicediscovery.Broadcaster
-	SvcScanner servicediscovery.Scanner
-	HTE hte.Service
-	HCECard *types.HCECard
-	OrderManager hte.OrderManager
-	HTEClient hte.Client
+	SvcScanner     servicediscovery.Scanner
+	HTE            hte.Service
+	HCECard        *types.HCECard
+	OrderManager   hte.OrderManager
+	HTEClient      hte.Client
 }
 
 // Create a new Core

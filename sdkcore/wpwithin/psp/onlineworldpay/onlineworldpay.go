@@ -1,32 +1,33 @@
 package onlineworldpay
+
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"encoding/json"
-	"net/http"
-	"bytes"
 	"io/ioutil"
+	"net/http"
+	"strconv"
 	"strings"
+
 	log "github.com/Sirupsen/logrus"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay/types"
 	wpwithin_types "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
-	"strconv"
 )
 
 type OnlineWorldpay struct {
-
-	MerchantClientKey string
+	MerchantClientKey  string
 	MerchantServiceKey string
-	apiEndpoint string
+	apiEndpoint        string
 }
 
 func NewMerchant(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp.Psp, error) {
 
 	result := &OnlineWorldpay{
-		MerchantClientKey:merchantClientKey,
-		MerchantServiceKey:merchantServiceKey,
-		apiEndpoint:apiEndpoint,
+		MerchantClientKey:  merchantClientKey,
+		MerchantServiceKey: merchantServiceKey,
+		apiEndpoint:        apiEndpoint,
 	}
 
 	return result, nil
@@ -35,7 +36,7 @@ func NewMerchant(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp
 func NewClient(apiEndpoint string) (psp.Psp, error) {
 
 	result := &OnlineWorldpay{
-		apiEndpoint:apiEndpoint,
+		apiEndpoint: apiEndpoint,
 	}
 
 	return result, nil
@@ -43,53 +44,53 @@ func NewClient(apiEndpoint string) (psp.Psp, error) {
 
 func (owp *OnlineWorldpay) GetToken(hceCredentials *wpwithin_types.HCECard, clientKey string, reusableToken bool) (string, error) {
 
-	if(reusableToken) {
+	if reusableToken {
 		// TODO: CH - support reusable token by storing the value (along with merchant client key so link to a merchant) within the car so that token can be re-used if present, or created if not
 		return "", errors.New("Reusable token support not implemented")
 	}
 
 	paymentMethod := types.TokenRequestPaymentMethod{
-		Name: fmt.Sprintf("%s %s", hceCredentials.FirstName, hceCredentials.LastName),
-		ExpiryMonth:hceCredentials.ExpMonth,
-		ExpiryYear:hceCredentials.ExpYear,
-		CardNumber:hceCredentials.CardNumber,
-		Type:hceCredentials.Type,
-		Cvc:hceCredentials.Cvc,
-		StartMonth:nil,
-		StartYear:nil,
+		Name:        fmt.Sprintf("%s %s", hceCredentials.FirstName, hceCredentials.LastName),
+		ExpiryMonth: hceCredentials.ExpMonth,
+		ExpiryYear:  hceCredentials.ExpYear,
+		CardNumber:  hceCredentials.CardNumber,
+		Type:        hceCredentials.Type,
+		Cvc:         hceCredentials.Cvc,
+		StartMonth:  nil,
+		StartYear:   nil,
 	}
 
 	tokenRequest := types.TokenRequest{
-		Reusable:reusableToken,
-		PaymentMethod:paymentMethod,
-		ClientKey:clientKey,
+		Reusable:      reusableToken,
+		PaymentMethod: paymentMethod,
+		ClientKey:     clientKey,
 	}
 
-	bJson, err := json.Marshal(tokenRequest)
+	bJSON, err := json.Marshal(tokenRequest)
 
 	if err != nil {
 
 		return "", err
 	}
 
-	log.WithField("TokenRequest", string(bJson)).Debug("POST Request Token.")
+	log.WithField("TokenRequest", string(bJSON)).Debug("POST Request Token.")
 
-	reqUrl := fmt.Sprintf("%s/tokens", owp.apiEndpoint)
+	reqURL := fmt.Sprintf("%s/tokens", owp.apiEndpoint)
 
 	var tokenResponse types.TokenResponse
 
-	log.WithFields(log.Fields{ "Url": reqUrl,
-		"RequestJSON": string(bJson) }).Debug("Sending Token POST request.")
+	log.WithFields(log.Fields{"Url": reqURL,
+		"RequestJSON": string(bJSON)}).Debug("Sending Token POST request.")
 
-	err = post(reqUrl, bJson, make(map[string]string, 0), &tokenResponse)
+	err = post(reqURL, bJSON, make(map[string]string, 0), &tokenResponse)
 
 	return tokenResponse.Token, err
 }
 
 func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, orderDescription, customerOrderCode string) (string, error) {
 
-	log.WithFields(log.Fields{ "Amount": strconv.Itoa(amount), "CurrencyCode": currencyCode, "ClientToken": clientToken,
-		"OrderDescription": orderDescription, "CustomerOrderCode": customerOrderCode }).Debug("Begin OWP MakePayment")
+	log.WithFields(log.Fields{"Amount": strconv.Itoa(amount), "CurrencyCode": currencyCode, "ClientToken": clientToken,
+		"OrderDescription": orderDescription, "CustomerOrderCode": customerOrderCode}).Debug("Begin OWP MakePayment")
 
 	if clientToken == "" {
 
@@ -106,25 +107,25 @@ func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, or
 
 	orderRequest := types.OrderRequest{
 
-		Token:clientToken,
-		Amount:amount,
-		CurrencyCode:currencyCode,
-		OrderDescription:orderDescription,
-		CustomerOrderCode:customerOrderCode,
+		Token:             clientToken,
+		Amount:            amount,
+		CurrencyCode:      currencyCode,
+		OrderDescription:  orderDescription,
+		CustomerOrderCode: customerOrderCode,
 	}
 
-	bJson, err := json.Marshal(orderRequest)
+	bJSON, err := json.Marshal(orderRequest)
 
 	if err != nil {
 
 		return "", err
 	}
 
-	log.WithField("JSON", string(bJson)).Debug("JSON form of OrderRequest object.")
+	log.WithField("JSON", string(bJSON)).Debug("JSON form of OrderRequest object.")
 
-	reqUrl := fmt.Sprintf("%s/orders", owp.apiEndpoint)
+	reqURL := fmt.Sprintf("%s/orders", owp.apiEndpoint)
 
-	log.WithFields(log.Fields{ "Request URL": reqUrl, "MerchantSvcKey": owp.MerchantServiceKey }).Debug("Using OWP parameters")
+	log.WithFields(log.Fields{"Request URL": reqURL, "MerchantSvcKey": owp.MerchantServiceKey}).Debug("Using OWP parameters")
 
 	var orderResponse types.OrderResponse
 
@@ -132,10 +133,10 @@ func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, or
 
 	headers["Authorization"] = owp.MerchantServiceKey
 
-	log.WithFields(log.Fields{ "Url": reqUrl,
-		"RequestJSON": string(bJson) }).Debug("Sending Order POST request.")
+	log.WithFields(log.Fields{"Url": reqURL,
+		"RequestJSON": string(bJSON)}).Debug("Sending Order POST request.")
 
-	err = post(reqUrl, bJson, headers, &orderResponse)
+	err = post(reqURL, bJSON, headers, &orderResponse)
 
 	if err != nil {
 
@@ -145,10 +146,9 @@ func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, or
 	if strings.EqualFold(orderResponse.PaymentStatus, "SUCCESS") {
 
 		return orderResponse.OrderCode, nil
-	} else {
-
-		return "", errors.New(fmt.Sprintf("Payment failed for customer order %s ", orderResponse.CustomerOrderCode))
 	}
+
+	return "", fmt.Errorf("Payment failed for customer order %s ", orderResponse.CustomerOrderCode)
 }
 
 func post(url string, requestBody []byte, headers map[string]string, v interface{}) error {
@@ -196,9 +196,9 @@ func post(url string, requestBody []byte, headers map[string]string, v interface
 
 		if err := json.Unmarshal(respBody, &wpErr); err == nil {
 
-			log.WithFields(log.Fields{ "Message": wpErr.Message, "Description": wpErr.Description, "CustomCode": wpErr.CustomCode, "HTTP Status Code": wpErr.HttpStatusCode, "HelpUrl": wpErr.ErrorHelpUrl }).Debug("** POST Response")
+			log.WithFields(log.Fields{"Message": wpErr.Message, "Description": wpErr.Description, "CustomCode": wpErr.CustomCode, "HTTP Status Code": wpErr.HTTPStatusCode, "HelpUrl": wpErr.ErrorHelpURL}).Debug("** POST Response")
 
-			return errors.New(fmt.Sprintf("HTTP Status: %d - CustomCode: %s - Message: %s", wpErr.HttpStatusCode, wpErr.CustomCode, wpErr.Message))
+			return fmt.Errorf("HTTP Status: %d - CustomCode: %s - Message: %s", wpErr.HTTPStatusCode, wpErr.CustomCode, wpErr.Message)
 		}
 	}
 

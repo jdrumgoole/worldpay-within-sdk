@@ -1,24 +1,24 @@
 package hte
+
 import (
-"bytes"
-"net/http"
+	"bytes"
 	"io/ioutil"
+	"net/http"
 )
 
 type HTEClientHTTP interface {
-
 	Get(url string) ([]byte, error)
 	PostJSON(url string, postBody []byte) ([]byte, int, error)
 }
 
-type HTEClientHTTPImpl struct { }
+type HTEClientHTTPImpl struct{}
 
 func NewHTEClientHTTP() (HTEClientHTTP, error) {
 
 	return &HTEClientHTTPImpl{}, nil
 }
 
-// Helper function to make a HTTP GET request
+// Get Helper function to make a HTTP GET request
 func (client *HTEClientHTTPImpl) Get(url string) ([]byte, error) {
 
 	response, err := http.Get(url)
@@ -38,8 +38,8 @@ func (client *HTEClientHTTPImpl) Get(url string) ([]byte, error) {
 	return byteResponse, nil
 }
 
-// Helper function to make a http POST request
-func (_client *HTEClientHTTPImpl) PostJSON(url string, postBody []byte) ([]byte, int, error) {
+// PostJSON Helper function to make a http POST request
+func (client *HTEClientHTTPImpl) PostJSON(url string, postBody []byte) ([]byte, int, error) {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(postBody))
 
@@ -50,9 +50,9 @@ func (_client *HTEClientHTTPImpl) PostJSON(url string, postBody []byte) ([]byte,
 
 	req.Header.Add("Content-Type", "application/json")
 
-	client := &http.Client{}
+	_client := &http.Client{}
 
-	resp, err := client.Do(req)
+	resp, err := _client.Do(req)
 
 	if err != nil {
 

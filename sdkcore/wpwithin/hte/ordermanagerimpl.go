@@ -1,12 +1,13 @@
 package hte
+
 import (
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"errors"
+
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 // Concrete implementation of order manager.. uses an in memory persistence for orders
 type OrderManagerImpl struct {
-
 	orders map[string]types.Order
 }
 
@@ -36,19 +37,18 @@ func (om *OrderManagerImpl) GetOrder(paymentReference string) (types.Order, erro
 	if order, ok := om.orders[paymentReference]; ok {
 
 		return order, nil
-	} else {
-
-		return types.Order{}, errors.New("Order not found")
 	}
+
+	return types.Order{}, errors.New("Order not found")
 }
 
 func (om *OrderManagerImpl) OrderExists(paymentReference string) bool {
-	
+
 	if _, found := om.orders[paymentReference]; found {
 
 		return true
-	} else {
-
-		return false
 	}
+
+	return false
+
 }

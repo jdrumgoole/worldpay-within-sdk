@@ -1,30 +1,30 @@
 package hte
+
 import (
-"github.com/gorilla/mux"
-"net/http"
 	"fmt"
+	"net/http"
+
+	"github.com/gorilla/mux"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 // Concrete Implementation of HTE service
 type ServiceImpl struct {
-
-	router *mux.Router
-	_IPv4Address string
-	_Port int
-	_UrlPrefix string
-	routes []Route
-	handler *ServiceHandler
+	router        *mux.Router
+	_IPv4Address  string
+	_Port         int
+	_UrlPrefix    string
+	routes        []Route
+	handler       *ServiceHandler
 	HTECredential *Credential
-	orderManager OrderManager
+	orderManager  OrderManager
 }
 
 type Route struct {
-
-	Name string
-	Method string
-	Pattern string
+	Name        string
+	Method      string
+	Pattern     string
 	HandlerFunc http.HandlerFunc
 }
 
@@ -46,10 +46,10 @@ func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, 
 	for _, route := range service.routes {
 
 		service.router.
-		Methods(route.Method).
-		Path(route.Pattern).
-		Name(route.Name).
-		Handler(route.HandlerFunc)
+			Methods(route.Method).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(route.HandlerFunc)
 	}
 
 	return service, nil

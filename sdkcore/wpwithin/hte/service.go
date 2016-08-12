@@ -1,6 +1,6 @@
 package hte
 
-// HTE Service
+// Service HTE Service
 type Service interface {
 
 	// Start the HTE service to allow consumer connect

@@ -1,25 +1,26 @@
 package hte
+
 import (
-	"net/http"
-"encoding/json"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
-	"github.com/gorilla/mux"
+	"encoding/json"
 	"fmt"
-	"strconv"
-	"io/ioutil"
 	"io"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
+	"io/ioutil"
+	"net/http"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
 // Coordinate requests between RPC interface and internal SDK interface
 type ServiceHandler struct {
-
-	device *types.Device
-	psp psp.Psp
-	credential *Credential
+	device       *types.Device
+	psp          psp.Psp
+	credential   *Credential
 	orderManager OrderManager
 }
 
@@ -27,9 +28,9 @@ type ServiceHandler struct {
 func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential, orderManager OrderManager) *ServiceHandler {
 
 	result := &ServiceHandler{
-		device: device,
-		psp: psp,
-		credential: credential,
+		device:       device,
+		psp:          psp,
+		credential:   credential,
 		orderManager: orderManager,
 	}
 
@@ -48,19 +49,19 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 		}
 	}()
 
-	responseServices := make([]types.ServiceDetails, 0)
+	var responseServices []types.ServiceDetails
 
 	for _, srv := range srv.device.Services {
 
 		responseServices = append(responseServices, types.ServiceDetails{
-			ServiceID:srv.Id,
-			ServiceDescription:srv.Description,
+			ServiceID:          srv.Id,
+			ServiceDescription: srv.Description,
 		})
 	}
 
 	response := types.ServiceListResponse{
-		Services:responseServices,
-		ServerID:srv.device.Uid,
+		Services: responseServices,
+		ServerID: srv.device.UID,
 	}
 
 	returnMessage(w, http.StatusOK, response)
@@ -80,7 +81,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 
 	// Parse variables from request
 	reqVars := mux.Vars(r)
-	svcId, err := strconv.Atoi(reqVars["service_id"])
+	svcID, err := strconv.Atoi(reqVars["service_id"])
 
 	if err != nil {
 
@@ -92,10 +93,10 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if svc, ok := srv.device.Services[svcId]; ok {
+	if svc, ok := srv.device.Services[svcID]; ok {
 
 		response := types.ServicePriceResponse{}
-		response.ServerID = srv.device.Uid
+		response.ServerID = srv.device.UID
 
 		for _, price := range svc.Prices() {
 
@@ -107,7 +108,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 	} else {
 
 		errorResponse := types.ErrorResponse{
-			Message: fmt.Sprintf("Service not found for id %d", svcId),
+			Message: fmt.Sprintf("Service not found for id %d", svcID),
 		}
 
 		returnMessage(w, http.StatusNotFound, errorResponse)
@@ -128,7 +129,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 	// Parse variables from URI
 	reqVars := mux.Vars(r)
-	svcId, err := strconv.Atoi(reqVars["service_id"])
+	svcID, err := strconv.Atoi(reqVars["service_id"])
 
 	if err != nil {
 
@@ -170,16 +171,16 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			Message: "Unable to parse POST body",
 		}
 
-		returnMessage(w, 422/*Unprocessable Entity*/, errorResponse)
+		returnMessage(w, 422 /*Unprocessable Entity*/, errorResponse)
 		return
 	}
 
-	if svc, ok := srv.device.Services[svcId]; ok {
+	if svc, ok := srv.device.Services[svcID]; ok {
 
 		if price, ok := svc.Prices()[totalPriceRequest.SelectedPriceId]; ok {
 
 			response := types.TotalPriceResponse{}
-			response.ServerID = srv.device.Uid
+			response.ServerID = srv.device.UID
 			response.ClientID = totalPriceRequest.ClientID
 			response.PriceID = totalPriceRequest.SelectedPriceId
 			response.UnitsToSupply = totalPriceRequest.SelectedNumberOfUnits
@@ -199,13 +200,13 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			response.PaymentReferenceID = payRef
 
 			order := types.Order{
-				PaymentReference:payRef,
-				TotalPrice:response.TotalPrice,
-				ClientID:response.ClientID,
-				SelectedNumberOfUnits:response.UnitsToSupply,
-				SelectedPriceId:response.PriceID,
-				ServiceID:svcId,
-				ClientUUID:totalPriceRequest.ClientUUID,
+				PaymentReference:      payRef,
+				TotalPrice:            response.TotalPrice,
+				ClientID:              response.ClientID,
+				SelectedNumberOfUnits: response.UnitsToSupply,
+				SelectedPriceId:       response.PriceID,
+				ServiceID:             svcID,
+				ClientUUID:            totalPriceRequest.ClientUUID,
 			}
 
 			err = srv.orderManager.AddOrder(order)
@@ -213,7 +214,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			if err != nil {
 
 				errorResponse := types.ErrorResponse{
-					Message:"Unable to add order to local store",
+					Message: "Unable to add order to local store",
 				}
 
 				returnMessage(w, http.StatusInternalServerError, errorResponse)
@@ -235,7 +236,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 	} else {
 
 		errorResponse := types.ErrorResponse{
-			Message: fmt.Sprintf("Service not found for id %d", svcId),
+			Message: fmt.Sprintf("Service not found for id %d", svcID),
 		}
 
 		returnMessage(w, http.StatusNotFound, errorResponse)
@@ -284,7 +285,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 			Message: "Unable to parse POST body",
 		}
 
-		returnMessage(w, 422/*HTTP Status Code: Unprocessable Entity*/, errorResponse)
+		returnMessage(w, 422 /*HTTP Status Code: Unprocessable Entity*/, errorResponse)
 		return
 	}
 
@@ -317,7 +318,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 
 				errorResponse := types.ErrorResponse{
-					Message:"Unable to process payment with gateway at this time",
+					Message: "Unable to process payment with gateway at this time",
 				}
 
 				returnMessage(w, http.StatusInternalServerError, errorResponse)
@@ -327,19 +328,19 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 				// TODO currently creating delivery token manually and assign to paymentresponse - this should be automapped.
 				deliveryToken := &types.ServiceDeliveryToken{
 
-					Key: paymentOrderCode, // TODO cryptographically secure, random key generation.
-					Issued: time.Now(),
-					Expiry: time.Now().Add(time.Duration(24 * time.Hour)), // TODO add a value DeliveryToken lifetime (MINS) into the Service struct. 0 should be unlimited.
-					RefundOnExpiry: false, // TODO Map this into the Service Struct
-					Signature: nil, // TODO implement HMAC generation scheme.
+					Key:            paymentOrderCode, // TODO cryptographically secure, random key generation.
+					Issued:         time.Now(),
+					Expiry:         time.Now().Add(time.Duration(24 * time.Hour)), // TODO add a value DeliveryToken lifetime (MINS) into the Service struct. 0 should be unlimited.
+					RefundOnExpiry: false,                                         // TODO Map this into the Service Struct
+					Signature:      nil,                                           // TODO implement HMAC generation scheme.
 				}
 
 				paymentResponse := types.PaymentResponse{
-					ClientID: order.ClientID,
-					ServerID: srv.device.Uid,
-					TotalPaid: order.TotalPrice,
+					ClientID:             order.ClientID,
+					ServerID:             srv.device.UID,
+					TotalPaid:            order.TotalPrice,
 					ServiceDeliveryToken: deliveryToken,
-					ClientUUID: order.ClientUUID,
+					ClientUUID:           order.ClientUUID,
 				}
 
 				// TODO CH - Save paymentOrderCode to the order

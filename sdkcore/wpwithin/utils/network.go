@@ -1,12 +1,13 @@
 package utils
+
 import (
 	"errors"
-	"net"
 	"fmt"
+	"net"
 	"reflect"
 )
 
-// Return the IPv4 external address of this device.
+// ExternalIPv4 Return the IPv4 external address of this device.
 // Note external does not necessarily mean WAN IP. On most networks it will be the LAN IP of device as opposed
 // to internal localhost address (127.0.0.1)
 func ExternalIPv4() (net.IP, error) {
@@ -48,6 +49,7 @@ func ExternalIPv4() (net.IP, error) {
 	return nil, errors.New("Device does not appear to be network connected.")
 }
 
+// NetMask get current netmask
 func NetMask() (net.IPMask, error) {
 
 	ifaces, err := net.Interfaces()
@@ -62,20 +64,6 @@ func NetMask() (net.IPMask, error) {
 		if iface.Flags&net.FlagLoopback != 0 {
 			continue // loopback interface
 		}
-
-//		mAddrs, err := iface.Addrs()
-//
-//		if err != nil {
-//
-//			return nil, err
-//		}
-
-//		for _, addr := range mAddrs {
-//
-//			fmt.Println(addr)
-//		}
-//
-//		fmt.Println("---")
 
 		addrs, err := iface.Addrs()
 		if err != nil {
@@ -93,7 +81,7 @@ func NetMask() (net.IPMask, error) {
 
 					ones, _ := v.Mask.Size()
 
-					i := ones/8
+					i := ones / 8
 
 					for j := 1; j <= i; j++ {
 
@@ -107,7 +95,6 @@ func NetMask() (net.IPMask, error) {
 							fmt.Println(".0")
 						}
 					}
-
 
 					fmt.Printf("V %s\n", v)
 					fmt.Printf("Type %s\n", reflect.TypeOf(v))

@@ -1,40 +1,41 @@
 package hte
+
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
-"encoding/json"
 	"net/http"
+
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 // Concrete implementation of HTEClient
 type clientImpl struct {
-
-	scheme string
-	host string
-	port int
-	urlPrefix string
-	clientId string
-	baseUrl string
+	scheme     string
+	host       string
+	port       int
+	urlPrefix  string
+	clientID   string
+	baseURL    string
 	httpClient HTEClientHTTP
 }
 
-// Initialise a new HTE Client
-func NewClient(scheme, host string, port int, urlPrefix string, clientId string, httpClient HTEClientHTTP) (Client, error) {
+// NewClient Initialise a new HTE Client
+func NewClient(scheme, host string, port int, urlPrefix string, clientID string, httpClient HTEClientHTTP) (Client, error) {
 
 	if host == "" {
 
 		return nil, errors.New("host cannot be empty")
 	}
 
-	if port < PORT_RANGE_MIN || port > PORT_RANGE_MAX {
+	if port < PortRangeMin || port > PortRangeMax {
 
-		return nil, errors.New(fmt.Sprintf("Port number cannot exceed range [%d - %d]", PORT_RANGE_MIN, PORT_RANGE_MAX))
+		return nil, fmt.Errorf("Port number cannot exceed range [%d - %d]", PortRangeMin, PortRangeMax)
 	}
 
 	// Do not need to validate against empty urlPrefix as it can actually be empty
 
-	if clientId == "" {
+	if clientID == "" {
 
 		return nil, errors.New("clientId cannot be empty")
 	}
@@ -43,18 +44,18 @@ func NewClient(scheme, host string, port int, urlPrefix string, clientId string,
 	result.host = host
 	result.port = port
 	result.urlPrefix = urlPrefix
-	result.clientId = clientId
+	result.clientID = clientID
 	result.httpClient = httpClient
 
 	// Compose base url and ensure there are no duplicate slashes from passed in urlPrefix
-	result.baseUrl = fmt.Sprintf("%s%s:%d%s", scheme, host, port, urlPrefix)
+	result.baseURL = fmt.Sprintf("%s%s:%d%s", scheme, host, port, urlPrefix)
 
 	return result, nil
 }
 
 func (client *clientImpl) DiscoverServices() (types.ServiceListResponse, error) {
 
-	url := fmt.Sprintf("%s/service/discover", client.baseUrl)
+	url := fmt.Sprintf("%s/service/discover", client.baseURL)
 
 	response, err := client.httpClient.Get(url)
 
@@ -63,7 +64,7 @@ func (client *clientImpl) DiscoverServices() (types.ServiceListResponse, error) 
 		return types.ServiceListResponse{}, err
 	}
 
-	svcDetails := types.ServiceListResponse {}
+	svcDetails := types.ServiceListResponse{}
 
 	err = json.Unmarshal(response, &svcDetails)
 
@@ -75,9 +76,9 @@ func (client *clientImpl) DiscoverServices() (types.ServiceListResponse, error) 
 	return svcDetails, nil
 }
 
-func (client *clientImpl) GetPrices(serviceId int) (types.ServicePriceResponse, error) {
+func (client *clientImpl) GetPrices(serviceID int) (types.ServicePriceResponse, error) {
 
-	url := fmt.Sprintf("%s/service/%d/prices", client.baseUrl, serviceId)
+	url := fmt.Sprintf("%s/service/%d/prices", client.baseURL, serviceID)
 
 	response, err := client.httpClient.Get(url)
 
@@ -98,14 +99,14 @@ func (client *clientImpl) GetPrices(serviceId int) (types.ServicePriceResponse, 
 	return svcPriceResponse, nil
 }
 
-func (client *clientImpl) NegotiatePrice(serviceId, priceId, numberOfUnits int) (types.TotalPriceResponse, error) {
+func (client *clientImpl) NegotiatePrice(serviceID, priceID, numberOfUnits int) (types.TotalPriceResponse, error) {
 
-	url := fmt.Sprintf("%s/service/%d/requestTotal", client.baseUrl, serviceId)
+	url := fmt.Sprintf("%s/service/%d/requestTotal", client.baseUrl, serviceID)
 
 	req := types.TotalPriceRequest{
-		ClientID: client.clientId,
+		ClientID:              client.clientID,
 		SelectedNumberOfUnits: numberOfUnits,
-		SelectedPriceId: priceId,
+		SelectedPriceID:       priceID,
 	}
 
 	jsonReq, err := json.Marshal(req)
@@ -129,10 +130,10 @@ func (client *clientImpl) NegotiatePrice(serviceId, priceId, numberOfUnits int) 
 		if err != nil {
 
 			return types.TotalPriceResponse{}, err
-		} else {
-
-			return types.TotalPriceResponse{}, errors.New(fmt.Sprintf("%d - %s (%d)", errorResp.HTTPStatusCode, errorResp.Message, errorResp.ErrorCode))
 		}
+
+		return types.TotalPriceResponse{}, fmt.Errorf("%d - %s (%d)", errorResp.HTTPStatusCode, errorResp.Message, errorResp.ErrorCode)
+
 	} else {
 
 		priceResp := types.TotalPriceResponse{}
@@ -148,14 +149,14 @@ func (client *clientImpl) NegotiatePrice(serviceId, priceId, numberOfUnits int) 
 	}
 }
 
-func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientToken string) (types.PaymentResponse, error) {
+func (client *clientImpl) MakeHtePayment(paymentReferenceID, clientID, clientToken string) (types.PaymentResponse, error) {
 
-	url := fmt.Sprintf("%s/payment", client.baseUrl)
+	url := fmt.Sprintf("%s/payment", client.baseURL)
 
 	requestBody := types.PaymentRequest{
-		ClientID:clientId,
-		ClientToken: clientToken,
-		PaymentReferenceID: paymentReferenceId,
+		ClientID:           clientID,
+		ClientToken:        clientToken,
+		PaymentReferenceID: paymentReferenceID,
 	}
 
 	jsonBody, err := json.Marshal(requestBody)
@@ -179,10 +180,10 @@ func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientTok
 		if err != nil {
 
 			return types.PaymentResponse{}, err
-		} else {
-
-			return types.PaymentResponse{}, errors.New(fmt.Sprintf("%d - %s (%d)", errorResponse.HTTPStatusCode, errorResponse.Message, errorResponse.ErrorCode))
 		}
+
+		return types.PaymentResponse{}, fmt.Errorf("%d - %s (%d)", errorResponse.HTTPStatusCode, errorResponse.Message, errorResponse.ErrorCode)
+
 	} else {
 
 		paymentResponse := types.PaymentResponse{}
@@ -198,12 +199,12 @@ func (client *clientImpl) MakeHtePayment(paymentReferenceId, clientId, clientTok
 	}
 }
 
-func (client *clientImpl) StartDelivery(serviceId int, serviceDeliveryToken string, unitsToSupply int) (int, error) {
+func (client *clientImpl) StartDelivery(serviceID int, serviceDeliveryToken string, unitsToSupply int) (int, error) {
 
 	return 0, errors.New("Not implemented..")
 }
 
-func (client *clientImpl) EndDelivery(serviceId int, serviceDeliveryToken string, unitsReceived int) (int, error) {
+func (client *clientImpl) EndDelivery(serviceID int, serviceDeliveryToken string, unitsReceived int) (int, error) {
 
 	return 0, errors.New("Not implemented..")
 }

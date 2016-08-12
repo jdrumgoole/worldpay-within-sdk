@@ -1,8 +1,8 @@
 package types
 
+// ErrorResponse error response message
 type ErrorResponse struct {
-
-	HTTPStatusCode int `json:"httpStatusCode"`
-	Message string `json:"message"`
-	ErrorCode int `json:errorCode`
+	HTTPStatusCode int    `json:"HTTPStatusCode"`
+	Message        string `json:"message"`
+	ErrorCode      int    `json:"errorCode"`
 }

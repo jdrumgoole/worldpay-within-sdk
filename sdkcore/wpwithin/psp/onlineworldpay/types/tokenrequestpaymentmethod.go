@@ -1,7 +1,6 @@
 package types
 
 type TokenRequestPaymentMethod struct {
-
 	Name string `json:"name"`
 
 	ExpiryMonth int32 `json:"expiryMonth"`
