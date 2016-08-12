@@ -1,7 +1,0 @@
-package devclientdefaults
-
-var DEFAULT_DEVICE_NAME = "conorhwp-macbook"
-var DEFAULT_DEVICE_DESCRIPTION = "Conor H WP - Macbook Pro"
-
-var DEFAULT_HTE_MERCHANT_CLIENT_KEY = "T_C_03eaa1d3-4642-4079-b030-b543ee04b5af"
-var DEFAULT_HTE_MERCHANT_SERVICE_KEY = "T_S_f50ecb46-ca82-44a7-9c40-421818af5996"

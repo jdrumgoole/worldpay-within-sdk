@@ -3,8 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
-	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
-	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-types"
+	devclienttypes "innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"os"
 	"strconv"
@@ -25,29 +24,20 @@ func doUI() {
 	menuItems = make([]MenuItem, 0)
 
 	menuItems = append(menuItems, MenuItem{"-------------------- GENERAL  --------------------", mInvalidSelection})
-	menuItems = append(menuItems, MenuItem{"Init default device", mInitDefaultDevice})
-	menuItems = append(menuItems, MenuItem{"Start RPC Service", mStartRPCService})
 	menuItems = append(menuItems, MenuItem{"Init new device", mInitNewDevice})
+	menuItems = append(menuItems, MenuItem{"Start RPC Service", mStartRPCService})
 	menuItems = append(menuItems, MenuItem{"Get device info", mGetDeviceInfo})
-	menuItems = append(menuItems, MenuItem{"Reset session", mResetSessionState})
 	menuItems = append(menuItems, MenuItem{"Load device profile", mLoadDeviceProfile})
+	menuItems = append(menuItems, MenuItem{"Reset session", mResetSessionState})
 	menuItems = append(menuItems, MenuItem{"-------------------- PRODUCER --------------------", mInvalidSelection})
-	menuItems = append(menuItems, MenuItem{"Create default producer", mDefaultProducer})
-	menuItems = append(menuItems, MenuItem{"Create new producer", mNewProducer})
-	menuItems = append(menuItems, MenuItem{"Add default HTE credentials", mDefaultHTECredentials})
-	menuItems = append(menuItems, MenuItem{"Add new HTE credentials", mNewHTECredentials})
+	menuItems = append(menuItems, MenuItem{"Init new producer", mNewProducer})
 	menuItems = append(menuItems, MenuItem{"Add RoboWash service", mAddRoboWashService})
 	menuItems = append(menuItems, MenuItem{"Add RoboAir service", mAddRoboAirService})
 	menuItems = append(menuItems, MenuItem{"Start service broadcast", mStartBroadcast})
 	menuItems = append(menuItems, MenuItem{"Stop broadcast", mStopBroadcast})
-	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Producer)", mCarWashDemoProducer})
 	menuItems = append(menuItems, MenuItem{"-------------------- CONSUMER --------------------", mInvalidSelection})
-	menuItems = append(menuItems, MenuItem{"Create default consumer", mDefaultConsumer})
-	menuItems = append(menuItems, MenuItem{"Create new consumer", mNewConsumer})
-	menuItems = append(menuItems, MenuItem{"Add default HCE credential", mDefaultHCECredential})
-	menuItems = append(menuItems, MenuItem{"Add new HCE credential", mNewHCECredential})
+	menuItems = append(menuItems, MenuItem{"Prepare new consumer", mPrepareNewConsumer})
 	menuItems = append(menuItems, MenuItem{"Scan services", mScanService})
-	menuItems = append(menuItems, MenuItem{"Sample demo, car wash (Consumer)", mCarWashDemoConsumer})
 	menuItems = append(menuItems, MenuItem{"Auto consume from profile info", mAutoConsume})
 	menuItems = append(menuItems, MenuItem{"--------------------------------------------------", mInvalidSelection})
 	menuItems = append(menuItems, MenuItem{"Exit", mQuit})
@@ -56,7 +46,7 @@ func doUI() {
 }
 func mInvalidSelection() error {
 
-	return errors.New(devclienterrors.ERR_INVALID_MENU_SELECTION)
+	return errors.New(devclienttypes.ErrorInvalidMenuSelection)
 }
 
 func promptContinue() bool {

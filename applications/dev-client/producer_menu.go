@@ -3,71 +3,15 @@ package main
 import (
 	"errors"
 	"fmt"
-	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-defaults"
-	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
+	devclienttypes "innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
-
-func mDefaultProducer() error {
-
-	if err := mInitDefaultDevice(); err != nil {
-		return err
-	}
-
-	//if err := mDefaultHTECredentials(); err != nil {
-	//	return err
-	//}
-
-	// Disabling as this just calls initProducer inside, which is called below.
-	// Was causing issue with the HTE port already being bound.
-	//	if _, err := mDefaultHTECredentials(); err != nil {
-	//		return 0, err
-	//	}
-
-	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
-	}
-
-	if err := sdk.InitProducer(devclientdefaults.DEFAULT_HTE_MERCHANT_CLIENT_KEY, devclientdefaults.DEFAULT_HTE_MERCHANT_SERVICE_KEY); err != nil {
-		return err
-	}
-
-	fmt.Println("Initialised default producer")
-
-	return nil
-}
 
 func mNewProducer() error {
 
 	if err := mInitNewDevice(); err != nil {
 		return err
 	}
-
-	if err := mNewHTECredentials(); err != nil {
-		return err
-	}
-
-	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
-	}
-
-	fmt.Println("Initialised new producer")
-
-	return nil
-}
-
-func mDefaultHTECredentials() error {
-
-	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
-	}
-
-	fmt.Println("Added default HTE credentials")
-
-	return sdk.InitProducer(devclientdefaults.DEFAULT_HTE_MERCHANT_CLIENT_KEY, devclientdefaults.DEFAULT_HTE_MERCHANT_SERVICE_KEY)
-}
-
-func mNewHTECredentials() error {
 
 	fmt.Println("Add new HTE credentials")
 
@@ -84,10 +28,18 @@ func mNewHTECredentials() error {
 	}
 
 	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
 	return sdk.InitProducer(merchantClientKey, merchantServiceKey)
+
+	if sdk == nil {
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
+	}
+
+	fmt.Println("Initialised new producer")
+
+	return nil
 }
 
 func mAddRoboWashService() error {
@@ -125,7 +77,7 @@ func mAddRoboWashService() error {
 	roboWash.AddPrice(washPriceSUV)
 
 	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
 	if err := sdk.AddService(roboWash); err != nil {
@@ -173,7 +125,7 @@ func mAddRoboAirService() error {
 	roboAir.AddPrice(airFourPrice)
 
 	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
 	if err := sdk.AddService(roboAir); err != nil {
@@ -189,7 +141,7 @@ func mAddRoboAirService() error {
 func mStartBroadcast() error {
 
 	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
 	fmt.Print("Broadcast timeout in milliseconds: ")
@@ -209,34 +161,11 @@ func mStartBroadcast() error {
 func mStopBroadcast() error {
 
 	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
 	sdk.StopServiceBroadcast()
 
 	fmt.Println("Broadcast stopped")
-	return nil
-}
-
-func mCarWashDemoProducer() error {
-
-	fmt.Println("Starting car wash demo (Producer)")
-
-	if err := mDefaultProducer(); err != nil {
-		return err
-	}
-
-	if err := mAddRoboWashService(); err != nil {
-		return err
-	}
-
-	if err := mAddRoboAirService(); err != nil {
-		return err
-	}
-
-	if err := sdk.StartServiceBroadcast(20000); err != nil {
-		return err
-	}
-
 	return nil
 }

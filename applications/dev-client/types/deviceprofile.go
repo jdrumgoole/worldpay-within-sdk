@@ -24,7 +24,7 @@ type Producer struct {
 type ServiceProfile struct {
 	Id          int             `json:"serviceID"`
 	Name        string          `json:"name"`
-	Description string          `json:"description`
+	Description string          `json:"description"`
 	Prices      []*PriceProfile `json:"prices"`
 }
 
@@ -46,14 +46,15 @@ type AutoConsume struct {
 	DeviceUid     string `json:"deviceUid"`
 	ServiceID     int    `json:"serviceID"`
 	MaximumAmount int    `json:"maximumAmount"`
-	CurrencyCode  string `json:"currencyCode"`
-	UnitID        int    `json:"unitID"`
+	//CurrencyCode  string `json:"currencyCode"`
+	UnitID int `json:"unitID"`
 }
 
 type ProducerConfig struct {
 	//BroadcastTimeout      int    `json:"broadcastTimeout"`
 	PspMerchantServiceKey string `json:"pspMerchantServiceKey"`
 	PspMerchantClientKey  string `json:"pspMerchantClientKey"`
+	// No way to set these yet, see https://github.com/WPTechInnovation/worldpay-within-sdk/issues/18
 	//HTEPort               int    `json:"htePort"`
 	//HTEURLPrefix          string `json:"hteURLPrefix"`
 	//HTEScheme             string `json:"hteScheme"`

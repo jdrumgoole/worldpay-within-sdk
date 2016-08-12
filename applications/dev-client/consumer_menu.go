@@ -4,96 +4,33 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/dev-client-errors"
+	devclienttypes "innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/types"
 	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-func mDefaultConsumer() error {
+func mPrepareNewConsumer() error {
 
-	if err := mInitDefaultDevice(); err != nil {
-		return err
-	}
-
-	if err := mDefaultHCECredential(); err != nil {
-		return err
-	}
-
-	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
-	}
-
-	fmt.Println("Initialised default consumer")
-
-	return nil
-}
-
-func mNewConsumer() error {
-
-	fmt.Println("Initialising new consumer")
+	fmt.Println("Preparing new consumer")
 
 	if err := mInitNewDevice(); err != nil {
 		return err
 	}
 
-	if err := mNewHCECredential(); err != nil {
-		return err
+	if sdk == nil {
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
-	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
+	if err := newHCECredential(); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func mScanService() error {
+func newHCECredential() error {
 
 	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
-	}
-
-	fmt.Print("Scan timeout in milliseconds: ")
-	var timeout int
-	if err := getUserInput(&timeout); err != nil {
-		return err
-	}
-
-	log.Debug("pre scan for services")
-	services, err := sdk.DeviceDiscovery(timeout)
-	log.Debug("end scan for services")
-
-	if err != nil {
-		return err
-	}
-
-	for _, svc := range services {
-		log.Debug("(%s:%d/%s) - %s", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
-	}
-	return nil
-}
-
-func mDefaultHCECredential() error {
-
-	card := types.HCECard{
-
-		FirstName:  "Bilbo",
-		LastName:   "Baggins",
-		ExpMonth:   11,
-		ExpYear:    2018,
-		CardNumber: "5555555555554444",
-		Type:       "Card",
-		Cvc:        "113",
-	}
-
-	hceCard = card
-
-	return nil
-}
-
-func mNewHCECredential() error {
-
-	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
 	fmt.Print("First Name: ")
@@ -154,6 +91,32 @@ func mNewHCECredential() error {
 	return nil
 }
 
+func mScanService() error {
+
+	if sdk == nil {
+		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
+	}
+
+	fmt.Print("Scan timeout in milliseconds: ")
+	var timeout int
+	if err := getUserInput(&timeout); err != nil {
+		return err
+	}
+
+	log.Debug("pre scan for services")
+	services, err := sdk.DeviceDiscovery(timeout)
+	log.Debug("end scan for services")
+
+	if err != nil {
+		return err
+	}
+
+	for _, svc := range services {
+		log.Debug("(%s:%d/%s) - %s", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
+	}
+	return nil
+}
+
 func mAutoConsume() error {
 
 	fmt.Println("Starting auto consume...")
@@ -203,7 +166,7 @@ func mAutoConsume() error {
 
 				var foundDetailsIdx int = -1
 				for i, serviceDetail := range serviceDetails {
-					fmt.Printf("%d - %s\n", serviceDetail.ServiceID, serviceDetail.ServiceDescription)
+					//fmt.Printf("%d - %s\n", serviceDetail.ServiceID, serviceDetail.ServiceDescription)
 					if serviceDetail.ServiceID == deviceProfile.DeviceEntity.Consumer.AutoConsume.ServiceID {
 						foundDetailsIdx = i
 						break
@@ -226,7 +189,7 @@ func mAutoConsume() error {
 
 						var foundUnitIdIdx int = -1
 						for i, price := range prices {
-							fmt.Printf("(%d) %s @ %d%s, %s (Unit id = %d)\n", price.ID, price.Description, price.PricePerUnit.Amount, price.PricePerUnit.CurrencyCode, price.UnitDescription, price.UnitID)
+							//fmt.Printf("(%d) %s @ %d%s, %s (Unit id = %d)\n", price.ID, price.Description, price.PricePerUnit.Amount, price.PricePerUnit.CurrencyCode, price.UnitDescription, price.UnitID)
 							if price.UnitID == deviceProfile.DeviceEntity.Consumer.AutoConsume.UnitID {
 								foundUnitIdIdx = i
 								break
@@ -264,104 +227,4 @@ func mAutoConsume() error {
 	}
 	return nil
 
-}
-
-func mCarWashDemoConsumer() error {
-
-	fmt.Println("Starting car wash demo (Consumer)")
-
-	if err := mInitDefaultDevice(); err != nil {
-		return err
-	}
-
-	if err := mDefaultHCECredential(); err != nil {
-		return err
-	}
-
-	if sdk == nil {
-		return errors.New(devclienterrors.ERR_DEVICE_NOT_INITIALISED)
-	}
-
-	log.Debug("pre scan for services")
-	services, err := sdk.DeviceDiscovery(20000)
-	log.Debug("end scan for services")
-
-	if err != nil {
-
-		return err
-	}
-
-	if len(services) >= 1 {
-
-		svc := services[0]
-
-		fmt.Printf("# Service:: (%s:%d/%s) - %s\n", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
-
-		log.Debug("Init consumer")
-		err := sdk.InitConsumer("http://", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.ServerID, &hceCard)
-
-		if err != nil {
-
-			return err
-		}
-
-		log.Debug("Client created..")
-
-		serviceDetails, err := sdk.RequestServices()
-
-		if err != nil {
-
-			return err
-		}
-
-		if len(serviceDetails) >= 1 {
-
-			svcDetails := serviceDetails[0]
-
-			fmt.Printf("%d - %s\n", svcDetails.ServiceID, svcDetails.ServiceDescription)
-
-			prices, err := sdk.GetServicePrices(svcDetails.ServiceID)
-
-			if err != nil {
-
-				return err
-			}
-
-			fmt.Printf("------- Prices -------\n")
-			if len(prices) >= 1 {
-
-				price := prices[0]
-
-				fmt.Printf("(%d) %s @ %d%s, %s (Unit id = %d)\n", price.ID, price.Description, price.PricePerUnit.Amount, price.PricePerUnit.CurrencyCode, price.UnitDescription, price.UnitID)
-
-				tpr, err := sdk.SelectService(svcDetails.ServiceID, 2, price.ID)
-
-				if err != nil {
-
-					return err
-				}
-
-				fmt.Println("#Begin Request#")
-				fmt.Printf("ServerID: %s\n", tpr.ServerID)
-				fmt.Printf("PriceID = %d - %d units = %d\n", tpr.PriceID, tpr.UnitsToSupply, tpr.TotalPrice)
-				fmt.Printf("ClientID: %s, MerchantClientKey: %s, PaymentRef: %s\n", tpr.ClientID, tpr.MerchantClientKey, tpr.PaymentReferenceID)
-				fmt.Println("#End Request#")
-
-				log.Debug("Making payment of %d\n", tpr.TotalPrice)
-
-				payResp, err := sdk.MakePayment(tpr)
-
-				if err != nil {
-
-					return err
-				}
-
-				fmt.Printf("Payment of %d made successfully\n", payResp.TotalPaid)
-
-				fmt.Printf("Service delivery token: %s\n", payResp.ServiceDeliveryToken)
-
-			}
-		}
-	}
-	return nil
 }
