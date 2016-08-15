@@ -108,7 +108,7 @@ function constructFromThrift() {
 
     result = new types.TotalPriceResponse();
     result.serverId = totalPrice.serverId;
-    result.cliendId = totalPrice.clientId;
+    result.clientId = totalPrice.clientId;
     result.priceId = totalPrice.priceId;
     result.unitsToSupply = totalPriceResponse.unitsToSupply;
     result.totalPrice = totalPriceResponse.totalPrice;
@@ -224,7 +224,7 @@ function constructToThrift() {
 
     result = new wpthrift_types.ServiceMessage();
     result.deviceDescription = serviceMessage.deviceDescription;
-    result.hostname = sericeMessage.hostname;
+    result.hostname = serviceMessage.hostname;
     result.portNumber = serviceMessage.portNumber;
     result.serverId = serviceMessage.serverId;
     result.urlPrefix = serviceMessage.urlPrefix;
@@ -244,9 +244,9 @@ function constructToThrift() {
   this.totalPriceResponse = function(totalPriceResponse) {
 
     result = new wpthrift_types.TotalPriceResponse();
-    result.serverId = totalPrice.serverId;
-    result.cliendId = totalPrice.clientId;
-    result.priceId = totalPrice.priceId;
+    result.serverId = totalPriceResponse.serverId;
+    result.clientId = totalPriceResponse.clientId;
+    result.priceId = totalPriceResponse.priceId;
     result.unitsToSupply = totalPriceResponse.unitsToSupply;
     result.totalPrice = totalPriceResponse.totalPrice;
     result.paymentReferenceId = totalPriceResponse.paymentReferenceId;
