@@ -60,12 +60,12 @@ function constructFromThrift() {
   this.hceCard = function(hceCard) {
 
     result = new types.HCECard();
-    result.firstname = hceCard.firstname;
-    result.lastname = hceCard.lastname;
-    result.expMonth = hceCard.expMonth;
-    result.expYear = hceCard.expYear;
-    result.type = hceCard.type;
-    result.cvc = hceCard.cvc;
+    result.firstname = hceCard.FirstName;
+    result.lastname = hceCard.LastName;
+    result.expMonth = hceCard.ExpMonth;
+    result.expYear = hceCard.ExpYear;
+    result.type = hceCard.Type;
+    result.cvc = hceCard.Cvc;
 
     return result;
   };
@@ -188,12 +188,13 @@ function constructToThrift() {
   this.hceCard = function(hceCard) {
 
     result = new wpthrift_types.HCECard();
-    result.firstname = hceCard.firstname;
-    result.lastname = hceCard.lastname;
-    result.expMonth = hceCard.expMonth;
-    result.expYear = hceCard.expYear;
-    result.type = hceCard.type;
-    result.cvc = hceCard.cvc;
+    result.FirstName = hceCard.firstname;
+    result.Lastname = hceCard.lastname;
+    result.ExpMonth = hceCard.expMonth;
+    result.ExpYear = hceCard.expYear;
+    result.CardNumber = hceCard.cardNumber;
+    result.Type = hceCard.type;
+    result.Cvc = hceCard.cvc;
 
     return result;
   };

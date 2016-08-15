@@ -4,6 +4,8 @@ module.exports = {
 
 function WPWithin(thriftClient) {
 
+  this.converter = require('./types/converter');
+
   this.thriftClient = thriftClient;
 
   this.startRPC = fnStartRPC;
@@ -51,7 +53,11 @@ var fnRemoveService = function(service, callback) {
 
 var fnInitConsumer = function(scheme, hostname, port, urlPrefix, serverId, hceCard, callback) {
 
-  this.thriftClient.initConsumer(scheme, hostname, port, urlPrefix, serverId, hceCard, function(err, result) {
+  tHCECard = this.converter.toThrift().hceCard(hceCard);
+
+  console.log("HCECard : %j", tHCECard);
+
+  this.thriftClient.initConsumer(scheme, hostname, port, urlPrefix, serverId, tHCECard, function(err, result) {
 
     callback(err, result);
   });
@@ -107,7 +113,7 @@ var fnRequestServices = function(callback) {
 
 var fnGetServicePrices = function(serviceId, callback) {
 
-  this.thriftClient.getServicePrices(function(err, result) {
+  this.thriftClient.getServicePrices(serviceId, function(err, result) {
 
     callback(err, result);
   });
