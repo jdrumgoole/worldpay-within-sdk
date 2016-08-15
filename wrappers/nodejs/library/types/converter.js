@@ -155,11 +155,19 @@ function constructToThrift() {
 
   this.service = function(service) {
 
-    result = new wpthrift_types.Service();
+    var result = new wpthrift_types.Service();
     result.id = service.id;
     result.name = service.name;
     result.description = service.description;
-    result.prices = service.prices;
+
+    var tPrices = new Array();
+
+    for(var i = 0; i < service.prices.length; i++) {
+
+        tPrices[i] = this.price(service.prices[i]);
+    }
+
+    result.prices = tPrices;
 
     return result;
   }

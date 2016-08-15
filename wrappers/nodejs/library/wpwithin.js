@@ -37,7 +37,9 @@ var fnSetup = function(name, description, callback) {
 
 var fnAddService = function(service, callback) {
 
-  this.thriftClient.addService(service, function(err, result) {
+  var convSvc = this.converter.toThrift().service(service);
+
+  this.thriftClient.addService(convSvc, function(err, result) {
 
     callback(err, result);
   });
@@ -54,8 +56,6 @@ var fnRemoveService = function(service, callback) {
 var fnInitConsumer = function(scheme, hostname, port, urlPrefix, serverId, hceCard, callback) {
 
   tHCECard = this.converter.toThrift().hceCard(hceCard);
-
-  console.log("HCECard : %j", tHCECard);
 
   this.thriftClient.initConsumer(scheme, hostname, port, urlPrefix, serverId, tHCECard, function(err, result) {
 
@@ -205,9 +205,9 @@ function createClient(host, port, callback) {
   }
 };
 
-function fnStartRPC(port) {
+function fnStartRPC(port, callback) {
 
   var rpc = require('./rpc');
 
-  rpc.startRPC(port);
+  rpc.startRPC(port, callback);
 }
