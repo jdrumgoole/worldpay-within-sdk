@@ -3,7 +3,7 @@ An application that hosts the WorldpayWithin SDK behind an Apache Thrift RPC lis
 
 ## Usage
 
-Start the application and specify a port using the `-port` flag. e.g. `rpc-agent -port=9090`
+Start the application and specify a port using the `-port` flag. e.g. `rpc-agent -port=9090` or `.rpc-agent -port 9090`
 
 ## Notes
 
