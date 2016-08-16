@@ -21,6 +21,8 @@ This contains the core and the factory. The factory creates all the core objects
 
 The client allows interaction with the HTE service, it contains the HTE service and the service handler which Coordinates requests between RPC interface and internal SDK interface. There is a credential store for the 'terminal' or payments gateway credentials. The Order Manager coordinates during negotitation, payment and delivery flows. There are also some help http request object(s). 
 
+* [More detail about the flows and associate diagrams can be found in the detailed documentation here](https://wptechinnovation.github.io/architecture.html)
+
 ### psp
 
 This code enables the Worldpay Within SDK to communicate with the online.worldpay.com payments gatesway to make payments. The results of these payment can be viewed by having an associated account (associated with the credentials) on online.worldpay.com.
