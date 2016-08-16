@@ -7,6 +7,8 @@ You can test multiple devices on the same dev machine, by running multiple insta
 
 Start the application and specify a port using the `-port` flag. e.g. `rpc-agent -port=9090` or `.rpc-agent -port 9090`
 
+## Usage in more detail
+
 ### How to install the RPC agent
 * Change directory to `cd $GOPATH/src/github.com/wptechninnovation/worldpay-within-sdk/applications/rpc-agent`
 * Type `go install`
@@ -34,8 +36,8 @@ There is the capability to output to a web browser, so you can see the logs on t
 
 Below lists the current parameters as of 16th August 2016
 
-`Usage of ./rpc-agent:`
-`  -buffer int`
+`Usage of ./rpc-agent:
+   -buffer int`
 `    	Buffer size. (default 8192)`
 `  -buffered`
 `    	Buffered transmission - bool.`
