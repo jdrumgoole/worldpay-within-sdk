@@ -85,6 +85,46 @@
 
 
 
+                              <h3>Tutorial on running two example apps on one machien</h3>
+
+
+                              <p>Tutorial for running on the same machine e.g. Java (producer) and Node.js (consumer)</p>
+
+                              <div style="text-align: center;"><figure>
+                                  <img style="padding-top: 25px;" src="/images/get-started/outputoforchestration1.png" alt="The output of the log files for the orchestration of the flow"/>
+                                  <figcaption>The output of the log files for the orchestration of the flow.</figcaption>
+                              </figure></div>
+
+
+
+                              <div style="text-align: center;"><figure>
+                                  <img style="padding-top: 25px;" src="/images/get-started/order-details-onlineworldpaycom.png" alt="Showing the payment in online.worldpay.com"/>
+                                  <figcaption>Showing the payment in online.worldpay.com.</figcaption>
+                              </figure></div>
+
+                              <ul>
+                              <li>Java - 9090 - Producer</li>
+                              <li>Node.js - 9091 - consumer</li>
+                              </ul>
+
+                              <ol>
+                              <li>Each app needs to run on it's own instance of the RPC service, so run one on 9090 and the other on 9091</li>
+                              <li>So we're running Java off of 9090 and running node.js off of 9091</li>
+                              <li>Open two terminal windows</li>
+                              <li>Configure the rpc agent in each terminal window to run on each of the ports, in the producer window run the RPC on port 9090 and the consumer window run the RPC on port 9091</li>
+                              <li>Configure the java app to run on 9090 (run as the producer)</li>
+                              <li>Configure the node.js app to run on 9091 - in createClient in example code (run as the consumer)</li>
+                              <li>Run the java producer app so we're broadcasting, note that the RPC agent broadcasting will continue to run in the background whilst the java program has exited</li>
+                              <li>Run the node.js consumer app immediately</li>
+                              <li>The service discovery, price negotiation, payment and service release flows will all be twiggered, as you can see below</li>
+                              </ol>
+
+
+
+
+
+
+
 <!-- Insert page content above -->
                     </div>                       
               </div>
