@@ -1,12 +1,14 @@
 package main
+
 import (
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	"flag"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
-	log "github.com/Sirupsen/logrus"
-	"os"
 	"fmt"
+	"os"
+
+	log "github.com/Sirupsen/logrus"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
 	conf "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/configLoad"
+	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 )
 
 /*
@@ -74,7 +76,6 @@ func main() {
 	os.Exit(EXIT_OK)
 }
 
-
 func initArgs() {
 
 	log.Debug("Begin initArgs()")
@@ -86,7 +87,7 @@ func initArgs() {
 	logLevelPtr := flag.String(ARG_NAME_LOG_LEVEL, LEVEL_WARN, "Log level")
 	logFilePtr := flag.String(ARG_NAME_LOGFILE, "", "Log file, if set, outputs to file, if not, not logfile.")
 
-	// Program specific arguments	
+	// Program specific arguments
 	protocolPtr := flag.String(ARG_NAME_PROTOCOL, DEFAULT_ARG_PROTOCOL, "Transport protocol.")
 	framedPtr := flag.Bool(ARG_NAME_FRAMED, DEFAULT_ARG_FRAMED, "Framed transmission - bool.")
 	bufferedPtr := flag.Bool(ARG_NAME_BUFFERED, DEFAULT_ARG_BUFFERED, "Buffered transmission - bool.")
@@ -94,7 +95,6 @@ func initArgs() {
 	portPtr := flag.Int(ARG_NAME_PORT, DEFAULT_ARG_PORT, "Port to listen on. Required.")
 	securePtr := flag.Bool(ARG_NAME_SECURE, DEFAULT_ARG_SECURE, "Secured transport - bool.")
 	bufferPtr := flag.Int(ARG_NAME_BUFFER, DEFAULT_ARG_TRANSPORT_BUFFER, "Buffer size.")
-
 
 	log.Debug("Before flag.parse()")
 	flag.Parse()
@@ -108,28 +108,25 @@ func initArgs() {
 	secureValue := *securePtr
 	bufferValue := *bufferPtr
 
-
 	log.Debug("After flag.parse()")
 
 	logLevelValue := *logLevelPtr
 	logFileValue := *logFilePtr
 
-
-	if("" != configFileValue) {
+	if "" != configFileValue {
 		log.Debug("Begin PopulateConfiguration() from config file")
 
 		// Pull from config file - command line overwrites
 		rpcConfig = rpc.Configuration{}
 		rpcConfig = conf.PopulateConfiguration(configFileValue, rpcConfig)
 
-		log.Debug("End PopulateConfiguration() from config file")	
-
+		log.Debug("End PopulateConfiguration() from config file")
 
 		// Use config file
-		logLevelValue = rpcConfig.Loglevel;
-		logFileValue = rpcConfig.Logfile;
+		logLevelValue = rpcConfig.Loglevel
+		logFileValue = rpcConfig.Logfile
 
-		// Program specific arguments	
+		// Program specific arguments
 		protocolValue = rpcConfig.Protocol
 		framedValue = rpcConfig.Framed
 		bufferedValue = rpcConfig.Buffered
@@ -144,11 +141,9 @@ func initArgs() {
 
 	}
 
-
 	log.Debug("Before log setup")
 
 	log.Debug("Begin parsing log level arguments")
-
 
 	switch logLevelValue {
 
@@ -174,7 +169,7 @@ func initArgs() {
 
 		log.WithField("File", logFileValue).Debug("Will logs to file.")
 
-		logFile, err := os.OpenFile(logFileValue, os.O_WRONLY | os.O_CREATE, LOGFILE_PERMS)
+		logFile, err := os.OpenFile(logFileValue, os.O_WRONLY|os.O_CREATE, LOGFILE_PERMS)
 
 		if err != nil {
 
@@ -220,7 +215,7 @@ func startRPC() {
 	// Validate required (with no defaults)
 	if rpcConfig.Port < RPC_MIN_PORT {
 
-		log.WithFields(log.Fields{ "Port" : rpcConfig }).Fatal("Invalid listening port provided")
+		log.WithFields(log.Fields{"Port": rpcConfig}).Fatal("Invalid listening port provided")
 
 		fmt.Println("Port value must be greater than zero")
 
@@ -235,15 +230,15 @@ func startRPC() {
 
 		fmt.Printf("Error create new RPC service: %q\n", err.Error())
 
-		log.WithFields(log.Fields{ "Error" : err.Error() }).Fatal("Error creating new RPC service")
+		log.WithFields(log.Fields{"Error": err.Error()}).Fatal("Error creating new RPC service")
 
 		os.Exit(EXIT_GENERAL_ERR)
 	}
 
-	log.WithFields(log.Fields{ "port": rpcConfig.Port }).Debug("Attempting to start RPC interface on port")
+	log.WithFields(log.Fields{"port": rpcConfig.Port}).Debug("Attempting to start RPC interface on port")
 	if err := rpc.Start(); err != nil {
 
-		log.WithFields(log.Fields{ "Error" : err.Error() }).Fatal("Error starting RPC service")
+		log.WithFields(log.Fields{"Error": err.Error()}).Fatal("Error starting RPC service")
 
 		fmt.Printf("Error starting RPC service: %q\n", err.Error())
 
