@@ -1,0 +1,12 @@
+_site
+.sass-cache
+.jekyll-metadata
+Gemfile
+_posts
+feed.xml	
+Gemfile.lock
+_config.yml
+about.md
+css
+params.json
+.DS_Store
