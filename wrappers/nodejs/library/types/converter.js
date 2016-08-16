@@ -174,19 +174,19 @@ function constructToThrift() {
 
   this.price = function(price) {
 
-    result = new wpthrift_types.Price();
+    var result = new wpthrift_types.Price();
     result.id = price.id;
     result.description = price.description;
-    result.pricePerUnit = price.pricePerUnit;
-    result.unitId = price.unitId;
+    result.pricePerUnit = this.pricePerUnit(price.pricePerUnit);
     result.unitDescription = price.unitDescription;
+    result.unitId = price.unitId;
 
     return result;
   }
 
   this.pricePerUnit = function(pricePerUnit) {
 
-    result = new wpthrift_types.PricePerUnit();
+    var result = new wpthrift_types.PricePerUnit();
     result.amount = pricePerUnit.amount;
     result.currencyCode = pricePerUnit.currencyCode;
 

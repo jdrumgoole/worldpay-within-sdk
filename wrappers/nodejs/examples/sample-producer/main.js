@@ -33,10 +33,12 @@ function addService() {
   rwPrice.description = "Car wash";
   rwPrice.unitId = 1;
   rwPrice.unitDescription = "Single wash";
-  rwPrice.pricePerUnit = new types.PricePerUnit();
-  rwPrice.pricePerUnit.amount = 650;
-  rwPrice.pricePerUnit.currencyCode = "GBP";
-  service.prices = rwPrice;
+  var pricePerUnit = new types.PricePerUnit();
+  pricePerUnit.amount = 650;
+  pricePerUnit.currencyCode = "GBP";
+  rwPrice.pricePerUnit = pricePerUnit;
+  service.prices = new Array();
+  service.prices[0] = rwPrice;
 
   client.addService(service, function(err, response) {
 

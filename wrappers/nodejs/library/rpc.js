@@ -11,7 +11,7 @@ function startRPC(port, callback) {
 
   cfg = new launcher.Config(reqOS, reqArch);
 
-  launcher.launch(cfg, "rpc-agent", "-port " + port, function(err, stdout, stderr){
+  launcher.launch(cfg, "./rpc-agent", "-configfile conf.json -port " + port, function(err, stdout, stderr){
 
     console.log("StartRPC.err: ", err);
     console.log("StartRPC.strdout: ", stdout);
