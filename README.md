@@ -3,6 +3,9 @@ Worldpay Within SDK to allow payments within IoT.
 
 The core of this SDK is written in Go with a native Go interface. Along with the native Go interface is an RPC layer (Apache Thrift) to allow communication through other languages. It is intended that we will develop a number of complementary wrapper libraries for other languages which should include C#.NET, Java, Python, Node.JS at a minimum.
 
+[Please see our documentation pages for more details on what Worldpay Within is](https://wptechInnovation.github.io)
+[Also for a detailed architecture guide for Worldpay Within please see our full documentation](https://wptechInnovation.github.io)
+
 ### Top level directories
 
 * applications - Applications used to support this SDK.
