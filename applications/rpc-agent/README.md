@@ -36,48 +36,29 @@ There is the capability to output to a web browser, so you can see the logs on t
 
 Below lists the current parameters as of 16th August 2016
 
-
-`Usage of ./rpc-agent:`
-
-`   -buffer int`
-
-`    	Buffer size. (default 8192)`
-
-`  -buffered`
-
-`    	Buffered transmission - bool.`
-
-`  -configfile string`
-
-`    	Config file name - string.`
-
-`  -framed`
-
-`    	Framed transmission - bool.`
-
-`  -host string`
-
-`    	Listening host. (default "127.0.0.1")`
-
-`  -logfile string`
-
-`    	Log file, if set, outputs to file, if not, not logfile.`
-
-`  -loglevel string`
-
-`    	Log level (default "warn")`
-
-`  -port int`
-
-`    	Port to listen on. Required.`
-
-`  -protocol string`
-
-`    	Transport protocol. (default "binary")`
-
-`  -secure`
-
-`    	Secured transport - bool.`
+```
+Usage of ./rpc-agent:
+  -buffer int
+    	Buffer size. (default 8192)
+  -buffered
+    	Buffered transmission - bool.
+  -configfile string
+    	Config file name - string.
+  -framed
+    	Framed transmission - bool.
+  -host string
+    	Listening host. (default "127.0.0.1")
+  -logfile string
+    	Log file, if set, outputs to file, if not, not logfile.
+  -loglevel string
+    	Log level (default "warn")
+  -port int
+    	Port to listen on. Required.
+  -protocol string
+    	Transport protocol. (default "binary")
+  -secure
+    	Secured transport - bool.
+```
 
 ### The config file
 
@@ -85,35 +66,18 @@ The config file is provided here as an example and is written in JSON. Note the 
 
 `config.json`
 
-`{`
-
-`    "WorldpayWithinConfig": {`
-
-`		"BufferSize" : 100,`
-
-`    		"Buffered": false,`
-
-`    		"Framed": false,`
-
-`    		"Host": "127.0.0.1",`
-
-`    		"Logfile": "worldpayWithin.log",`
-
-`    		"Loglevel": "warn",`
-
-`    		"Port": 9091,`
-
-`    		"Protocol": "binary",`
-
-`    		"Secure": false`
-
-`    	}`
-
-`}`
-
-
-
-
-
-
-
+```
+{
+    "WorldpayWithinConfig": {
+		"BufferSize" : 100,
+    		"Buffered": false,
+    		"Framed": false,
+    		"Host": "127.0.0.1",
+    		"Logfile": "worldpayWithin.log",
+    		"Loglevel": "warn",
+    		"Port": 9091,
+    		"Protocol": "binary",
+    		"Secure": false
+    	}
+}
+```
