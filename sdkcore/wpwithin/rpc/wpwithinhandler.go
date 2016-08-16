@@ -49,30 +49,22 @@ func (wp *WPWithinHandler) AddService(svc *wpthrift_types.Service) (err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.AddService()")
 
-	gSvc := &types.Service{
-		Id:          int(svc.ID),
-		Name:        svc.Name,
-		Description: svc.Description,
-	}
+	nSvc := convertThriftServiceToNative(svc)
 
 	log.Debug("End RPC.WPWithinHandler.AddService()")
 
-	return wp.wpwithin.AddService(gSvc)
+	return wp.wpwithin.AddService(nSvc)
 }
 
 func (wp *WPWithinHandler) RemoveService(svc *wpthrift_types.Service) (err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.RemoveService()")
 
-	gSvc := &types.Service{
-		Id:          int(svc.ID),
-		Name:        svc.Name,
-		Description: svc.Description,
-	}
+	nSvc := convertThriftServiceToNative(svc)
 
 	log.Debug("End RPC.WPWithinHandler.RemoveService()")
 
-	return wp.wpwithin.RemoveService(gSvc)
+	return wp.wpwithin.RemoveService(nSvc)
 }
 
 func (wp *WPWithinHandler) InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serviceId string, hceCard *wpthrift_types.HCECard) (err error) {
@@ -365,4 +357,34 @@ func (wp *WPWithinHandler) BeginServiceDelivery(clientId string, serviceDelivery
 func (wp *WPWithinHandler) EndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
 
 	return errors.New("Not implemented..")
+}
+
+func convertThriftServiceToNative(tSvc *wpthrift_types.Service) *types.Service {
+
+	nSvc, _ := types.NewService()
+
+	nSvc.Id = int(tSvc.ID)
+	nSvc.Name = tSvc.Name
+	nSvc.Description = tSvc.Description
+
+	for _, tPrice := range tSvc.Prices {
+
+		nPrice, _ := types.NewPrice()
+
+		nPrice.Description = tPrice.GetDescription()
+		nPrice.ID = int(tPrice.GetID())
+		nPrice.UnitDescription = tPrice.GetUnitDescription()
+		nPrice.UnitID = int(tPrice.GetUnitId())
+
+		nPpu := &types.PricePerUnit{}
+
+		nPpu.Amount = int(tPrice.GetPricePerUnit().Amount)
+		nPpu.CurrencyCode = tPrice.GetPricePerUnit().CurrencyCode
+
+		nPrice.PricePerUnit = nPpu
+
+		nSvc.AddPrice(*nPrice)
+	}
+
+	return nSvc
 }
