@@ -161,13 +161,6 @@ function createClient(host, port, callback) {
 
   try {
 
-    fnStartRPC(port, function(err, stdout, stderr) {
-
-      console.log("Err: ", err);
-      console.log("STDOUT: ", stdout);
-      console.log("STDERR: ", stderr);
-    });
-
     var thrift = require('thrift');
     var WPWithinLib = require('./wpwithin-thrift/WPWithin');
 
