@@ -14,6 +14,27 @@ The core of this SDK is written in Go with a native Go interface. Along with the
 * [Please see our documentation pages for more details on what Worldpay Within is](https://wptechInnovation.github.io)
 * [Also for a detailed architecture guide for Worldpay Within please see our full documentation](https://wptechInnovation.github.io)
 
+## The SDK binaries - if you don't don't want to compile from sources
+
+### Binary builds
+
+Please see the releases section of GitHub for access to pre-built binaries of the RPC Agent and Dev Client apps.
+
+Both of the apps have been built for 32bit and 64bit architectures on Windows, MacOS, Linux and Linux (ARM).
+
+While the RPC Agent can be run from anywhere it makes sense to add it to the directory of the application which will call it. The reason for this is that each application needs it own running instance of the RPC Agent and it can easily get confusing when there are multiple applications and agents deployed.
+
+Please see the examples in both the Java and Node.JS wrappers. these examples currently hold binaries for MacOS x64. I suggest replacing that binary with an alternate build, if required.
+
+The dev client can really be run from anywhere as it is not coupled with anything else.
+
+### Usage
+
+* RPC Agent `./rpc-agent -configfile <filename>`. Please see explanation of rpc-agent config file for further info.
+
+* Dev Client `./dev-client`
+
+
 ## How to use this SDK
 
 If you intend to develop a Go application then you need not concern yourself with the RPC interface or any wrapper libraries, these are only required if you wish to work in another language.
