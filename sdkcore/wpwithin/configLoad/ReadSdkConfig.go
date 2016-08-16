@@ -48,6 +48,7 @@ func PopulateConfiguration(configPath string, rpcConfig rpc.Configuration) (rpcC
 	rpcConfig.Protocol = configuration.WorldpayWithinConfig.Protocol
 	rpcConfig.Framed = configuration.WorldpayWithinConfig.Framed
 	rpcConfig.Buffered = configuration.WorldpayWithinConfig.Buffered
+	rpcConfig.Logfile = configuration.WorldpayWithinConfig.Logfile
 	rpcConfig.Host = configuration.WorldpayWithinConfig.Host
 	rpcConfig.Port = configuration.WorldpayWithinConfig.Port
 	rpcConfig.Secure = configuration.WorldpayWithinConfig.Secure
