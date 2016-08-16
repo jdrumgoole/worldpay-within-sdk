@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 // Concrete implementation of HTEClient

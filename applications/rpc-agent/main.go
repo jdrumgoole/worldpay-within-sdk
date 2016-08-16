@@ -6,9 +6,9 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
-	conf "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/configLoad"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
+	conf "github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configLoad"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 )
 
 /*

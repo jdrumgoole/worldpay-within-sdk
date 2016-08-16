@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/utils"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
 type WPWithinHandler struct {

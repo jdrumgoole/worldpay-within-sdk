@@ -3,8 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	devclienttypes "innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/types"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	devclienttypes "github.com/wptechinnovation/worldpay-within-sdk/applications/dev-client/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
 	"os"
 	"strconv"
 	"strings"

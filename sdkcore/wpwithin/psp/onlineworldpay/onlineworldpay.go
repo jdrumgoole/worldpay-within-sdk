@@ -11,9 +11,9 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay/types"
-	wpwithin_types "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/psp"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay/types"
+	wpwithin_types "github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 type OnlineWorldpay struct {

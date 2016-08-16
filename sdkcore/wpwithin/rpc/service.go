@@ -2,8 +2,8 @@ package rpc
 import (
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"fmt"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
 	"crypto/tls"
 	"errors"
 )

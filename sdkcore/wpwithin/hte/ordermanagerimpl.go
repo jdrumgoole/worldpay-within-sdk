@@ -3,7 +3,7 @@ package hte
 import (
 	"errors"
 
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 // Concrete implementation of order manager.. uses an in memory persistence for orders

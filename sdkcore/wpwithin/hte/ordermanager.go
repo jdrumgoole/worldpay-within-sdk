@@ -1,7 +1,7 @@
 package hte
 
 import (
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 // OrderManager coordinates during negotitation/payment/delivery flows

@@ -3,7 +3,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"time"
 	"encoding/json"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 type broadcasterImpl struct {

@@ -7,10 +7,10 @@ import (
 	"io/ioutil"
 
 	log "github.com/Sirupsen/logrus"
-	devclienttypes "innovation.worldpay.com/worldpay-within-sdk/applications/dev-client/types"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	devclienttypes "github.com/wptechinnovation/worldpay-within-sdk/applications/dev-client/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 func mGetDeviceInfo() error {

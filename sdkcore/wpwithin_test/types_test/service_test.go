@@ -4,7 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"os"
 	"flag"
-"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 func TestMain(m *testing.M) {

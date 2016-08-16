@@ -2,8 +2,8 @@ package hte_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/hte"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"testing"
 )
 

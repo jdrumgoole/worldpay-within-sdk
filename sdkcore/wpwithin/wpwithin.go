@@ -6,9 +6,9 @@ import (
 	"runtime/debug"
 	"time"
 
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/core"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/hte"
-	"innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/core"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/hte"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 
 	log "github.com/Sirupsen/logrus"
 )

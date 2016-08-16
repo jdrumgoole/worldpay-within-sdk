@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	rpc "innovation.worldpay.com/worldpay-within-sdk/sdkcore/wpwithin/rpc"
+	rpc "github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 )
 
 type IndividualConfig struct {
