@@ -11,6 +11,7 @@ The core of this SDK is written in Go with a native Go interface. Along with the
 * wrappers - Wrapper implementations in other languages using Thrift RPC.
 
 ## Further documentation
+
 * [Please see our documentation pages for more details on what Worldpay Within is](http://wptechInnovation.github.io/worldpay-within-sdk)
 * [Also for a detailed architecture guide for Worldpay Within please see our full documentation](http://wptechInnovation.github.io/worldpay-within-sdk)
 
@@ -33,7 +34,6 @@ The dev client can really be run from anywhere as it is not coupled with anythin
 * RPC Agent `./rpc-agent -configfile <filename>`. Please see explanation of rpc-agent config file for further info.
 
 * Dev Client `./dev-client`
-
 
 ## How to use this SDK
 
@@ -81,7 +81,3 @@ If you wish to develop using a wrapper library then please navigate to your chos
 * Change to the bin directory `cd $GOPATH/bin`
 * Type the following command to run the client app; `./dev-client`
 * The dev client should start, and you should be able to interact with the menu, more details on operating the dev-client app can be found under the dev-client app folder or the full documentation pages on for Worldpay Within on github.
-
-
-
-

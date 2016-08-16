@@ -24,4 +24,4 @@ Once the RPC agent is running, you can now start the Node app with `node main.js
 
 ## The flows and API
 
-[The flows and API can be found here](https://wptechinnovation.github.io/the-flows.html)
+[The flows and API can be found here](http://wptechinnovation.github.io/worldpay-within-sdk/the-flows.html)
