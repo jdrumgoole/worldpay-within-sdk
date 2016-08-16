@@ -14,4 +14,4 @@ The types referred to in wpwithin.thrift are stored here.
 
 ### Code generation
 
-If you intent to generate thrift client/server code then you may need to specify a namespace at the top of both files. Please note that a wrapper for Node.JS exists in the `feature/nodejs_wrapper` branch.
+If you intent to generate thrift client/server code then you may need to specify a namespace at the top of both files.
