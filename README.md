@@ -11,8 +11,8 @@ The core of this SDK is written in Go with a native Go interface. Along with the
 * wrappers - Wrapper implementations in other languages using Thrift RPC.
 
 ## Further documentation
-* [Please see our documentation pages for more details on what Worldpay Within is](https://wptechInnovation.github.io)
-* [Also for a detailed architecture guide for Worldpay Within please see our full documentation](https://wptechInnovation.github.io)
+* [Please see our documentation pages for more details on what Worldpay Within is](http://wptechInnovation.github.io/worldpay-within-sdk)
+* [Also for a detailed architecture guide for Worldpay Within please see our full documentation](http://wptechInnovation.github.ioworldpay-within-sdk)
 
 ## The SDK binaries - if you don't don't want to compile from sources
 
