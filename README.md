@@ -49,10 +49,7 @@ If you wish to develop using a wrapper library then please navigate to your chos
 * This is pretty simple to find on windows and Mac OS (OS X), note that Linux can be slightly trickier, but shouldn't be a problem either
 * Set up the environmental variables correctly; you only need to set $GOPATH, and that should be set as `<home>/<required_path>/<cloned_repo_structure>`, where `<home>` is wherever you want the code, `<required_path>` is `/src/github.com/wptechinnovation/`. For clarification the `$GOPATH` variable is where the source code for the Worldpay Within SDK will be, or you applicaiton code will reside, and is not the location of the actual golang binaries (for compiling and running go).
 * clone the repo to `$GOPATH/src/github.com/wptechinnovation/`
-* Get the dependencies; `go get github.com/Sirupsen/logrus`
-* Get the dependencies; `go get github.com/gorilla/mux`
-* Get the dependencies; `go get github.com/nu7hatch/gouuid`
-* Get the dependencies; `go get git.apache.org/thrift.git/lib/go/thrift`
+* Get the dependencies; `go get ./...`
 
 ### Install the RPC agent
 * Change directory to `cd $GOPATH/src/github.com/wptechninnovation/worldpay-within-sdk/applications/rpc-agent`
