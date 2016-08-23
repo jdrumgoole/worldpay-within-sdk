@@ -1,3 +1,5 @@
+var util = require('util');
+
 module.exports = {
   createClient: createClient
 };
@@ -26,6 +28,13 @@ function WPWithin(thriftClient) {
   this.endServiceDelivery = fnEndServiceDelivery;
 
 };
+
+function fnStartRPC(port, callback) {
+
+  var rpc = require('./rpc');
+
+  rpc.startRPC(port, callback);
+}
 
 var fnSetup = function(name, description, callback) {
 
@@ -157,26 +166,49 @@ var fnEndServiceDelivery = function(clientId, serviceDeliveryToken, unitsReceive
 
 // Factory setup WPWithinClient
 // Should return an instance of WPWithin
-function createClient(host, port, callback) {
+function createClient(host, port, startRPCAgent, callback) {
 
   try {
 
-    var thrift = require('thrift');
-    var WPWithinLib = require('./wpwithin-thrift/WPWithin');
+    var doCreate = function() {
 
-    transport = thrift.TBufferedTransport;
-    protocol = thrift.TBinaryProtocol;
+      var thrift = require('thrift');
+      var WPWithinLib = require('./wpwithin-thrift/WPWithin');
 
-    var connection = thrift.createConnection(host, port);
+      transport = thrift.TBufferedTransport;
+      protocol = thrift.TBinaryProtocol;
 
-    connection.on('error', function(err) {
+      var connection = thrift.createConnection(host, port);
 
-      callback(err, null);
-    });
+      connection.on('error', function(err) {
 
-    tc = thrift.createClient(WPWithinLib, connection);
+        callback(err, null);
+      });
 
-    return new WPWithin(tc);
+      tc = thrift.createClient(WPWithinLib, connection);
+
+      callback(null, new WPWithin(tc));
+    }
+
+    if(startRPCAgent) {
+
+      launchRPCAgent(port, function(error, stdout, stderr){
+
+          if(error == null) {
+
+            return doCreate();
+          } else {
+
+            var strErr = util.format("%s \n %s", error, stderr)
+
+            callback(strErr, null);
+          }
+      });
+
+    } else {
+
+      doCreate()
+    }
 
   } catch (err) {
 
@@ -186,9 +218,40 @@ function createClient(host, port, callback) {
   }
 };
 
-function fnStartRPC(port, callback) {
+function launchRPCAgent(port, callback) {
 
-  var rpc = require('./rpc');
+  var launcher = require('./launcher');
 
-  rpc.startRPC(port, callback);
-}
+  var config = {
+  	"windows": {
+  		"x64": null,
+  		"ia32": null,
+  		"arm": null
+  	},
+  	"darwin": {
+  		"x64": util.format("/Users/conor/Repositories/GoLang/src/github.com/wptechinnovation/worldpay-within-sdk/applications/rpc-agent/rpc-agent -port %d -logfile wpwithin.log", port),
+  		"ia32": util.format("/Users/conor/Repositories/GoLang/src/github.com/wptechinnovation/worldpay-within-sdk/applications/rpc-agent/rpc-agent -port %d -logfile wpwithin.log", port),
+  		"arm": null
+  	},
+  	"linux": {
+  		"x64": null,
+  		"ia32": null,
+  		"arm": null
+  	}
+  };
+
+  var launchCallback = function(error, stdout, stderr) {
+
+    console.log("-------------Launcher Process Event-------------");
+    console.log("error: " + error);
+    console.log("stdout: " + stdout);
+    console.log("stderr: " + stderr);
+    console.log("------------------------------------------------");
+
+    callback(error, stdout, stderr);
+  };
+
+  launcher.startProcess(config, launchCallback);
+
+  callback(null, null, null);
+};

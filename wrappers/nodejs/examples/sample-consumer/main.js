@@ -1,22 +1,33 @@
 var wpwithin = require('../../library/wpwithin');
 var types = require('../../library/types/types');
 var typesConverter = require('../../library/types/converter');
+var client;
 
-client = wpwithin.createClient("127.0.0.1", 9090, function(err, response){
+wpwithin.createClient("127.0.0.1", 9090, true, function(err, response){
 
   console.log("createClient.callback")
   console.log("createClient.callback.err: " + err)
   console.log("createClient.callback.response: %j", response);
+
+  if(err == null) {
+
+      client = response;
+
+      setup();
+  }
 });
 
-client.setup("NodeJS-Device", "Sample NodeJS consumer device", function(err, response){
+function setup() {
 
-  console.log("setup.callback.err: " + err);
-  console.log("setup.callback.response: %j", response);
+  client.setup("NodeJS-Device", "Sample NodeJS consumer device", function(err, response){
 
-  console.log("Calling discover devices..");
-  discoverDevices();
-});
+    console.log("setup.callback.err: " + err);
+    console.log("setup.callback.response: %j", response);
+
+    console.log("Calling discover devices..");
+    discoverDevices();
+  })
+};
 
 function discoverDevices() {
 
