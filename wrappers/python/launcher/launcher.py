@@ -36,7 +36,7 @@ def runRPCAgent(execPath,execMapStr,execParam):
 
 def main():
     print 'Platform: ' + os_platform() +'-'+ os_arch()
-    runRPCAgent("../rpc-agent/","{'linux-32':'rpc-agent-linux-32','linux-64':'rpc-agent-linux-64','win-32':'rpc-agent-win-32.exe','win-64':'rpc-agent-win-64.exe'}","-port=9090")
+    runRPCAgent("../rpc-agent/","{'linux-32':'rpc-agent-linux-32','linux-64':'rpc-agent-linux-64','win-32':'rpc-agent-win-32.exe','win-64':'rpc-agent-win-64.exe','mac-32':'rpc-agent-mac-32','mac-64':'rpc-agent-mac-64'}","-port=9090")
 
 if __name__ == "__main__":
     main()
