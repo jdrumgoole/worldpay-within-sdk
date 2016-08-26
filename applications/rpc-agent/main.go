@@ -118,8 +118,7 @@ func initArgs() {
 		log.Debug("Begin PopulateConfiguration() from config file")
 
 		// Pull from config file - command line overwrites
-		rpcConfig = rpc.Configuration{}
-		rpcConfig = conf.PopulateConfiguration(configFileValue, rpcConfig)
+		rpcConfig := conf.PopulateConfiguration(configFileValue)
 
 		log.Debug("End PopulateConfiguration() from config file")
 

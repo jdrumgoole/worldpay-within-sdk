@@ -41,9 +41,11 @@ func loadConfig(configPath string) (configuration ConfigurationLocal) {
 	return
 }
 
-func PopulateConfiguration(configPath string, rpcConfig rpc.Configuration) (rpcConfigReturn rpc.Configuration) {
+func PopulateConfiguration(configPath string) rpc.Configuration {
 
 	configuration := loadConfig(configPath)
+
+	var rpcConfig = rpc.Configuration{}
 
 	rpcConfig.Protocol = configuration.WorldpayWithinConfig.Protocol
 	rpcConfig.Framed = configuration.WorldpayWithinConfig.Framed
@@ -54,8 +56,6 @@ func PopulateConfiguration(configPath string, rpcConfig rpc.Configuration) (rpcC
 	rpcConfig.Secure = configuration.WorldpayWithinConfig.Secure
 	rpcConfig.BufferSize = configuration.WorldpayWithinConfig.BufferSize
 
-	rpcConfigReturn = rpcConfig
-
-	return
+	return rpcConfig
 
 }
