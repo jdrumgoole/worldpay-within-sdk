@@ -85,7 +85,7 @@ func Initialise(name, description string) (WPWithin, error) {
 	result.core = core
 
 	// Parse configuration
-	rawCfg, err := configuration.Load("config.json")
+	rawCfg, err := configuration.Load("wpwconfig.json")
 	wpwConfig := configuration.WPWithin{}
 	wpwConfig.ParseConfig(rawCfg)
 	core.Configuration = wpwConfig
