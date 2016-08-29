@@ -20,11 +20,17 @@ func Load(configPath string) (Configuration, error) {
 		return Configuration{}, errors.New("configPath is not set")
 	}
 
-	file, _ := os.Open(configPath)
+	file, err := os.Open(configPath)
+
+	if err != nil {
+
+		return Configuration{}, err
+	}
+
 	decoder := json.NewDecoder(file)
 
 	var tmpConfig []Item
-	err := decoder.Decode(&tmpConfig)
+	err = decoder.Decode(&tmpConfig)
 
 	if err != nil {
 

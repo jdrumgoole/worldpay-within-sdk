@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configuration"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
@@ -17,6 +18,7 @@ type Core struct {
 	HCECard        *types.HCECard
 	OrderManager   hte.OrderManager
 	HTEClient      hte.Client
+	Configuration  configuration.WPWithin
 }
 
 // Create a new Core

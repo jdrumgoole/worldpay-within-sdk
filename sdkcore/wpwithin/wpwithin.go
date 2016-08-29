@@ -4,11 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"runtime/debug"
+	"strings"
 	"time"
 
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configuration"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/core"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -80,6 +83,14 @@ func Initialise(name, description string) (WPWithin, error) {
 	}
 
 	result.core = core
+
+	// Parse configuration
+	rawCfg, err := configuration.Load("config.json")
+	wpwConfig := configuration.WPWithin{}
+	wpwConfig.ParseConfig(rawCfg)
+	core.Configuration = wpwConfig
+
+	doWebSocketLogSetup(core.Configuration)
 
 	dev, err := Factory.GetDevice(name, description)
 
@@ -535,4 +546,43 @@ func (wp *wpWithinImpl) EndServiceDelivery(clientID string, serviceDeliveryToken
 	}()
 
 	return errors.New("EndServiceDelivery() not yet implemented..")
+}
+
+func doWebSocketLogSetup(cfg configuration.WPWithin) {
+
+	if cfg.WSLogEnable {
+
+		// Clean up the levels config value - just in case.
+		strLevels := strings.Replace(cfg.WSLogLevel, " ", "", -1)
+		logLevels := strings.Split(strLevels, ",")
+
+		// Support all levels
+		var levels []log.Level
+
+		for _, level := range logLevels {
+
+			switch strings.ToLower(level) {
+
+			case "panic":
+				levels = append(levels, log.PanicLevel)
+			case "fatal":
+				levels = append(levels, log.FatalLevel)
+			case "error":
+				levels = append(levels, log.ErrorLevel)
+			case "warn":
+				levels = append(levels, log.WarnLevel)
+			case "info":
+				levels = append(levels, log.InfoLevel)
+			case "debug":
+				levels = append(levels, log.DebugLevel)
+			}
+		}
+
+		err := wslog.Initialise("", cfg.WSLogPort, levels)
+
+		if err != nil {
+
+			fmt.Println(err.Error())
+		}
+	}
 }
