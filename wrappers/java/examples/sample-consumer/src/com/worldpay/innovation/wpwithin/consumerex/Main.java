@@ -3,9 +3,6 @@ package com.worldpay.innovation.wpwithin.consumerex;
 import com.worldpay.innovation.wpwithin.WPWithinGeneralException;
 import com.worldpay.innovation.wpwithin.WPWithinWrapper;
 import com.worldpay.innovation.wpwithin.WPWithinWrapperImpl;
-import com.worldpay.innovation.wpwithin.rpc.types.HCECard;
-import com.worldpay.innovation.wpwithin.rpc.types.ServiceMessage;
-import com.worldpay.innovation.wpwithin.thriftadapter.HCECardAdapter;
 import com.worldpay.innovation.wpwithin.types.*;
 
 import java.util.Iterator;
@@ -18,7 +15,7 @@ public class Main {
     public static void main(String[] args) {
 
         System.out.println("Starting Consumer Example Written in Java.");
-        wpw = new WPWithinWrapperImpl("127.0.0.1", 9090);
+        wpw = new WPWithinWrapperImpl("127.0.0.1", 9090, true);
 
         try {
 
@@ -53,6 +50,8 @@ public class Main {
                     }
                 }
             }
+
+            wpw.stopRPCAgent();
 
         } catch(WPWithinGeneralException wpge) {
 

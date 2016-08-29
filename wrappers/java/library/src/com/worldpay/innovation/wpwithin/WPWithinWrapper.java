@@ -187,4 +187,6 @@ public interface WPWithinWrapper {
      * @throws WPWithinGeneralException 
      */
     public void endServiceDelivery(String clientId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsReceived) throws WPWithinGeneralException;
+
+    void stopRPCAgent();
 }

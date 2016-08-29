@@ -6,39 +6,25 @@
 package com.worldpay.innovation.wpwithin;
 
 import com.worldpay.innovation.wpwithin.rpc.WPWithin;
-import com.worldpay.innovation.wpwithin.rpc.types.Device;
-import com.worldpay.innovation.wpwithin.rpc.types.HCECard;
-import com.worldpay.innovation.wpwithin.rpc.types.PaymentResponse;
-import com.worldpay.innovation.wpwithin.rpc.types.Price;
-import com.worldpay.innovation.wpwithin.rpc.types.PricePerUnit;
-import com.worldpay.innovation.wpwithin.rpc.types.Service;
-import com.worldpay.innovation.wpwithin.rpc.types.ServiceDeliveryToken;
-import com.worldpay.innovation.wpwithin.rpc.types.ServiceDetails;
-import com.worldpay.innovation.wpwithin.rpc.types.ServiceMessage;
-import com.worldpay.innovation.wpwithin.rpc.types.TotalPriceResponse;
+import com.worldpay.innovation.wpwithin.rpc.launcher.*;
 import com.worldpay.innovation.wpwithin.thriftadapter.*;
-import com.worldpay.innovation.wpwithin.types.WWDevice;
-import com.worldpay.innovation.wpwithin.types.WWHCECard;
-import com.worldpay.innovation.wpwithin.types.WWPaymentResponse;
-import com.worldpay.innovation.wpwithin.types.WWPrice;
-import com.worldpay.innovation.wpwithin.types.WWPricePerUnit;
-import com.worldpay.innovation.wpwithin.types.WWService;
-import com.worldpay.innovation.wpwithin.types.WWServiceDeliveryToken;
-import com.worldpay.innovation.wpwithin.types.WWServiceDetails;
-import com.worldpay.innovation.wpwithin.types.WWServiceMessage;
-import com.worldpay.innovation.wpwithin.types.WWTotalPriceResponse;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.worldpay.innovation.wpwithin.types.*;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -51,10 +37,77 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
     private String hostConfig;
     private Integer portConfig;
     private WPWithin.Client cachedClient;
+    private Launcher launcher;
 
-    public WPWithinWrapperImpl(String host, Integer port) {
+    private void startRPCAgent(int port) {
+
+        launcher = new Launcher();
+
+        Map<OS, PlatformConfig> launchConfig = new HashMap<>(3);
+
+        PlatformConfig winConfig = new PlatformConfig();
+        winConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent-win-32 -port=%d", port));
+        winConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-win-64 -port=%d", port));
+        winConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-win-armv5 -port=%d", port));
+        launchConfig.put(OS.WINDOWS, winConfig);
+
+        PlatformConfig linuxConfig = new PlatformConfig();
+        linuxConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent-linux-32 -port=%d", port));
+        linuxConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-linux-64 -port=%d", port));
+        linuxConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-linux-armv5 -port=%d", port));
+        launchConfig.put(OS.LINUX, linuxConfig);
+
+
+        PlatformConfig macConfig = new PlatformConfig();
+        macConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent/rpc-agent-mac-32 -port=%d", port));
+        macConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-mac-64 -port=%d", port));
+        macConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-mac-armv5 -port=%d", port));
+        launchConfig.put(OS.MAC, macConfig);
+
+
+        Listener listener = new Listener() {
+
+            @Override
+            public void onApplicationExit(int exitCode, String stdOutput, String errOutput) {
+
+                System.out.printf("RPC Agent did exit with code: %d\n", exitCode);
+
+                try {
+
+                    String output = launcher.getStdOutput();
+                    String error = launcher.getErrorOutput();
+
+                    System.out.println("Output: " + output);
+                    System.out.println("Error: " + error);
+
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        try {
+
+            launcher.startProcess(launchConfig, listener);
+
+        } catch (WPWithinGeneralException ioe) {
+
+            ioe.printStackTrace();
+        }
+    }
+
+    public WPWithinWrapperImpl(String host, Integer port, boolean startRPCAgent) {
+
         this.hostConfig = host;
         this.portConfig = port;
+
+        if(startRPCAgent) {
+
+            startRPCAgent(port);
+        }
+
         setClientIfNotSet();
     }
     
@@ -238,6 +291,19 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
         } catch (TException ex) {
             Logger.getLogger(WPWithinWrapperImpl.class.getName()).log(Level.SEVERE, "Failed to end Service Delivery in the wrapper", ex);
             throw new WPWithinGeneralException("Failed to end Service Delivery in the wrapper");
+        }
+    }
+
+    @Override
+    public void stopRPCAgent() {
+
+        try {
+
+            launcher.stopProcess();
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(e);
         }
     }
 }
