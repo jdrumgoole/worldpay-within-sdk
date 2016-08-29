@@ -7,7 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
-	conf "github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configLoad"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configuration"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 )
 
@@ -54,6 +54,18 @@ const argNameBuffer = "buffer"
 // Globally scoped vars
 var sdk wpwithin.WPWithin
 var rpcConfig rpc.Configuration
+
+const (
+	keyBufferSize string = "BufferSize"
+	keyBuffered   string = "Buffered"
+	keyFramed     string = "Framed"
+	keyHost       string = "Host"
+	keyLogfile    string = "Logfile"
+	keyLoglevel   string = "Loglevel"
+	keyPort       string = "Port"
+	keyProtocol   string = "Protocol"
+	keySecure     string = "Secure"
+)
 
 func main() {
 
@@ -118,22 +130,34 @@ func initArgs() {
 		log.Debug("Begin PopulateConfiguration() from config file")
 
 		// Pull from config file - command line overwrites
-		rpcConfig := conf.PopulateConfiguration(configFileValue)
+		// rpcConfig := conf.PopulateConfiguration(configFileValue)
+		config, err := configuration.Load(configFileValue)
+
+		if err != nil {
+
+			fmt.Println(err.Error())
+			os.Exit(2)
+		}
 
 		log.Debug("End PopulateConfiguration() from config file")
 
 		// Use config file
-		logLevelValue = rpcConfig.Loglevel
-		logFileValue = rpcConfig.Logfile
+		logLevelValue = config.GetValue(keyLoglevel).Value
+		logFileValue = config.GetValue(keyLogfile).Value
 
 		// Program specific arguments
-		protocolValue = rpcConfig.Protocol
-		framedValue = rpcConfig.Framed
-		bufferedValue = rpcConfig.Buffered
-		hostValue = rpcConfig.Host
-		portValue = rpcConfig.Port
-		secureValue = rpcConfig.Secure
-		bufferValue = rpcConfig.BufferSize
+		protocolValue = config.GetValue(keyProtocol).Value
+		framed, err := config.GetValue(keyFramed).ReadBool()
+		framedValue = framed
+		buffered, err := config.GetValue(keyBuffered).ReadBool()
+		bufferedValue = buffered
+		hostValue = config.GetValue(keyHost).Value
+		port, err := config.GetValue(keyPort).ReadInt()
+		portValue = port
+		secure, err := config.GetValue(keySecure).ReadBool()
+		secureValue = secure
+		bufferSize, err := config.GetValue(keyBufferSize).ReadInt()
+		bufferValue = bufferSize
 
 		log.Debug("Before parsing the config file")
 		// TODO write parser for config file

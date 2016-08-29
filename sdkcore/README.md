@@ -9,7 +9,7 @@ This is the actual source code for the core Worldpay Within SDK it is separated 
 
 The core Worldpay Within code, does the important parts of the work, including host terminal emulation, contacts to the payment gateway, managing the RPC calls, and service discovery, etc.
 
-### configLoad
+### configuration
 
 This enables the core to load in key information from a config file.
 
