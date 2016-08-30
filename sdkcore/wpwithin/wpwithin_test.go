@@ -1,24 +1,127 @@
 package wpwithin
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/core"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/mock"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-func TestInitialise(t *testing.T) {
+var wpw *wpWithinImpl
+var factory core.SDKFactory
 
-}
+func setupWPWConsumer() error {
 
-func TestAddService(t *testing.T) {
+	// Setup PSP as client
 
-	wpw, err := Initialise("test", "description")
+	_psp, err := factory.GetPSPClient()
 
 	if err != nil {
 
-		t.Error(err.Error())
+		return err
 	}
+
+	wpw.core.Psp = _psp
+
+	wpw.core.HCECard = &types.HCECard{
+		FirstName:  "John",
+		LastName:   "Smyth",
+		ExpMonth:   12,
+		ExpYear:    2025,
+		CardNumber: "4444333322221111",
+		Type:       "Card",
+		Cvc:        "123",
+	}
+
+	// Setup HTE Client
+
+	client, _ := factory.GetHTEClient()
+
+	wpw.core.HTEClient = client
+
+	return nil
+}
+
+func setupWPW() error {
+
+	_wpw := &wpWithinImpl{}
+	wpw = _wpw
+
+	core, err := core.NewCore()
+
+	if err != nil {
+
+		return err
+	}
+
+	wpw.core = core
+
+	_factory, err := mock.NewSDKFactory(core)
+	factory = _factory
+
+	if err != nil {
+
+		return fmt.Errorf("Unable to create SDK Factory: %q", err.Error())
+	}
+
+	// Mock configuration
+	core.Configuration = mock.NewWPWConfig()
+
+	dev, err := factory.GetDevice("test-device-name", "test-device-description")
+
+	if err != nil {
+
+		return err
+	}
+
+	wpw.core.Device = dev
+
+	om, err := factory.GetOrderManager()
+
+	if err != nil {
+
+		return err
+
+	}
+
+	wpw.core.OrderManager = om
+
+	bc, err := factory.GetSvcBroadcaster(wpw.core.Device.IPv4Address)
+
+	if err != nil {
+
+		return err
+	}
+
+	wpw.core.SvcBroadcaster = bc
+
+	sc, err := factory.GetSvcScanner()
+
+	if err != nil {
+
+		return err
+
+	}
+
+	wpw.core.SvcScanner = sc
+
+	return nil
+}
+
+func TestProducerAddService(t *testing.T) {
+
+	setupWPW()
+	setupWPWConsumer()
+
+	// wpw, err := Initialise("test", "description")
+	//
+	// if err != nil {
+	//
+	// 	t.Error(err.Error())
+	// }
 
 	svc, err := types.NewService()
 	if err != nil {
@@ -80,7 +183,7 @@ func TestAddService(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, 1, len(services), "Should have only received one service")
+	assert.Equal(t, 1, len(services), "Should have received one service")
 
 	svcDetails := services[0]
 
@@ -95,8 +198,4 @@ func TestAddService(t *testing.T) {
 	}
 
 	assert.Equal(t, 2, len(svcPrices), "Should be equal - 2 prices added previously")
-
-	// svcPriceA := svcPrices[0]
-	// svcPriceB := svcPrices[1]
-
 }
