@@ -5,8 +5,10 @@ from thriftpy.transport.buffered import TBufferedTransportFactory
 
 try:
     from ttypes import *
+    from launcher import runRPCAgent
 except ImportError:
     from .ttypes import *
+    from .launcher import runRPCAgent
 
 wptypes_thrift = thriftpy.load('wptypes.thrift', module_name="wptypes_thrift")
 
@@ -112,6 +114,10 @@ class WPWithin(object):
             self.thriftClient.endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived)
         except wpt.Error as err:
             raise Error(err.message)
+
+    def runRPCAgent(port):
+        runRPCAgent("../rpc-agent/", port)
+
 
 def createClient(host, port):
     wpw_thrift = thriftpy.load('wpwithin.thrift', module_name="wpw_thrift")
