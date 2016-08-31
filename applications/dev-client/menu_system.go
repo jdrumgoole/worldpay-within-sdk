@@ -3,11 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
-	devclienttypes "github.com/wptechinnovation/worldpay-within-sdk/applications/dev-client/types"
-	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
 	"os"
 	"strconv"
 	"strings"
+
+	devclienttypes "github.com/wptechinnovation/worldpay-within-sdk/applications/dev-client/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
 )
 
 var sdk wpwithin.WPWithin
@@ -53,7 +54,7 @@ func promptContinue() bool {
 
 	fmt.Print("Continue (y/n): ")
 	var cont string
-	_, err := fmt.Scanf("%s", &cont)
+	_, err := fmt.Scanf("%s\n", &cont)
 
 	if err != nil {
 
@@ -139,11 +140,11 @@ func getUserInput(input interface{}) error {
 
 	switch t := input.(type) {
 	case *int:
-		_, err = fmt.Scanf("%d", input)
+		_, err = fmt.Scanf("%d\n", input)
 	case *int32:
-		_, err = fmt.Scanf("%d", input)
+		_, err = fmt.Scanf("%d\n", input)
 	case *string:
-		_, err = fmt.Scanf("%s", input)
+		_, err = fmt.Scanf("%s\n", input)
 	default:
 		fmt.Printf("unexpected type %T", t)
 	}
