@@ -29,6 +29,8 @@ func main() {
 
 	addService()
 
+	eh := EventHandlerImpl{}
+	wp.SetEventHandler(&eh)
 	err = wp.InitProducer("T_C_03eaa1d3-4642-4079-b030-b543ee04b5af", "T_S_f50ecb46-ca82-44a7-9c40-421818af5996")
 
 	if err != nil {
