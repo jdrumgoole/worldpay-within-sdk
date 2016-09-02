@@ -15,7 +15,8 @@ public class Main {
     public static void main(String[] args) {
 
         System.out.println("Starting Consumer Example Written in Java.");
-        wpw = new WPWithinWrapperImpl("127.0.0.1", 9090, true);
+        wpw = new WPWithinWrapperImpl("127.0.0.1", 9087, false);
+
 
         try {
 
@@ -46,7 +47,7 @@ public class Main {
 
                         WWTotalPriceResponse tpr = getServicePriceQuote(svcDetail.getServiceId(), 1, svcPrice.getId());
 
-                        WWPaymentResponse paymentResponse = purchaseService(tpr);
+                        WWPaymentResponse paymentResponse = purchaseService(svcDetail.getServiceId(), tpr);
                     }
                 }
             }
@@ -61,7 +62,7 @@ public class Main {
 
     private static Set<WWServiceMessage> discoverDevices() throws WPWithinGeneralException {
 
-        Set<WWServiceMessage> devices = wpw.deviceDiscovery(20000);
+        Set<WWServiceMessage> devices = wpw.deviceDiscovery(25000);
 
         if(devices.size() > 0) {
 
@@ -176,7 +177,7 @@ public class Main {
         return tpr;
     }
 
-    private static WWPaymentResponse purchaseService(WWTotalPriceResponse pReq) throws WPWithinGeneralException {
+    private static WWPaymentResponse purchaseService(int serviceID, WWTotalPriceResponse pReq) throws WPWithinGeneralException {
 
         WWPaymentResponse pResp = wpw.makePayment(pReq);
 
@@ -192,11 +193,36 @@ public class Main {
             System.out.printf("ServiceDeliveryToken.signature: %s\n", pResp.getServiceDeliveryToken().getSignature());
             System.out.printf("ServiceDeliveryToken.refundOnExpiry: %b\n", pResp.getServiceDeliveryToken().isRefundOnExpiry());
 
+            beginServiceDelivery(serviceID, pResp.getServiceDeliveryToken(), 1);
+
         } else {
 
             System.out.println("Result of make payment is null..");
         }
 
         return pResp;
+    }
+
+    private static void beginServiceDelivery(int serviceID, WWServiceDeliveryToken token, int unitsToSupply) throws WPWithinGeneralException {
+
+        System.out.println("Calling beginServiceDelivery()");
+
+        wpw.beginServiceDelivery(serviceID, token, unitsToSupply);
+
+        try {
+            System.out.println("Sleeping 10 seconds..");
+            Thread.sleep(10000);
+            endServiceDelivery(serviceID, token, unitsToSupply);
+        } catch (InterruptedException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    private static void endServiceDelivery(int serviceID, WWServiceDeliveryToken token, int unitsReceived) throws WPWithinGeneralException {
+
+        System.out.println("Calling beginServiceDelivery()");
+
+        wpw.endServiceDelivery(serviceID, token, unitsReceived);
     }
 }

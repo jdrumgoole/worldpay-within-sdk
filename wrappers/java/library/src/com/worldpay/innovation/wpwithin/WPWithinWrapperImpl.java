@@ -5,6 +5,8 @@
  */
 package com.worldpay.innovation.wpwithin;
 
+import com.worldpay.innovation.wpwithin.eventlistener.EventListener;
+import com.worldpay.innovation.wpwithin.eventlistener.EventServer;
 import com.worldpay.innovation.wpwithin.rpc.WPWithin;
 import com.worldpay.innovation.wpwithin.rpc.launcher.*;
 import com.worldpay.innovation.wpwithin.thriftadapter.*;
@@ -37,78 +39,39 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
     private String hostConfig;
     private Integer portConfig;
     private WPWithin.Client cachedClient;
+    private EventServer eventServer;
     private Launcher launcher;
-
-    private void startRPCAgent(int port) {
-
-        launcher = new Launcher();
-
-        Map<OS, PlatformConfig> launchConfig = new HashMap<>(3);
-
-        PlatformConfig winConfig = new PlatformConfig();
-        winConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent-win-32 -port=%d", port));
-        winConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-win-64 -port=%d", port));
-        winConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-win-armv5 -port=%d", port));
-        launchConfig.put(OS.WINDOWS, winConfig);
-
-        PlatformConfig linuxConfig = new PlatformConfig();
-        linuxConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent-linux-32 -port=%d", port));
-        linuxConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-linux-64 -port=%d", port));
-        linuxConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-linux-armv5 -port=%d", port));
-        launchConfig.put(OS.LINUX, linuxConfig);
-
-
-        PlatformConfig macConfig = new PlatformConfig();
-        macConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent/rpc-agent-mac-32 -port=%d", port));
-        macConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-mac-64 -port=%d", port));
-        macConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-mac-armv5 -port=%d", port));
-        launchConfig.put(OS.MAC, macConfig);
-
-
-        Listener listener = new Listener() {
-
-            @Override
-            public void onApplicationExit(int exitCode, String stdOutput, String errOutput) {
-
-                System.out.printf("RPC Agent did exit with code: %d\n", exitCode);
-
-                try {
-
-                    String output = launcher.getStdOutput();
-                    String error = launcher.getErrorOutput();
-
-                    System.out.println("Output: " + output);
-                    System.out.println("Error: " + error);
-
-
-                } catch (Exception e) {
-
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        try {
-
-            launcher.startProcess(launchConfig, listener);
-
-        } catch (WPWithinGeneralException ioe) {
-
-            ioe.printStackTrace();
-        }
-    }
 
     public WPWithinWrapperImpl(String host, Integer port, boolean startRPCAgent) {
 
-        this.hostConfig = host;
-        this.portConfig = port;
+        this(host, port, startRPCAgent, null, 0);
+    }
+
+    public WPWithinWrapperImpl(String rpcHost, Integer rpcPort, boolean startRPCAgent, EventListener eventListener, int callbackPort){
+
+        this.hostConfig = rpcHost;
+        this.portConfig = rpcPort;
 
         if(startRPCAgent) {
 
-            startRPCAgent(port);
+            startRPCAgent(callbackPort);
         }
 
         setClientIfNotSet();
+
+        if(eventListener != null) {
+
+            if(callbackPort <= 0 || callbackPort > 65535) {
+
+                throw new WPWithinGeneralException("Callback port must be >0 and <65535");
+            }
+
+            eventServer = new EventServer();
+
+            eventServer.start(eventListener, callbackPort);
+
+            System.out.printf("Did setup and start event server on port: %d\n", callbackPort);
+        }
     }
     
     private void setClientIfNotSet() {
@@ -140,6 +103,7 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
 
     @Override
     public void setup(String name, String description) throws WPWithinGeneralException {
+
         try {
             getClient().setup(name, description);
         } catch (TException ex) {
@@ -275,9 +239,9 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
     }
 
     @Override
-    public void beginServiceDelivery(String clientId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsToSupply) throws WPWithinGeneralException {
+    public void beginServiceDelivery(int serviceId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsToSupply) throws WPWithinGeneralException {
         try {
-            getClient().beginServiceDelivery(clientId, ServiceDeliveryTokenAdapter.convertWWServiceDeliveryToken(serviceDeliveryToken), unitsToSupply);
+            getClient().beginServiceDelivery(serviceId, ServiceDeliveryTokenAdapter.convertWWServiceDeliveryToken(serviceDeliveryToken), unitsToSupply);
         } catch (TException ex) {
             Logger.getLogger(WPWithinWrapperImpl.class.getName()).log(Level.SEVERE, "Failed to begin Service Delivery in the wrapper", ex);
             throw new WPWithinGeneralException("Failed to begin Service Delivery in the wrapper");
@@ -285,9 +249,9 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
     }
 
     @Override
-    public void endServiceDelivery(String clientId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsReceived) throws WPWithinGeneralException {
+    public void endServiceDelivery(int serviceId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsReceived) throws WPWithinGeneralException {
         try {
-            getClient().endServiceDelivery(clientId, ServiceDeliveryTokenAdapter.convertWWServiceDeliveryToken(serviceDeliveryToken), unitsReceived);
+            getClient().endServiceDelivery(serviceId, ServiceDeliveryTokenAdapter.convertWWServiceDeliveryToken(serviceDeliveryToken), unitsReceived);
         } catch (TException ex) {
             Logger.getLogger(WPWithinWrapperImpl.class.getName()).log(Level.SEVERE, "Failed to end Service Delivery in the wrapper", ex);
             throw new WPWithinGeneralException("Failed to end Service Delivery in the wrapper");
@@ -299,11 +263,73 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
 
         try {
 
-            launcher.stopProcess();
+            if(launcher != null) {
+
+                launcher.stopProcess();
+            }
 
         } catch (Exception e) {
 
             throw new RuntimeException(e);
+        }
+    }
+
+    private void startRPCAgent(int port) {
+
+        launcher = new Launcher();
+
+        Map<OS, PlatformConfig> launchConfig = new HashMap<>(3);
+
+        PlatformConfig winConfig = new PlatformConfig();
+        winConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent-win-32 -port=%d", port));
+        winConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-win-64 -port=%d", port));
+        winConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-win-armv5 -port=%d", port));
+        launchConfig.put(OS.WINDOWS, winConfig);
+
+        PlatformConfig linuxConfig = new PlatformConfig();
+        linuxConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent-linux-32 -port=%d", port));
+        linuxConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-linux-64 -port=%d", port));
+        linuxConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-linux-armv5 -port=%d", port));
+        launchConfig.put(OS.LINUX, linuxConfig);
+
+
+        PlatformConfig macConfig = new PlatformConfig();
+        macConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent/rpc-agent-mac-32 -port=%d", port));
+        macConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-mac-64 -port=%d", port));
+        macConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-mac-armv5 -port=%d", port));
+        launchConfig.put(OS.MAC, macConfig);
+
+
+        Listener listener = new Listener() {
+
+            @Override
+            public void onApplicationExit(int exitCode, String stdOutput, String errOutput) {
+
+                System.out.printf("RPC Agent did exit with code: %d\n", exitCode);
+
+                try {
+
+                    String output = launcher.getStdOutput();
+                    String error = launcher.getErrorOutput();
+
+                    System.out.println("Output: " + output);
+                    System.out.println("Error: " + error);
+
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        try {
+
+            launcher.startProcess(launchConfig, listener);
+
+        } catch (WPWithinGeneralException ioe) {
+
+            ioe.printStackTrace();
         }
     }
 }

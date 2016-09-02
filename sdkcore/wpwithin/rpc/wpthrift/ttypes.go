@@ -6,7 +6,6 @@ package wpthrift
 import (
 	"bytes"
 	"fmt"
-
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
 )

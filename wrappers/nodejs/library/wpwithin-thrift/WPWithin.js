@@ -1650,12 +1650,12 @@ wpthrift.WPWithin_makePayment_result.prototype.write = function(output) {
 };
 
 wpthrift.WPWithin_beginServiceDelivery_args = function(args) {
-  this.clientId = null;
+  this.serviceID = null;
   this.serviceDeliveryToken = null;
   this.unitsToSupply = null;
   if (args) {
-    if (args.clientId !== undefined && args.clientId !== null) {
-      this.clientId = args.clientId;
+    if (args.serviceID !== undefined && args.serviceID !== null) {
+      this.serviceID = args.serviceID;
     }
     if (args.serviceDeliveryToken !== undefined && args.serviceDeliveryToken !== null) {
       this.serviceDeliveryToken = new wptypes_ttypes.ServiceDeliveryToken(args.serviceDeliveryToken);
@@ -1680,8 +1680,8 @@ wpthrift.WPWithin_beginServiceDelivery_args.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.clientId = input.readString();
+      if (ftype == Thrift.Type.I32) {
+        this.serviceID = input.readI32();
       } else {
         input.skip(ftype);
       }
@@ -1712,9 +1712,9 @@ wpthrift.WPWithin_beginServiceDelivery_args.prototype.read = function(input) {
 
 wpthrift.WPWithin_beginServiceDelivery_args.prototype.write = function(output) {
   output.writeStructBegin('WPWithin_beginServiceDelivery_args');
-  if (this.clientId !== null && this.clientId !== undefined) {
-    output.writeFieldBegin('clientId', Thrift.Type.STRING, 1);
-    output.writeString(this.clientId);
+  if (this.serviceID !== null && this.serviceID !== undefined) {
+    output.writeFieldBegin('serviceID', Thrift.Type.I32, 1);
+    output.writeI32(this.serviceID);
     output.writeFieldEnd();
   }
   if (this.serviceDeliveryToken !== null && this.serviceDeliveryToken !== undefined) {
@@ -1791,12 +1791,12 @@ wpthrift.WPWithin_beginServiceDelivery_result.prototype.write = function(output)
 };
 
 wpthrift.WPWithin_endServiceDelivery_args = function(args) {
-  this.clientId = null;
+  this.serviceID = null;
   this.serviceDeliveryToken = null;
   this.unitsReceived = null;
   if (args) {
-    if (args.clientId !== undefined && args.clientId !== null) {
-      this.clientId = args.clientId;
+    if (args.serviceID !== undefined && args.serviceID !== null) {
+      this.serviceID = args.serviceID;
     }
     if (args.serviceDeliveryToken !== undefined && args.serviceDeliveryToken !== null) {
       this.serviceDeliveryToken = new wptypes_ttypes.ServiceDeliveryToken(args.serviceDeliveryToken);
@@ -1821,8 +1821,8 @@ wpthrift.WPWithin_endServiceDelivery_args.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.clientId = input.readString();
+      if (ftype == Thrift.Type.I32) {
+        this.serviceID = input.readI32();
       } else {
         input.skip(ftype);
       }
@@ -1853,9 +1853,9 @@ wpthrift.WPWithin_endServiceDelivery_args.prototype.read = function(input) {
 
 wpthrift.WPWithin_endServiceDelivery_args.prototype.write = function(output) {
   output.writeStructBegin('WPWithin_endServiceDelivery_args');
-  if (this.clientId !== null && this.clientId !== undefined) {
-    output.writeFieldBegin('clientId', Thrift.Type.STRING, 1);
-    output.writeString(this.clientId);
+  if (this.serviceID !== null && this.serviceID !== undefined) {
+    output.writeFieldBegin('serviceID', Thrift.Type.I32, 1);
+    output.writeI32(this.serviceID);
     output.writeFieldEnd();
   }
   if (this.serviceDeliveryToken !== null && this.serviceDeliveryToken !== undefined) {
@@ -2572,7 +2572,7 @@ wpthrift.WPWithinClient.prototype.recv_makePayment = function(input,mtype,rseqid
   }
   return callback('makePayment failed: unknown result');
 };
-wpthrift.WPWithinClient.prototype.beginServiceDelivery = function(clientId, serviceDeliveryToken, unitsToSupply, callback) {
+wpthrift.WPWithinClient.prototype.beginServiceDelivery = function(serviceID, serviceDeliveryToken, unitsToSupply, callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
     var _defer = Q.defer();
@@ -2583,19 +2583,19 @@ wpthrift.WPWithinClient.prototype.beginServiceDelivery = function(clientId, serv
         _defer.resolve(result);
       }
     };
-    this.send_beginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply);
+    this.send_beginServiceDelivery(serviceID, serviceDeliveryToken, unitsToSupply);
     return _defer.promise;
   } else {
     this._reqs[this.seqid()] = callback;
-    this.send_beginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply);
+    this.send_beginServiceDelivery(serviceID, serviceDeliveryToken, unitsToSupply);
   }
 };
 
-wpthrift.WPWithinClient.prototype.send_beginServiceDelivery = function(clientId, serviceDeliveryToken, unitsToSupply) {
+wpthrift.WPWithinClient.prototype.send_beginServiceDelivery = function(serviceID, serviceDeliveryToken, unitsToSupply) {
   var output = new this.pClass(this.output);
   output.writeMessageBegin('beginServiceDelivery', Thrift.MessageType.CALL, this.seqid());
   var args = new wpthrift.WPWithin_beginServiceDelivery_args();
-  args.clientId = clientId;
+  args.serviceID = serviceID;
   args.serviceDeliveryToken = serviceDeliveryToken;
   args.unitsToSupply = unitsToSupply;
   args.write(output);
@@ -2621,7 +2621,7 @@ wpthrift.WPWithinClient.prototype.recv_beginServiceDelivery = function(input,mty
   }
   callback(null)
 };
-wpthrift.WPWithinClient.prototype.endServiceDelivery = function(clientId, serviceDeliveryToken, unitsReceived, callback) {
+wpthrift.WPWithinClient.prototype.endServiceDelivery = function(serviceID, serviceDeliveryToken, unitsReceived, callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
     var _defer = Q.defer();
@@ -2632,19 +2632,19 @@ wpthrift.WPWithinClient.prototype.endServiceDelivery = function(clientId, servic
         _defer.resolve(result);
       }
     };
-    this.send_endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived);
+    this.send_endServiceDelivery(serviceID, serviceDeliveryToken, unitsReceived);
     return _defer.promise;
   } else {
     this._reqs[this.seqid()] = callback;
-    this.send_endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived);
+    this.send_endServiceDelivery(serviceID, serviceDeliveryToken, unitsReceived);
   }
 };
 
-wpthrift.WPWithinClient.prototype.send_endServiceDelivery = function(clientId, serviceDeliveryToken, unitsReceived) {
+wpthrift.WPWithinClient.prototype.send_endServiceDelivery = function(serviceID, serviceDeliveryToken, unitsReceived) {
   var output = new this.pClass(this.output);
   output.writeMessageBegin('endServiceDelivery', Thrift.MessageType.CALL, this.seqid());
   var args = new wpthrift.WPWithin_endServiceDelivery_args();
-  args.clientId = clientId;
+  args.serviceID = serviceID;
   args.serviceDeliveryToken = serviceDeliveryToken;
   args.unitsReceived = unitsReceived;
   args.write(output);
@@ -3208,7 +3208,7 @@ wpthrift.WPWithinProcessor.prototype.process_beginServiceDelivery = function(seq
   args.read(input);
   input.readMessageEnd();
   if (this._handler.beginServiceDelivery.length === 3) {
-    Q.fcall(this._handler.beginServiceDelivery, args.clientId, args.serviceDeliveryToken, args.unitsToSupply)
+    Q.fcall(this._handler.beginServiceDelivery, args.serviceID, args.serviceDeliveryToken, args.unitsToSupply)
       .then(function(result) {
         var result = new wpthrift.WPWithin_beginServiceDelivery_result({success: result});
         output.writeMessageBegin("beginServiceDelivery", Thrift.MessageType.REPLY, seqid);
@@ -3228,7 +3228,7 @@ wpthrift.WPWithinProcessor.prototype.process_beginServiceDelivery = function(seq
         output.flush();
       });
   } else {
-    this._handler.beginServiceDelivery(args.clientId, args.serviceDeliveryToken, args.unitsToSupply, function (err, result) {
+    this._handler.beginServiceDelivery(args.serviceID, args.serviceDeliveryToken, args.unitsToSupply, function (err, result) {
       if (err == null || err instanceof wptypes_ttypes.Error) {
         var result = new wpthrift.WPWithin_beginServiceDelivery_result((err != null ? err : {success: result}));
         output.writeMessageBegin("beginServiceDelivery", Thrift.MessageType.REPLY, seqid);
@@ -3248,7 +3248,7 @@ wpthrift.WPWithinProcessor.prototype.process_endServiceDelivery = function(seqid
   args.read(input);
   input.readMessageEnd();
   if (this._handler.endServiceDelivery.length === 3) {
-    Q.fcall(this._handler.endServiceDelivery, args.clientId, args.serviceDeliveryToken, args.unitsReceived)
+    Q.fcall(this._handler.endServiceDelivery, args.serviceID, args.serviceDeliveryToken, args.unitsReceived)
       .then(function(result) {
         var result = new wpthrift.WPWithin_endServiceDelivery_result({success: result});
         output.writeMessageBegin("endServiceDelivery", Thrift.MessageType.REPLY, seqid);
@@ -3268,7 +3268,7 @@ wpthrift.WPWithinProcessor.prototype.process_endServiceDelivery = function(seqid
         output.flush();
       });
   } else {
-    this._handler.endServiceDelivery(args.clientId, args.serviceDeliveryToken, args.unitsReceived, function (err, result) {
+    this._handler.endServiceDelivery(args.serviceID, args.serviceDeliveryToken, args.unitsReceived, function (err, result) {
       if (err == null || err instanceof wptypes_ttypes.Error) {
         var result = new wpthrift.WPWithin_endServiceDelivery_result((err != null ? err : {success: result}));
         output.writeMessageBegin("endServiceDelivery", Thrift.MessageType.REPLY, seqid);

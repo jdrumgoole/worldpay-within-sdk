@@ -10,9 +10,11 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
@@ -22,16 +24,18 @@ type ServiceHandler struct {
 	psp          psp.Psp
 	credential   *Credential
 	orderManager OrderManager
+	eventHandler event.Handler
 }
 
 // Create a new Service Handler
-func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential, orderManager OrderManager) *ServiceHandler {
+func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential, orderManager OrderManager, eventHandler event.Handler) *ServiceHandler {
 
 	result := &ServiceHandler{
 		device:       device,
 		psp:          psp,
 		credential:   credential,
 		orderManager: orderManager,
+		eventHandler: eventHandler,
 	}
 
 	return result
@@ -356,7 +360,90 @@ func (srv *ServiceHandler) ServiceDeliveryBegin(w http.ResponseWriter, r *http.R
 
 	// POST
 
-	returnMessage(w, 200, "Service delivery begin")
+	log.Debug("begin hte.ServiceHandlerImpl.ServiceDeliveryBegin()")
+
+	defer log.Debug("end hte.ServiceHandlerImpl.ServiceDeliveryBegin()")
+
+	defer func() {
+		if err := recover(); err != nil {
+
+			returnMessage(w, http.StatusInternalServerError, err)
+		}
+	}()
+
+	// Parse variables from request
+	reqVars := mux.Vars(r)
+	svcID, err := strconv.Atoi(reqVars["service_id"])
+
+	if err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to parse input service id",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	// Parse message body (POST)
+	var deliveryRequest types.BeginServiceDeliveryRequest
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+
+	if err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to read POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := r.Body.Close(); err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to close POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := json.Unmarshal(body, &deliveryRequest); err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to parse POST body",
+		}
+
+		returnMessage(w, 422 /*Unprocessable Entity*/, errorResponse)
+		return
+	}
+
+	if _, ok := srv.device.Services[svcID]; ok {
+
+		response := types.BeginServiceDeliveryResponse{}
+		response.ClientID = deliveryRequest.ClientID
+		response.ServiceDeliveryToken = deliveryRequest.ServiceDeliveryToken
+		response.ServerID = srv.device.UID
+		response.UnitsToSupply = deliveryRequest.UnitsToSupply
+
+		if srv.eventHandler != nil {
+
+			log.Debug("Core event handler is set, calling event in core EventHandler")
+
+			go srv.eventHandler.BeginServiceDelivery(svcID, deliveryRequest.ServiceDeliveryToken, deliveryRequest.UnitsToSupply)
+		}
+
+		returnMessage(w, http.StatusOK, response)
+
+	} else {
+
+		errorResponse := types.ErrorResponse{
+			Message: fmt.Sprintf("Service not found for id %d", svcID),
+		}
+
+		returnMessage(w, http.StatusNotFound, errorResponse)
+	}
 }
 
 // End delivery of a purchased service
@@ -364,7 +451,91 @@ func (srv *ServiceHandler) ServiceDeliveryEnd(w http.ResponseWriter, r *http.Req
 
 	// POST
 
-	returnMessage(w, 200, "Service delivery end")
+	log.Debug("begin hte.ServiceHandlerImpl.ServiceDeliveryEnd()")
+
+	defer log.Debug("end hte.ServiceHandlerImpl.ServiceDeliveryEnd()")
+
+	defer func() {
+		if err := recover(); err != nil {
+
+			returnMessage(w, http.StatusInternalServerError, err)
+		}
+	}()
+
+	// Parse variables from request
+	reqVars := mux.Vars(r)
+	svcID, err := strconv.Atoi(reqVars["service_id"])
+
+	if err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to parse input service id",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	// Parse message body (POST)
+	var deliveryRequest types.EndServiceDeliveryRequest
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+
+	if err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to read POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := r.Body.Close(); err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to close POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := json.Unmarshal(body, &deliveryRequest); err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to parse POST body",
+		}
+
+		returnMessage(w, 422 /*Unprocessable Entity*/, errorResponse)
+		return
+	}
+
+	if _, ok := srv.device.Services[svcID]; ok {
+
+		response := types.EndServiceDeliveryResponse{}
+		response.ClientID = deliveryRequest.ClientID
+		response.ServiceDeliveryToken = deliveryRequest.ServiceDeliveryToken
+		response.ServerID = srv.device.UID
+		response.UnitsJustSupplied = deliveryRequest.UnitsReceived
+		response.UnitsRemaining = 9999
+
+		if srv.eventHandler != nil {
+
+			log.Debug("Core event handler is set, calling event in core EventHandler")
+
+			go srv.eventHandler.EndServiceDelivery(svcID, deliveryRequest.ServiceDeliveryToken, deliveryRequest.UnitsReceived)
+		}
+
+		returnMessage(w, http.StatusOK, response)
+
+	} else {
+
+		errorResponse := types.ErrorResponse{
+			Message: fmt.Sprintf("Service not found for id %d", svcID),
+		}
+
+		returnMessage(w, http.StatusNotFound, errorResponse)
+	}
 }
 
 // Helper function for returning HTTP responses

@@ -148,17 +148,17 @@ var fnMakePayment = function(request, callback) {
   });
 };
 
-var fnBeginServiceDelivery = function(clientId, serviceDeliveryToken, unitsToSupply, callback) {
+var fnBeginServiceDelivery = function(serviceId, serviceDeliveryToken, unitsToSupply, callback) {
 
-  this.thriftClient.beginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply, function(err, result) {
+  this.thriftClient.beginServiceDelivery(serviceId, serviceDeliveryToken, unitsToSupply, function(err, result) {
 
     callback(err, result);
   });
 };
 
-var fnEndServiceDelivery = function(clientId, serviceDeliveryToken, unitsReceived, callback) {
+var fnEndServiceDelivery = function(serviceId, serviceDeliveryToken, unitsReceived, callback) {
 
-  this.thriftClient.endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived, function(err, result) {
+  this.thriftClient.endServiceDelivery(serviceId, serviceDeliveryToken, unitsReceived, function(err, result) {
 
     callback(err, result);
   });
@@ -168,12 +168,20 @@ var fnEndServiceDelivery = function(clientId, serviceDeliveryToken, unitsReceive
 // Should return an instance of WPWithin
 function createClient(host, port, startRPCAgent, callback) {
 
+  createClient(host, port, startRPCAgent, callback, null, 0);
+}
+
+// Factory setup WPWithinClient
+// Should return an instance of WPWithin
+function createClient(host, port, startRPCAgent, callback, eventListener, callbackPort) {
+
   try {
 
-    var doCreate = function() {
+    var thrift = require('thrift');
+    var WPWithinLib = require('./wpwithin-thrift/WPWithin');
+    var evServer = require('./eventlistener/eventserver');
 
-      var thrift = require('thrift');
-      var WPWithinLib = require('./wpwithin-thrift/WPWithin');
+    var doCreate = function() {
 
       transport = thrift.TBufferedTransport;
       protocol = thrift.TBinaryProtocol;
@@ -190,7 +198,12 @@ function createClient(host, port, startRPCAgent, callback) {
       callback(null, new WPWithin(tc));
     }
 
-    if(startRPCAgent) {
+    if(eventListener != null) {
+
+      new evServer.EventServer().start(eventListener, callbackPort);
+    }
+
+    if(callbackPort > 0) {
 
       launchRPCAgent(port, function(error, stdout, stderr){
 
@@ -209,7 +222,6 @@ function createClient(host, port, startRPCAgent, callback) {
 
       doCreate()
     }
-
   } catch (err) {
 
     console.log("Caught error: %s", err)

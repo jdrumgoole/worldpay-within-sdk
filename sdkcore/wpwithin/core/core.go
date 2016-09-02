@@ -6,6 +6,7 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
 // SDK Core - This acts as a container for dependencies of the SDK
@@ -18,6 +19,7 @@ type Core struct {
 	HCECard        *types.HCECard
 	OrderManager   hte.OrderManager
 	HTEClient      hte.Client
+	EventHandler   event.Handler
 	Configuration  configuration.WPWithin
 }
 

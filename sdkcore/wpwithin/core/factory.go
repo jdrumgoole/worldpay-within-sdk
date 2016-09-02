@@ -8,6 +8,7 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/psp/onlineworldpay"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
@@ -40,7 +41,7 @@ type SDKFactory interface {
 	GetOrderManager() (hte.OrderManager, error)
 	GetHTEClient() (hte.Client, error)
 	GetHTEClientHTTP() (hte.HTEClientHTTP, error)
-	GetHTEServiceHandler(device *types.Device, psp psp.Psp, credential *hte.Credential, orderManager hte.OrderManager) *hte.ServiceHandler
+	GetHTEServiceHandler(device *types.Device, psp psp.Psp, credential *hte.Credential, orderManager hte.OrderManager, eventHandler event.Handler) *hte.ServiceHandler
 }
 
 // SDKFactoryImpl implementation of SDKFactory
@@ -134,7 +135,7 @@ func (factory *SDKFactoryImpl) GetHTEClientHTTP() (hte.HTEClientHTTP, error) {
 	return hte.NewHTEClientHTTP()
 }
 
-func (factory *SDKFactoryImpl) GetHTEServiceHandler(device *types.Device, psp psp.Psp, credential *hte.Credential, orderManager hte.OrderManager) *hte.ServiceHandler {
+func (factory *SDKFactoryImpl) GetHTEServiceHandler(device *types.Device, psp psp.Psp, credential *hte.Credential, orderManager hte.OrderManager, eventHandler event.Handler) *hte.ServiceHandler {
 
-	return hte.NewServiceHandler(device, psp, credential, orderManager)
+	return hte.NewServiceHandler(device, psp, credential, orderManager, eventHandler)
 }

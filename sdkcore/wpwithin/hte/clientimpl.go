@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 // Concrete implementation of HTEClient
@@ -199,12 +201,106 @@ func (client *clientImpl) MakeHtePayment(paymentReferenceID, clientID, clientTok
 	}
 }
 
-func (client *clientImpl) StartDelivery(serviceID int, serviceDeliveryToken string, unitsToSupply int) (int, error) {
+func (client *clientImpl) StartDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) (types.BeginServiceDeliveryResponse, error) {
 
-	return 0, errors.New("Not implemented..")
+	log.WithFields(log.Fields{"serviceId": serviceID, "serviceDeliveryToken": serviceDeliveryToken, "unitsToSupply": unitsToSupply}).Debug("hte.clientImpl.StartDelivery()")
+
+	defer log.Debug("end hte.clientImpl.EndDelivery()")
+
+	url := fmt.Sprintf("%s/service/%d/delivery/begin", client.baseURL, serviceID)
+
+	requestBody := types.BeginServiceDeliveryRequest{
+		ClientID:             client.clientID,
+		ServiceDeliveryToken: serviceDeliveryToken,
+		UnitsToSupply:        unitsToSupply,
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+
+	if err != nil {
+
+		return types.BeginServiceDeliveryResponse{}, err
+	}
+
+	byteResp, httpStatus, err := client.httpClient.PostJSON(url, jsonBody)
+
+	if err != nil {
+		log.Errorf("Error posting JSON request. Error = %s", err.Error())
+		return types.BeginServiceDeliveryResponse{}, err
+	} else if httpStatus != http.StatusOK {
+
+		errorResponse := types.ErrorResponse{}
+
+		err = json.Unmarshal(byteResp, &errorResponse)
+
+		if err != nil {
+
+			return types.BeginServiceDeliveryResponse{}, err
+		}
+
+		return types.BeginServiceDeliveryResponse{}, fmt.Errorf("%d - %s (%d)", errorResponse.HTTPStatusCode, errorResponse.Message, errorResponse.ErrorCode)
+
+	} else {
+
+		deliveryResponse := types.BeginServiceDeliveryResponse{}
+
+		err = json.Unmarshal(byteResp, &deliveryResponse)
+
+		if err != nil {
+
+			return types.BeginServiceDeliveryResponse{}, err
+		}
+
+		return deliveryResponse, nil
+	}
 }
 
-func (client *clientImpl) EndDelivery(serviceID int, serviceDeliveryToken string, unitsReceived int) (int, error) {
+func (client *clientImpl) EndDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) (types.EndServiceDeliveryResponse, error) {
 
-	return 0, errors.New("Not implemented..")
+	url := fmt.Sprintf("%s/service/%d/delivery/end", client.baseURL, serviceID)
+
+	requestBody := types.EndServiceDeliveryRequest{
+		ClientID:             client.clientID,
+		ServiceDeliveryToken: serviceDeliveryToken,
+		UnitsReceived:        unitsReceived,
+	}
+
+	jsonBody, err := json.Marshal(requestBody)
+
+	if err != nil {
+
+		return types.EndServiceDeliveryResponse{}, err
+	}
+
+	byteResp, httpStatus, err := client.httpClient.PostJSON(url, jsonBody)
+
+	if err != nil {
+
+		return types.EndServiceDeliveryResponse{}, err
+	} else if httpStatus != http.StatusOK {
+
+		errorResponse := types.ErrorResponse{}
+
+		err = json.Unmarshal(byteResp, &errorResponse)
+
+		if err != nil {
+
+			return types.EndServiceDeliveryResponse{}, err
+		}
+
+		return types.EndServiceDeliveryResponse{}, fmt.Errorf("%d - %s (%d)", errorResponse.HTTPStatusCode, errorResponse.Message, errorResponse.ErrorCode)
+
+	} else {
+
+		deliveryResponse := types.EndServiceDeliveryResponse{}
+
+		err = json.Unmarshal(byteResp, &deliveryResponse)
+
+		if err != nil {
+
+			return types.EndServiceDeliveryResponse{}, err
+		}
+
+		return deliveryResponse, nil
+	}
 }

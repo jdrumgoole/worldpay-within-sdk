@@ -160,7 +160,7 @@ function getServicePriceQuote(serviceId, numberOfUnits, priceId) {
       console.log("MerchantClientKey: %s", response.merchantClientKey);
       console.log("------");
 
-      purchaseService(response);
+      purchaseService(serviceId, response);
 
     } else {
 
@@ -169,7 +169,7 @@ function getServicePriceQuote(serviceId, numberOfUnits, priceId) {
   });
 }
 
-function purchaseService(totalPriceResponse) {
+function purchaseService(serviceId, totalPriceResponse) {
 
   client.makePayment(totalPriceResponse, function(err, response) {
 
@@ -191,9 +191,37 @@ function purchaseService(totalPriceResponse) {
       console.log("ClientUUID: %s", response.clientUUID);
       console.log("----------");
 
+      beginServiceDelivery(serviceId, response.serviceDeliveryToken, 19);
+
     } else {
 
       console.log("Did not receive correct response to make payment..");
     }
+  });
+}
+
+function beginServiceDelivery(serviceId, serviceDeliveryToken, unitsToSupply) {
+
+  client.beginServiceDelivery(serviceId, serviceDeliveryToken, unitsToSupply, function(err, response) {
+
+    console.log("beginServiceDelivery.callback.err: %s" + err);
+    console.log("beginServiceDelivery.callback.response: %j", response);
+
+    var sleep = require('sleep');
+
+    console.log("Will sleep for 10 seconds..");
+    sleep.sleep(10)
+
+    endServiceDelivery(serviceId, serviceDeliveryToken, 1)
+  });
+}
+
+function endServiceDelivery(serviceId, serviceDeliveryToken, unitsReceived) {
+
+  client.endServiceDelivery(serviceId, serviceDeliveryToken, unitsReceived, function(err, response) {
+
+    console.log("endServiceDelivery.callback.err: %s" + err);
+    console.log("endServiceDelivery.callback.response: %j", response);
+
   });
 }

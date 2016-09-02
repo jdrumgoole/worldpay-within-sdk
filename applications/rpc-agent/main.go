@@ -28,7 +28,6 @@ const levelInfo = "info"
 const levelDebug = "debug"
 
 // General constants
-
 const logfilePerms = 0755
 const rpcMinPort = 1
 const defaultArgConfigFile = ""
@@ -39,6 +38,7 @@ const defaultArgBuffered = false
 const defaultArgSecure = false
 const defaultArgHost = "127.0.0.1"
 const defaultArgProtocol = "binary"
+const defaultArgCallbackPort = 0 // Default 0 means callback feature not to be used
 
 const argNameConfigFile = "configfile"
 const argNameLogLevel = "loglevel"
@@ -50,6 +50,7 @@ const argNameHost = "host"
 const argNamePort = "port"
 const argNameSecure = "secure"
 const argNameBuffer = "buffer"
+const argNameCallbackPort = "callbackport"
 
 // Globally scoped vars
 var sdk wpwithin.WPWithin
@@ -65,6 +66,7 @@ const (
 	keyPort       string = "Port"
 	keyProtocol   string = "Protocol"
 	keySecure     string = "Secure"
+	keyCallbackPort string = "CallbackPort"
 )
 
 func main() {
@@ -108,6 +110,7 @@ func initArgs() {
 	portPtr := flag.Int(argNamePort, defaultArgPort, "Port to listen on. Required.")
 	securePtr := flag.Bool(argNameSecure, defaultArgSecure, "Secured transport - bool.")
 	bufferPtr := flag.Int(argNameBuffer, defaultArgTransportBuffer, "Buffer size.")
+	callbackPortPtr := flag.Int(argNameCallbackPort, defaultArgCallbackPort, "Callback Port")
 
 	log.Debug("Before flag.parse()")
 	flag.Parse()
@@ -120,6 +123,7 @@ func initArgs() {
 	portValue := *portPtr
 	secureValue := *securePtr
 	bufferValue := *bufferPtr
+	callbackPortValue := *callbackPortPtr
 
 	log.Debug("After flag.parse()")
 
@@ -158,6 +162,8 @@ func initArgs() {
 		secureValue = secure
 		bufferSize, err := config.GetValue(keyBufferSize).ReadInt()
 		bufferValue = bufferSize
+		callbackPort, err := config.GetValue(keyCallbackPort).ReadInt()
+		callbackPortValue = callbackPort
 
 		log.Debug("Before parsing the config file")
 		// TODO write parser for config file
@@ -227,6 +233,7 @@ func initArgs() {
 	rpcConfig.Port = portValue
 	rpcConfig.Secure = secureValue
 	rpcConfig.BufferSize = bufferValue
+	rpcConfig.CallbackPort = callbackPortValue
 	log.Debug("After assign RPC config.")
 
 	log.Debug("End initArgs()")

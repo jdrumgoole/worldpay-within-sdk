@@ -63,15 +63,15 @@ type WPWithin interface { //WorldpayWithin Service - exposing all WorldpayWithin
 	//  - Request
 	MakePayment(request *wpthrift_types.TotalPriceResponse) (r *wpthrift_types.PaymentResponse, err error)
 	// Parameters:
-	//  - ClientId
+	//  - ServiceID
 	//  - ServiceDeliveryToken
 	//  - UnitsToSupply
-	BeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error)
+	BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error)
 	// Parameters:
-	//  - ClientId
+	//  - ServiceID
 	//  - ServiceDeliveryToken
 	//  - UnitsReceived
-	EndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error)
+	EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error)
 }
 
 //WorldpayWithin Service - exposing all WorldpayWithin SDK functionality
@@ -1150,17 +1150,17 @@ func (p *WPWithinClient) recvMakePayment() (value *wpthrift_types.PaymentRespons
 }
 
 // Parameters:
-//  - ClientId
+//  - ServiceID
 //  - ServiceDeliveryToken
 //  - UnitsToSupply
-func (p *WPWithinClient) BeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
-	if err = p.sendBeginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply); err != nil {
+func (p *WPWithinClient) BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+	if err = p.sendBeginServiceDelivery(serviceID, serviceDeliveryToken, unitsToSupply); err != nil {
 		return
 	}
 	return p.recvBeginServiceDelivery()
 }
 
-func (p *WPWithinClient) sendBeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+func (p *WPWithinClient) sendBeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -1171,7 +1171,7 @@ func (p *WPWithinClient) sendBeginServiceDelivery(clientId string, serviceDelive
 		return
 	}
 	args := WPWithinBeginServiceDeliveryArgs{
-		ClientId:             clientId,
+		ServiceID:            serviceID,
 		ServiceDeliveryToken: serviceDeliveryToken,
 		UnitsToSupply:        unitsToSupply,
 	}
@@ -1234,17 +1234,17 @@ func (p *WPWithinClient) recvBeginServiceDelivery() (err error) {
 }
 
 // Parameters:
-//  - ClientId
+//  - ServiceID
 //  - ServiceDeliveryToken
 //  - UnitsReceived
-func (p *WPWithinClient) EndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
-	if err = p.sendEndServiceDelivery(clientId, serviceDeliveryToken, unitsReceived); err != nil {
+func (p *WPWithinClient) EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
+	if err = p.sendEndServiceDelivery(serviceID, serviceDeliveryToken, unitsReceived); err != nil {
 		return
 	}
 	return p.recvEndServiceDelivery()
 }
 
-func (p *WPWithinClient) sendEndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
+func (p *WPWithinClient) sendEndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -1255,7 +1255,7 @@ func (p *WPWithinClient) sendEndServiceDelivery(clientId string, serviceDelivery
 		return
 	}
 	args := WPWithinEndServiceDeliveryArgs{
-		ClientId:             clientId,
+		ServiceID:            serviceID,
 		ServiceDeliveryToken: serviceDeliveryToken,
 		UnitsReceived:        unitsReceived,
 	}
@@ -2057,7 +2057,7 @@ func (p *wPWithinProcessorBeginServiceDelivery) Process(seqId int32, iprot, opro
 	iprot.ReadMessageEnd()
 	result := WPWithinBeginServiceDeliveryResult{}
 	var err2 error
-	if err2 = p.handler.BeginServiceDelivery(args.ClientId, args.ServiceDeliveryToken, args.UnitsToSupply); err2 != nil {
+	if err2 = p.handler.BeginServiceDelivery(args.ServiceID, args.ServiceDeliveryToken, args.UnitsToSupply); err2 != nil {
 		switch v := err2.(type) {
 		case *wpthrift_types.Error:
 			result.Err = v
@@ -2107,7 +2107,7 @@ func (p *wPWithinProcessorEndServiceDelivery) Process(seqId int32, iprot, oprot 
 	iprot.ReadMessageEnd()
 	result := WPWithinEndServiceDeliveryResult{}
 	var err2 error
-	if err2 = p.handler.EndServiceDelivery(args.ClientId, args.ServiceDeliveryToken, args.UnitsReceived); err2 != nil {
+	if err2 = p.handler.EndServiceDelivery(args.ServiceID, args.ServiceDeliveryToken, args.UnitsReceived); err2 != nil {
 		switch v := err2.(type) {
 		case *wpthrift_types.Error:
 			result.Err = v
@@ -5146,11 +5146,11 @@ func (p *WPWithinMakePaymentResult) String() string {
 }
 
 // Attributes:
-//  - ClientId
+//  - ServiceID
 //  - ServiceDeliveryToken
 //  - UnitsToSupply
 type WPWithinBeginServiceDeliveryArgs struct {
-	ClientId             string                               `thrift:"clientId,1" json:"clientId"`
+	ServiceID            int32                                `thrift:"serviceID,1" json:"serviceID"`
 	ServiceDeliveryToken *wpthrift_types.ServiceDeliveryToken `thrift:"serviceDeliveryToken,2" json:"serviceDeliveryToken"`
 	UnitsToSupply        int32                                `thrift:"unitsToSupply,3" json:"unitsToSupply"`
 }
@@ -5159,8 +5159,8 @@ func NewWPWithinBeginServiceDeliveryArgs() *WPWithinBeginServiceDeliveryArgs {
 	return &WPWithinBeginServiceDeliveryArgs{}
 }
 
-func (p *WPWithinBeginServiceDeliveryArgs) GetClientId() string {
-	return p.ClientId
+func (p *WPWithinBeginServiceDeliveryArgs) GetServiceID() int32 {
+	return p.ServiceID
 }
 
 var WPWithinBeginServiceDeliveryArgs_ServiceDeliveryToken_DEFAULT *wpthrift_types.ServiceDeliveryToken
@@ -5221,10 +5221,10 @@ func (p *WPWithinBeginServiceDeliveryArgs) Read(iprot thrift.TProtocol) error {
 }
 
 func (p *WPWithinBeginServiceDeliveryArgs) readField1(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI32(); err != nil {
 		return thrift.PrependError("error reading field 1: ", err)
 	} else {
-		p.ClientId = v
+		p.ServiceID = v
 	}
 	return nil
 }
@@ -5269,14 +5269,14 @@ func (p *WPWithinBeginServiceDeliveryArgs) Write(oprot thrift.TProtocol) error {
 }
 
 func (p *WPWithinBeginServiceDeliveryArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("clientId", thrift.STRING, 1); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:clientId: ", p), err)
+	if err := oprot.WriteFieldBegin("serviceID", thrift.I32, 1); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:serviceID: ", p), err)
 	}
-	if err := oprot.WriteString(string(p.ClientId)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.clientId (1) field write error: ", p), err)
+	if err := oprot.WriteI32(int32(p.ServiceID)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.serviceID (1) field write error: ", p), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:clientId: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:serviceID: ", p), err)
 	}
 	return err
 }
@@ -5416,11 +5416,11 @@ func (p *WPWithinBeginServiceDeliveryResult) String() string {
 }
 
 // Attributes:
-//  - ClientId
+//  - ServiceID
 //  - ServiceDeliveryToken
 //  - UnitsReceived
 type WPWithinEndServiceDeliveryArgs struct {
-	ClientId             string                               `thrift:"clientId,1" json:"clientId"`
+	ServiceID            int32                                `thrift:"serviceID,1" json:"serviceID"`
 	ServiceDeliveryToken *wpthrift_types.ServiceDeliveryToken `thrift:"serviceDeliveryToken,2" json:"serviceDeliveryToken"`
 	UnitsReceived        int32                                `thrift:"unitsReceived,3" json:"unitsReceived"`
 }
@@ -5429,8 +5429,8 @@ func NewWPWithinEndServiceDeliveryArgs() *WPWithinEndServiceDeliveryArgs {
 	return &WPWithinEndServiceDeliveryArgs{}
 }
 
-func (p *WPWithinEndServiceDeliveryArgs) GetClientId() string {
-	return p.ClientId
+func (p *WPWithinEndServiceDeliveryArgs) GetServiceID() int32 {
+	return p.ServiceID
 }
 
 var WPWithinEndServiceDeliveryArgs_ServiceDeliveryToken_DEFAULT *wpthrift_types.ServiceDeliveryToken
@@ -5491,10 +5491,10 @@ func (p *WPWithinEndServiceDeliveryArgs) Read(iprot thrift.TProtocol) error {
 }
 
 func (p *WPWithinEndServiceDeliveryArgs) readField1(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI32(); err != nil {
 		return thrift.PrependError("error reading field 1: ", err)
 	} else {
-		p.ClientId = v
+		p.ServiceID = v
 	}
 	return nil
 }
@@ -5539,14 +5539,14 @@ func (p *WPWithinEndServiceDeliveryArgs) Write(oprot thrift.TProtocol) error {
 }
 
 func (p *WPWithinEndServiceDeliveryArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("clientId", thrift.STRING, 1); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:clientId: ", p), err)
+	if err := oprot.WriteFieldBegin("serviceID", thrift.I32, 1); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 1:serviceID: ", p), err)
 	}
-	if err := oprot.WriteString(string(p.ClientId)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.clientId (1) field write error: ", p), err)
+	if err := oprot.WriteI32(int32(p.ServiceID)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.serviceID (1) field write error: ", p), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:clientId: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 1:serviceID: ", p), err)
 	}
 	return err
 }

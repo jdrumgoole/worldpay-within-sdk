@@ -1,25 +1,26 @@
 package rpc
 
 import (
-	"errors"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
 type WPWithinHandler struct {
 	wpwithin wpwithin.WPWithin
+	callback event.Handler
 }
 
-func NewWPWithinHandler(wpWithin wpwithin.WPWithin) *WPWithinHandler {
+func NewWPWithinHandler(wpWithin wpwithin.WPWithin, callback event.Handler) *WPWithinHandler {
 
 	log.Debug("Begin RPC.WPWithinHandler.NewWPWithinHander()")
 
 	result := &WPWithinHandler{
 		wpwithin: wpWithin,
+		callback: callback,
 	}
 
 	log.Debug("End RPC.WPWithinHandler.NewWPWithinHander()")
@@ -31,16 +32,28 @@ func (wp *WPWithinHandler) Setup(name, description string) (err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.Setup()")
 
+	defer log.Debug("End RPC.WPWithinHandler.Setup()")
+
 	wpw, err := wpwithin.Initialise(name, description)
 
 	if err != nil {
+
+		log.Debug("Error initialising WPWithin. Error = %s", err.Error())
 
 		return err
 	}
 
 	wp.wpwithin = wpw
 
-	log.Debug("End RPC.WPWithinHandler.Setup()")
+	if wp.callback != nil {
+
+		log.Debug("wp.callback is set, setting handler in WPWithin.")
+
+		wp.wpwithin.SetEventHandler(wp.callback)
+	} else {
+
+		log.Debug("wp.callback not set, not setting handler in WPWithin.")
+	}
 
 	return nil
 }
@@ -349,14 +362,74 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 	return result, nil
 }
 
-func (wp *WPWithinHandler) BeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+func (wp *WPWithinHandler) BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
 
-	return errors.New("Not implemented..")
+	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": serviceDeliveryToken, "unitsToSupply": unitsToSupply}).Debug("begin rpc.WPWithinHandler.BeginServiceDelivery()")
+
+	defer log.Debug("end rpc.WPWithinHandler.BeginServiceDelivery()")
+
+	issueTime, err := utils.ParseISOTime(serviceDeliveryToken.Issued)
+
+	if err != nil {
+
+		log.Debugf("Error parsing serviceDeliveryToken.Issued time into ISOTime. Error = %s", err.Error())
+		return err
+	}
+
+	expiryTime, err := utils.ParseISOTime(serviceDeliveryToken.Expiry)
+
+	if err != nil {
+
+		log.Debugf("Error parsing serviceDeliveryToken.Expiry time into ISOTime. Error = %s", err.Error())
+		return err
+	}
+
+	sdt := types.ServiceDeliveryToken{
+
+		Key:            serviceDeliveryToken.Key,
+		Issued:         issueTime,
+		Expiry:         expiryTime,
+		RefundOnExpiry: serviceDeliveryToken.RefundOnExpiry,
+		Signature:      serviceDeliveryToken.Signature,
+	}
+
+	wp.wpwithin.BeginServiceDelivery(int(serviceID), sdt, int(unitsToSupply))
+
+	return nil
 }
 
-func (wp *WPWithinHandler) EndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
+func (wp *WPWithinHandler) EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
 
-	return errors.New("Not implemented..")
+	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": serviceDeliveryToken, "unitsReceived": unitsReceived}).Debug("begin rpc.WPWithinHandler.EndServiceDelivery()")
+
+	defer log.Debug("end rpc.WPWithinHandler.EndServiceDelivery()")
+
+	issueTime, err := utils.ParseISOTime(serviceDeliveryToken.Issued)
+
+	if err != nil {
+
+		return err
+	}
+
+	expiryTime, err := utils.ParseISOTime(serviceDeliveryToken.Expiry)
+
+	if err != nil {
+
+		return err
+	}
+
+	sdt := types.ServiceDeliveryToken{
+
+		Key:            serviceDeliveryToken.Key,
+		Issued:         issueTime,
+		Expiry:         expiryTime,
+		RefundOnExpiry: serviceDeliveryToken.RefundOnExpiry,
+		Signature:      serviceDeliveryToken.Signature,
+	}
+
+	wp.wpwithin.EndServiceDelivery(int(serviceID), sdt, int(unitsReceived))
+
+	return nil
 }
 
 func convertThriftServiceToNative(tSvc *wpthrift_types.Service) *types.Service {
