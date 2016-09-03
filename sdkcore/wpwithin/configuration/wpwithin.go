@@ -14,14 +14,14 @@ func (wpw *WPWithin) ParseConfig(cfg Configuration) {
 
 	enable, err := cfg.GetValue("wsLogEnable").ReadBool()
 	if err != nil {
-		fmt.Printf("Error parsing wsLogEnable as boolean: %s", err.Error())
+		fmt.Printf("Error parsing wsLogEnable as boolean: %s\n", err.Error())
 	} else {
 		wpw.WSLogEnable = enable
 	}
 
 	port, err := cfg.GetValue("wsLogPort").ReadInt()
 	if err != nil {
-		fmt.Printf("Error parsing wsLogPort as int: %s", err.Error())
+		fmt.Printf("Error parsing wsLogPort as int: %s\n", err.Error())
 	} else {
 		wpw.WSLogPort = port
 	}
