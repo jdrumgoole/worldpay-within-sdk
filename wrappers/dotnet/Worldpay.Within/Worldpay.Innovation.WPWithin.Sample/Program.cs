@@ -26,7 +26,7 @@ namespace Worldpay.Innovation.WPWithin.Sample
             CommandMenu menu = new CommandMenu();
             while (!terminate)
             {
-                CommandResult result = menu.ProcessCommand();
+                CommandResult result = menu.ReadEvalPrint();
                 if (result == CommandResult.CriticalFailure || result == CommandResult.Exit)
                 {
                     terminate = true;

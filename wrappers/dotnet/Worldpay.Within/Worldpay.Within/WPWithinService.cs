@@ -67,9 +67,9 @@ namespace Worldpay.Innovation.WPWithin
             return TotalPriceResponseAdapter.Create(_client.selectService(serviceId, numberOfUnits, priceId));
         }
 
-        public void MakePayment(TotalPriceResponse request)
+        public PaymentResponse MakePayment(TotalPriceResponse request)
         {
-            _client.makePayment(TotalPriceResponseAdapter.Create(request));
+            return PaymentResponseAdapter.Create(_client.makePayment(TotalPriceResponseAdapter.Create(request)));
         }
 
         public void BeginServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)

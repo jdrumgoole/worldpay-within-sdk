@@ -66,6 +66,7 @@
     <Compile Include="ThriftAdapters\CollectionUtils.cs" />
     <Compile Include="ThriftAdapters\DeviceAdapter.cs" />
     <Compile Include="ThriftAdapters\HceCardAdapter.cs" />
+    <Compile Include="ThriftAdapters\PaymentResponseAdapter.cs" />
     <Compile Include="ThriftAdapters\PriceAdapter.cs" />
     <Compile Include="ThriftAdapters\PricePerUnitAdapter.cs" />
     <Compile Include="ThriftAdapters\ServiceAdapter.cs" />
