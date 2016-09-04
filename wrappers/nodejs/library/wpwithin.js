@@ -173,7 +173,7 @@ function createClient(host, port, startRPCAgent, callback) {
 
 // Factory setup WPWithinClient
 // Should return an instance of WPWithin
-function createClient(host, port, startRPCAgent, callback, eventListener, callbackPort) {
+function createClient(host, port, startRPC, callback, eventListener, callbackPort) {
 
   try {
 
@@ -203,7 +203,7 @@ function createClient(host, port, startRPCAgent, callback, eventListener, callba
       new evServer.EventServer().start(eventListener, callbackPort);
     }
 
-    if(callbackPort > 0) {
+    if(startRPC) {
 
       launchRPCAgent(port, function(error, stdout, stderr){
 
@@ -241,7 +241,7 @@ function launchRPCAgent(port, callback) {
   		"arm": null
   	},
   	"darwin": {
-  		"x64": util.format("/Users/conor/Repositories/GoLang/src/github.com/wptechinnovation/worldpay-within-sdk/applications/rpc-agent/rpc-agent -port %d -logfile wpwithin.log", port),
+  		"x64": util.format("rpc-agent -port %d -logfile wpwithin.log -loglevel debug,error,info,warn,fatal", port),
   		"ia32": util.format("/Users/conor/Repositories/GoLang/src/github.com/wptechinnovation/worldpay-within-sdk/applications/rpc-agent/rpc-agent -port %d -logfile wpwithin.log", port),
   		"arm": null
   	},
@@ -265,5 +265,7 @@ function launchRPCAgent(port, callback) {
 
   launcher.startProcess(config, launchCallback);
 
+  var sleep = require('sleep');
+  sleep.usleep(750);
   callback(null, null, null);
 };

@@ -362,7 +362,7 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 	return result, nil
 }
 
-func (wp *WPWithinHandler) BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+func (wp *WPWithinHandler) BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (*wpthrift_types.ServiceDeliveryToken, error) {
 
 	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": serviceDeliveryToken, "unitsToSupply": unitsToSupply}).Debug("begin rpc.WPWithinHandler.BeginServiceDelivery()")
 
@@ -373,7 +373,7 @@ func (wp *WPWithinHandler) BeginServiceDelivery(serviceID int32, serviceDelivery
 	if err != nil {
 
 		log.Debugf("Error parsing serviceDeliveryToken.Issued time into ISOTime. Error = %s", err.Error())
-		return err
+		return nil, err
 	}
 
 	expiryTime, err := utils.ParseISOTime(serviceDeliveryToken.Expiry)
@@ -381,7 +381,7 @@ func (wp *WPWithinHandler) BeginServiceDelivery(serviceID int32, serviceDelivery
 	if err != nil {
 
 		log.Debugf("Error parsing serviceDeliveryToken.Expiry time into ISOTime. Error = %s", err.Error())
-		return err
+		return nil, err
 	}
 
 	sdt := types.ServiceDeliveryToken{
@@ -393,12 +393,17 @@ func (wp *WPWithinHandler) BeginServiceDelivery(serviceID int32, serviceDelivery
 		Signature:      serviceDeliveryToken.Signature,
 	}
 
-	wp.wpwithin.BeginServiceDelivery(int(serviceID), sdt, int(unitsToSupply))
+	_sdt, err := wp.wpwithin.BeginServiceDelivery(int(serviceID), sdt, int(unitsToSupply))
 
-	return nil
+	if err != nil {
+
+		return nil, err
+	}
+
+	return convertDeliveryTokenToThrift(_sdt)
 }
 
-func (wp *WPWithinHandler) EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
+func (wp *WPWithinHandler) EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (*wpthrift_types.ServiceDeliveryToken, error) {
 
 	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": serviceDeliveryToken, "unitsReceived": unitsReceived}).Debug("begin rpc.WPWithinHandler.EndServiceDelivery()")
 
@@ -408,14 +413,14 @@ func (wp *WPWithinHandler) EndServiceDelivery(serviceID int32, serviceDeliveryTo
 
 	if err != nil {
 
-		return err
+		return nil, err
 	}
 
 	expiryTime, err := utils.ParseISOTime(serviceDeliveryToken.Expiry)
 
 	if err != nil {
 
-		return err
+		return nil, err
 	}
 
 	sdt := types.ServiceDeliveryToken{
@@ -427,9 +432,14 @@ func (wp *WPWithinHandler) EndServiceDelivery(serviceID int32, serviceDeliveryTo
 		Signature:      serviceDeliveryToken.Signature,
 	}
 
-	wp.wpwithin.EndServiceDelivery(int(serviceID), sdt, int(unitsReceived))
+	_sdt, err := wp.wpwithin.EndServiceDelivery(int(serviceID), sdt, int(unitsReceived))
 
-	return nil
+	if err != nil {
+
+		return nil, err
+	}
+
+	return convertDeliveryTokenToThrift(_sdt)
 }
 
 func convertThriftServiceToNative(tSvc *wpthrift_types.Service) *types.Service {
@@ -460,4 +470,16 @@ func convertThriftServiceToNative(tSvc *wpthrift_types.Service) *types.Service {
 	}
 
 	return nSvc
+}
+
+func convertDeliveryTokenToThrift(sdt types.ServiceDeliveryToken) (*wpthrift_types.ServiceDeliveryToken, error) {
+
+	tSDT := wpthrift_types.NewServiceDeliveryToken()
+	tSDT.Issued = utils.TimeFormatISO(sdt.Issued)
+	tSDT.Expiry = utils.TimeFormatISO(sdt.Expiry)
+	tSDT.Key = sdt.Key
+	tSDT.RefundOnExpiry = sdt.RefundOnExpiry
+	tSDT.Signature = sdt.Signature
+
+	return tSDT, nil
 }

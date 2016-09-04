@@ -541,6 +541,7 @@ func (wp *wpWithinImpl) BeginServiceDelivery(serviceID int, serviceDeliveryToken
 	if err != nil {
 
 		log.Errorf("Error calling beginServiceDelivery. Error: %s", err.Error())
+		return types.ServiceDeliveryToken{}, err
 	}
 
 	log.WithFields(log.Fields{"UnitsToSupply": deliveryResponse.UnitsToSupply}).Info("EndDeliveryResponse")
@@ -570,6 +571,8 @@ func (wp *wpWithinImpl) EndServiceDelivery(serviceID int, serviceDeliveryToken t
 	if err != nil {
 
 		log.Errorf("Error calling endServiceDelivery. Error: %s", err.Error())
+
+		return types.ServiceDeliveryToken{}, err
 	}
 
 	log.WithFields(log.Fields{"UnitsJustSupplied": deliveryResponse.UnitsJustSupplied, "UnitsRemaining": deliveryResponse.UnitsRemaining}).Info("EndDeliveryResponse")

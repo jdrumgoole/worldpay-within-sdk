@@ -3,7 +3,7 @@ var types = require('../../library/types/types');
 var typesConverter = require('../../library/types/converter');
 var client;
 
-wpwithin.createClient("127.0.0.1", 9090, true, function(err, response){
+wpwithin.createClient("127.0.0.1", 9088, true, function(err, response){
 
   console.log("createClient.callback")
   console.log("createClient.callback.err: " + err)
@@ -133,7 +133,7 @@ function getServicePrices(serviceId) {
         console.log("\tCurrency Code: %s", price.pricePerUnit.currencyCode);
         console.log("----------");
 
-        getServicePriceQuote(serviceId, 1, price.id);
+        getServicePriceQuote(serviceId, 10, price.id);
     } else {
 
       console.log("Did not receive any service prices :/");
@@ -191,7 +191,7 @@ function purchaseService(serviceId, totalPriceResponse) {
       console.log("ClientUUID: %s", response.clientUUID);
       console.log("----------");
 
-      beginServiceDelivery(serviceId, response.serviceDeliveryToken, 19);
+      beginServiceDelivery(serviceId, response.serviceDeliveryToken, 8);
 
     } else {
 
@@ -212,7 +212,7 @@ function beginServiceDelivery(serviceId, serviceDeliveryToken, unitsToSupply) {
     console.log("Will sleep for 10 seconds..");
     sleep.sleep(10)
 
-    endServiceDelivery(serviceId, serviceDeliveryToken, 1)
+    endServiceDelivery(serviceId, serviceDeliveryToken, 8)
   });
 }
 

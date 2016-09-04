@@ -33,8 +33,8 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "   getServicePrices(i32 serviceId)")
 	fmt.Fprintln(os.Stderr, "  TotalPriceResponse selectService(i32 serviceId, i32 numberOfUnits, i32 priceId)")
 	fmt.Fprintln(os.Stderr, "  PaymentResponse makePayment(TotalPriceResponse request)")
-	fmt.Fprintln(os.Stderr, "  void beginServiceDelivery(i32 serviceID, ServiceDeliveryToken serviceDeliveryToken, i32 unitsToSupply)")
-	fmt.Fprintln(os.Stderr, "  void endServiceDelivery(i32 serviceID, ServiceDeliveryToken serviceDeliveryToken, i32 unitsReceived)")
+	fmt.Fprintln(os.Stderr, "  ServiceDeliveryToken beginServiceDelivery(i32 serviceID, ServiceDeliveryToken serviceDeliveryToken, i32 unitsToSupply)")
+	fmt.Fprintln(os.Stderr, "  ServiceDeliveryToken endServiceDelivery(i32 serviceID, ServiceDeliveryToken serviceDeliveryToken, i32 unitsReceived)")
 	fmt.Fprintln(os.Stderr)
 	os.Exit(0)
 }

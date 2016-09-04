@@ -32,8 +32,8 @@ service WPWithin {
    set<wptypes.Price> getServicePrices(1: i32 serviceId) throws (1: wptypes.Error err),
    wptypes.TotalPriceResponse selectService(1: i32 serviceId, 2: i32 numberOfUnits, 3: i32 priceId) throws (1: wptypes.Error err),
    wptypes.PaymentResponse makePayment(1: wptypes.TotalPriceResponse request) throws (1: wptypes.Error err),
-   void beginServiceDelivery(1: i32 serviceID, 2: wptypes.ServiceDeliveryToken serviceDeliveryToken, 3: i32 unitsToSupply) throws (1: wptypes.Error err),
-   void endServiceDelivery(1: i32 serviceID, 2: wptypes.ServiceDeliveryToken serviceDeliveryToken, 3: i32 unitsReceived) throws (1: wptypes.Error err),
+   wptypes.ServiceDeliveryToken beginServiceDelivery(1: i32 serviceID, 2: wptypes.ServiceDeliveryToken serviceDeliveryToken, 3: i32 unitsToSupply) throws (1: wptypes.Error err),
+   wptypes.ServiceDeliveryToken endServiceDelivery(1: i32 serviceID, 2: wptypes.ServiceDeliveryToken serviceDeliveryToken, 3: i32 unitsReceived) throws (1: wptypes.Error err),
 }
 
 /**

@@ -2,6 +2,7 @@ package hte
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
@@ -21,34 +22,46 @@ func NewOrderManager() (OrderManager, error) {
 
 func (om *OrderManagerImpl) AddOrder(order types.Order) error {
 
-	if _, ok := om.orders[order.PaymentReference]; ok {
+	if _, ok := om.orders[order.UUID]; ok {
 
 		return errors.New("Order already exists")
 	} else {
 
-		om.orders[order.PaymentReference] = order
+		om.orders[order.UUID] = order
 
 		return nil
 	}
 }
 
-func (om *OrderManagerImpl) GetOrder(paymentReference string) (types.Order, error) {
+func (om *OrderManagerImpl) GetOrder(paymentReference string) (*types.Order, error) {
 
 	if order, ok := om.orders[paymentReference]; ok {
 
-		return order, nil
+		return &order, nil
 	}
 
-	return types.Order{}, errors.New("Order not found")
+	return nil, errors.New("Order not found")
 }
 
-func (om *OrderManagerImpl) OrderExists(paymentReference string) bool {
+func (om *OrderManagerImpl) OrderExists(uuid string) bool {
 
-	if _, found := om.orders[paymentReference]; found {
+	if _, found := om.orders[uuid]; found {
 
 		return true
 	}
 
 	return false
 
+}
+
+func (om *OrderManagerImpl) UpdateOrder(order types.Order) error {
+
+	if om.OrderExists(order.UUID) {
+
+		om.orders[order.UUID] = order
+
+		return nil
+	}
+
+	return fmt.Errorf("Cannot update order %s as it does not exist", order.UUID)
 }

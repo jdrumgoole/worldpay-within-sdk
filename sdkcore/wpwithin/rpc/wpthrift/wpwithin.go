@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
+
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
 )
 
@@ -66,12 +67,12 @@ type WPWithin interface { //WorldpayWithin Service - exposing all WorldpayWithin
 	//  - ServiceID
 	//  - ServiceDeliveryToken
 	//  - UnitsToSupply
-	BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error)
+	BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (r *wpthrift_types.ServiceDeliveryToken, err error)
 	// Parameters:
 	//  - ServiceID
 	//  - ServiceDeliveryToken
 	//  - UnitsReceived
-	EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error)
+	EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (r *wpthrift_types.ServiceDeliveryToken, err error)
 }
 
 //WorldpayWithin Service - exposing all WorldpayWithin SDK functionality
@@ -1153,7 +1154,7 @@ func (p *WPWithinClient) recvMakePayment() (value *wpthrift_types.PaymentRespons
 //  - ServiceID
 //  - ServiceDeliveryToken
 //  - UnitsToSupply
-func (p *WPWithinClient) BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+func (p *WPWithinClient) BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (r *wpthrift_types.ServiceDeliveryToken, err error) {
 	if err = p.sendBeginServiceDelivery(serviceID, serviceDeliveryToken, unitsToSupply); err != nil {
 		return
 	}
@@ -1184,7 +1185,7 @@ func (p *WPWithinClient) sendBeginServiceDelivery(serviceID int32, serviceDelive
 	return oprot.Flush()
 }
 
-func (p *WPWithinClient) recvBeginServiceDelivery() (err error) {
+func (p *WPWithinClient) recvBeginServiceDelivery() (value *wpthrift_types.ServiceDeliveryToken, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -1230,6 +1231,7 @@ func (p *WPWithinClient) recvBeginServiceDelivery() (err error) {
 		err = result.Err
 		return
 	}
+	value = result.GetSuccess()
 	return
 }
 
@@ -1237,7 +1239,7 @@ func (p *WPWithinClient) recvBeginServiceDelivery() (err error) {
 //  - ServiceID
 //  - ServiceDeliveryToken
 //  - UnitsReceived
-func (p *WPWithinClient) EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
+func (p *WPWithinClient) EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (r *wpthrift_types.ServiceDeliveryToken, err error) {
 	if err = p.sendEndServiceDelivery(serviceID, serviceDeliveryToken, unitsReceived); err != nil {
 		return
 	}
@@ -1268,7 +1270,7 @@ func (p *WPWithinClient) sendEndServiceDelivery(serviceID int32, serviceDelivery
 	return oprot.Flush()
 }
 
-func (p *WPWithinClient) recvEndServiceDelivery() (err error) {
+func (p *WPWithinClient) recvEndServiceDelivery() (value *wpthrift_types.ServiceDeliveryToken, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -1314,6 +1316,7 @@ func (p *WPWithinClient) recvEndServiceDelivery() (err error) {
 		err = result.Err
 		return
 	}
+	value = result.GetSuccess()
 	return
 }
 
@@ -2056,8 +2059,9 @@ func (p *wPWithinProcessorBeginServiceDelivery) Process(seqId int32, iprot, opro
 
 	iprot.ReadMessageEnd()
 	result := WPWithinBeginServiceDeliveryResult{}
+	var retval *wpthrift_types.ServiceDeliveryToken
 	var err2 error
-	if err2 = p.handler.BeginServiceDelivery(args.ServiceID, args.ServiceDeliveryToken, args.UnitsToSupply); err2 != nil {
+	if retval, err2 = p.handler.BeginServiceDelivery(args.ServiceID, args.ServiceDeliveryToken, args.UnitsToSupply); err2 != nil {
 		switch v := err2.(type) {
 		case *wpthrift_types.Error:
 			result.Err = v
@@ -2069,6 +2073,8 @@ func (p *wPWithinProcessorBeginServiceDelivery) Process(seqId int32, iprot, opro
 			oprot.Flush()
 			return true, err2
 		}
+	} else {
+		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("beginServiceDelivery", thrift.REPLY, seqId); err2 != nil {
 		err = err2
@@ -2106,8 +2112,9 @@ func (p *wPWithinProcessorEndServiceDelivery) Process(seqId int32, iprot, oprot 
 
 	iprot.ReadMessageEnd()
 	result := WPWithinEndServiceDeliveryResult{}
+	var retval *wpthrift_types.ServiceDeliveryToken
 	var err2 error
-	if err2 = p.handler.EndServiceDelivery(args.ServiceID, args.ServiceDeliveryToken, args.UnitsReceived); err2 != nil {
+	if retval, err2 = p.handler.EndServiceDelivery(args.ServiceID, args.ServiceDeliveryToken, args.UnitsReceived); err2 != nil {
 		switch v := err2.(type) {
 		case *wpthrift_types.Error:
 			result.Err = v
@@ -2119,6 +2126,8 @@ func (p *wPWithinProcessorEndServiceDelivery) Process(seqId int32, iprot, oprot 
 			oprot.Flush()
 			return true, err2
 		}
+	} else {
+		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("endServiceDelivery", thrift.REPLY, seqId); err2 != nil {
 		err = err2
@@ -5315,13 +5324,24 @@ func (p *WPWithinBeginServiceDeliveryArgs) String() string {
 }
 
 // Attributes:
+//  - Success
 //  - Err
 type WPWithinBeginServiceDeliveryResult struct {
-	Err *wpthrift_types.Error `thrift:"err,1" json:"err,omitempty"`
+	Success *wpthrift_types.ServiceDeliveryToken `thrift:"success,0" json:"success,omitempty"`
+	Err     *wpthrift_types.Error                `thrift:"err,1" json:"err,omitempty"`
 }
 
 func NewWPWithinBeginServiceDeliveryResult() *WPWithinBeginServiceDeliveryResult {
 	return &WPWithinBeginServiceDeliveryResult{}
+}
+
+var WPWithinBeginServiceDeliveryResult_Success_DEFAULT *wpthrift_types.ServiceDeliveryToken
+
+func (p *WPWithinBeginServiceDeliveryResult) GetSuccess() *wpthrift_types.ServiceDeliveryToken {
+	if !p.IsSetSuccess() {
+		return WPWithinBeginServiceDeliveryResult_Success_DEFAULT
+	}
+	return p.Success
 }
 
 var WPWithinBeginServiceDeliveryResult_Err_DEFAULT *wpthrift_types.Error
@@ -5332,6 +5352,10 @@ func (p *WPWithinBeginServiceDeliveryResult) GetErr() *wpthrift_types.Error {
 	}
 	return p.Err
 }
+func (p *WPWithinBeginServiceDeliveryResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
 func (p *WPWithinBeginServiceDeliveryResult) IsSetErr() bool {
 	return p.Err != nil
 }
@@ -5350,6 +5374,10 @@ func (p *WPWithinBeginServiceDeliveryResult) Read(iprot thrift.TProtocol) error 
 			break
 		}
 		switch fieldId {
+		case 0:
+			if err := p.readField0(iprot); err != nil {
+				return err
+			}
 		case 1:
 			if err := p.readField1(iprot); err != nil {
 				return err
@@ -5369,6 +5397,14 @@ func (p *WPWithinBeginServiceDeliveryResult) Read(iprot thrift.TProtocol) error 
 	return nil
 }
 
+func (p *WPWithinBeginServiceDeliveryResult) readField0(iprot thrift.TProtocol) error {
+	p.Success = &wpthrift_types.ServiceDeliveryToken{}
+	if err := p.Success.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.Success), err)
+	}
+	return nil
+}
+
 func (p *WPWithinBeginServiceDeliveryResult) readField1(iprot thrift.TProtocol) error {
 	p.Err = &wpthrift_types.Error{}
 	if err := p.Err.Read(iprot); err != nil {
@@ -5381,6 +5417,9 @@ func (p *WPWithinBeginServiceDeliveryResult) Write(oprot thrift.TProtocol) error
 	if err := oprot.WriteStructBegin("beginServiceDelivery_result"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
 	}
+	if err := p.writeField0(oprot); err != nil {
+		return err
+	}
 	if err := p.writeField1(oprot); err != nil {
 		return err
 	}
@@ -5391,6 +5430,21 @@ func (p *WPWithinBeginServiceDeliveryResult) Write(oprot thrift.TProtocol) error
 		return thrift.PrependError("write struct stop error: ", err)
 	}
 	return nil
+}
+
+func (p *WPWithinBeginServiceDeliveryResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err := oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field begin error 0:success: ", p), err)
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.Success), err)
+		}
+		if err := oprot.WriteFieldEnd(); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field end error 0:success: ", p), err)
+		}
+	}
+	return err
 }
 
 func (p *WPWithinBeginServiceDeliveryResult) writeField1(oprot thrift.TProtocol) (err error) {
@@ -5585,13 +5639,24 @@ func (p *WPWithinEndServiceDeliveryArgs) String() string {
 }
 
 // Attributes:
+//  - Success
 //  - Err
 type WPWithinEndServiceDeliveryResult struct {
-	Err *wpthrift_types.Error `thrift:"err,1" json:"err,omitempty"`
+	Success *wpthrift_types.ServiceDeliveryToken `thrift:"success,0" json:"success,omitempty"`
+	Err     *wpthrift_types.Error                `thrift:"err,1" json:"err,omitempty"`
 }
 
 func NewWPWithinEndServiceDeliveryResult() *WPWithinEndServiceDeliveryResult {
 	return &WPWithinEndServiceDeliveryResult{}
+}
+
+var WPWithinEndServiceDeliveryResult_Success_DEFAULT *wpthrift_types.ServiceDeliveryToken
+
+func (p *WPWithinEndServiceDeliveryResult) GetSuccess() *wpthrift_types.ServiceDeliveryToken {
+	if !p.IsSetSuccess() {
+		return WPWithinEndServiceDeliveryResult_Success_DEFAULT
+	}
+	return p.Success
 }
 
 var WPWithinEndServiceDeliveryResult_Err_DEFAULT *wpthrift_types.Error
@@ -5602,6 +5667,10 @@ func (p *WPWithinEndServiceDeliveryResult) GetErr() *wpthrift_types.Error {
 	}
 	return p.Err
 }
+func (p *WPWithinEndServiceDeliveryResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
 func (p *WPWithinEndServiceDeliveryResult) IsSetErr() bool {
 	return p.Err != nil
 }
@@ -5620,6 +5689,10 @@ func (p *WPWithinEndServiceDeliveryResult) Read(iprot thrift.TProtocol) error {
 			break
 		}
 		switch fieldId {
+		case 0:
+			if err := p.readField0(iprot); err != nil {
+				return err
+			}
 		case 1:
 			if err := p.readField1(iprot); err != nil {
 				return err
@@ -5639,6 +5712,14 @@ func (p *WPWithinEndServiceDeliveryResult) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *WPWithinEndServiceDeliveryResult) readField0(iprot thrift.TProtocol) error {
+	p.Success = &wpthrift_types.ServiceDeliveryToken{}
+	if err := p.Success.Read(iprot); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T error reading struct: ", p.Success), err)
+	}
+	return nil
+}
+
 func (p *WPWithinEndServiceDeliveryResult) readField1(iprot thrift.TProtocol) error {
 	p.Err = &wpthrift_types.Error{}
 	if err := p.Err.Read(iprot); err != nil {
@@ -5651,6 +5732,9 @@ func (p *WPWithinEndServiceDeliveryResult) Write(oprot thrift.TProtocol) error {
 	if err := oprot.WriteStructBegin("endServiceDelivery_result"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
 	}
+	if err := p.writeField0(oprot); err != nil {
+		return err
+	}
 	if err := p.writeField1(oprot); err != nil {
 		return err
 	}
@@ -5661,6 +5745,21 @@ func (p *WPWithinEndServiceDeliveryResult) Write(oprot thrift.TProtocol) error {
 		return thrift.PrependError("write struct stop error: ", err)
 	}
 	return nil
+}
+
+func (p *WPWithinEndServiceDeliveryResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err := oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field begin error 0:success: ", p), err)
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T error writing struct: ", p.Success), err)
+		}
+		if err := oprot.WriteFieldEnd(); err != nil {
+			return thrift.PrependError(fmt.Sprintf("%T write field end error 0:success: ", p), err)
+		}
+	}
+	return err
 }
 
 func (p *WPWithinEndServiceDeliveryResult) writeField1(oprot thrift.TProtocol) (err error) {
