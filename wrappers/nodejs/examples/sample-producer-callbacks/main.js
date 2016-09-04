@@ -22,23 +22,36 @@ var eventListener = {
   }
 };
 
-client = wpwithin.createClient("127.0.0.1", 9090, function(err, response){
+var client
+
+wpwithin.createClient("127.0.0.1", 9088, true, function(err, response){
 
   console.log("createClient.callback")
   console.log("createClient.callback.err: " + err)
   console.log("createClient.callback.response: %j", response);
-}, eventListener, 9096);
-
-client.setup("NodeJS-Device", "Sample NodeJS producer device", function(err, response){
-
-  console.log("setup.callback.err: " + err);
-  console.log("setup.callback.response: %j", response);
 
   if(err == null) {
 
-    addService();
+    client = response;
+
+    setup();
   }
-});
+
+}, eventListener, 9092);
+
+function setup() {
+
+  client.setup("NodeJS-Device", "Sample NodeJS producer device", function(err, response){
+
+    console.log("setup.callback.err: " + err);
+    console.log("setup.callback.response: %j", response);
+
+    if(err == null) {
+
+      addService();
+    }
+  });
+}
 
 function addService() {
 
@@ -90,7 +103,7 @@ function initProducer() {
 
 function startBroadcast() {
 
-  client.startServiceBroadcast(20000, function(err, response){
+  client.startServiceBroadcast(0, function(err, response){
 
     console.log("startServiceBroadcast.callback");
     console.log("startServiceBroadcast.err: " + err)

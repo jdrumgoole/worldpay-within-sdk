@@ -78,28 +78,27 @@ function launchDarwin(config, callback) {
 
   console.log("launching Darwin application");
 
-  var exec = require('child_process').exec;
-
-  // error - gets set if executing the program fails i.e. Exit code is non zero.
-  // stdout - Standard out - result of regular print states.
-  // stderr - Error out - result of spending
-
   var cmd = config[detectHostOS()][detectHostArchitecture()];
 
-  return exec(cmd, function(error, stdout, stderr) {
-
-      callback(error, stdout, stderr);
-  });
+  launchBinary(cmd, callback)
 }
 
 function launchLinux(config, callback) {
 
   console.log("launching Linux application");
+
+  var cmd = config[detectHostOS()][detectHostArchitecture()];
+
+  launchBinary(cmd, callback)
 }
 
 function launchWindows(config, callback) {
 
   console.log("launching Windows application");
+
+  var cmd = config[detectHostOS()][detectHostArchitecture()];
+
+  launchBinary(cmd, callback)
 }
 /**
  * For a given config, determine if it matches the specified hostOS and hostArchitecture
@@ -113,8 +112,25 @@ function validateConfig(config, hostOS, hostArchitecture) {
     return false
   }
 
-  console.log("config[hostOS] != null :: %s", config[hostOS] != null);
-  console.log("config[hostOS][hostArchitecture] :: %s", config[hostOS][hostArchitecture] != null);
+  var validationResult = config[hostOS] != null && config[hostOS][hostArchitecture] != null;
 
-  return config[hostOS] != null && config[hostOS][hostArchitecture] != null;
+  console.log("Validation passed =", validationResult)
+
+  return validationResult
+}
+
+function launchBinary(cmd, callback) {
+
+  console.log("Command: ", cmd)
+
+  var exec = require('child_process').exec;
+
+  // error - gets set if executing the program fails i.e. Exit code is non zero.
+  // stdout - Standard out - result of regular print states.
+  // stderr - Error out - result of spending
+
+  return exec(cmd, function(error, stdout, stderr) {
+
+      callback(error, stdout, stderr);
+  });
 }

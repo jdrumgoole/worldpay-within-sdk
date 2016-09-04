@@ -10,7 +10,6 @@ function WPWithin(thriftClient) {
 
   this.thriftClient = thriftClient;
 
-  this.startRPC = fnStartRPC;
   this.setup = fnSetup;
   this.addService = fnAddService;
   this.removeService = fnRemoveService;
@@ -28,13 +27,6 @@ function WPWithin(thriftClient) {
   this.endServiceDelivery = fnEndServiceDelivery;
 
 };
-
-function fnStartRPC(port, callback) {
-
-  var rpc = require('./rpc');
-
-  rpc.startRPC(port, callback);
-}
 
 var fnSetup = function(name, description, callback) {
 
@@ -205,7 +197,7 @@ function createClient(host, port, startRPC, callback, eventListener, callbackPor
 
     if(startRPC) {
 
-      launchRPCAgent(port, function(error, stdout, stderr){
+      launchRPCAgent(port, callbackPort, function(error, stdout, stderr){
 
           if(error == null) {
 
@@ -230,25 +222,30 @@ function createClient(host, port, startRPC, callback, eventListener, callbackPor
   }
 };
 
-function launchRPCAgent(port, callback) {
+function launchRPCAgent(port, callbackPort, callback) {
 
   var launcher = require('./launcher');
 
+  var flagLogFile = "wpwithin.log"
+  var flagLogLevels = "debug,error,info,warn,fatal"
+  var flagCallbackPort = callbackPort > 0 ? "-callbackport="+callbackPort : ""
+  var binBase = process.env.WPWBIN == "" ? "./rpc-agent-bin" : process.env.WPWBIN
+
   var config = {
   	"windows": {
-  		"x64": null,
-  		"ia32": null,
+  		"x64": util.format("%s/rpc-agent-win-64 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"ia32": util.format("%s/rpc-agent-win-32 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
   		"arm": null
   	},
   	"darwin": {
-  		"x64": util.format("rpc-agent -port %d -logfile wpwithin.log -loglevel debug,error,info,warn,fatal", port),
-  		"ia32": util.format("/Users/conor/Repositories/GoLang/src/github.com/wptechinnovation/worldpay-within-sdk/applications/rpc-agent/rpc-agent -port %d -logfile wpwithin.log", port),
+  		"x64": util.format("%s/rpc-agent-mac-64 -port %d -logfile %s -loglevel %s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"ia32": util.format("%s/rpc-agent-mac-32 -port %d -logfile %s -loglevel %s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
   		"arm": null
   	},
   	"linux": {
-  		"x64": null,
-  		"ia32": null,
-  		"arm": null
+  		"x64": util.format("%s/rpc-agent-linux-64 -port %d -logfile %s -loglevel %s %s",binBase, port, flagLogFile, flagLogFile, flagCallbackPort),
+  		"ia32": util.format("%s/rpc-agent-linux-32 -port %d -logfile %s -loglevel %s %s",binBase, port, flagLogFile, flagLogFile, flagCallbackPort),
+  		"arm": util.format("%s/rpc-agent-linux-arm -port %d -logfile %s -loglevel %s %s",binBase, port, flagLogFile, flagLogFile, flagCallbackPort),
   	}
   };
 
