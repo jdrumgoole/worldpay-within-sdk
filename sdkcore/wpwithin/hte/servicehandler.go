@@ -680,7 +680,7 @@ func validateDeliveryToken(request types.BeginServiceDeliveryRequest, orderManag
 	}
 
 	unitsAvailable := _order.SelectedNumberOfUnits - _order.ConsumedUnits
-	if request.UnitsToSupply >= unitsAvailable {
+	if request.UnitsToSupply > unitsAvailable {
 
 		return fmt.Sprintf("Requested units (%d) not available for selected order. Units available = %d", request.UnitsToSupply, unitsAvailable), nil
 	}
