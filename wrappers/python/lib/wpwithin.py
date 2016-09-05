@@ -2,13 +2,12 @@ import thriftpy
 from thriftpy.rpc import make_client
 from thriftpy.protocol.binary import TBinaryProtocolFactory
 from thriftpy.transport.buffered import TBufferedTransportFactory
+import launcher
 
 try:
     from ttypes import *
-    from launcher import runRPCAgent
 except ImportError:
     from .ttypes import *
-    from .launcher import runRPCAgent
 
 wptypes_thrift = thriftpy.load('wptypes.thrift', module_name="wptypes_thrift")
 
@@ -115,12 +114,14 @@ class WPWithin(object):
         except wpt.Error as err:
             raise Error(err.message)
 
-    def runRPCAgent(port):
-        runRPCAgent("../rpc-agent/", port)
+def runRPCAgent(port):
+    launcher.runRPCAgent("./rpc-agent/", port)
 
-
-def createClient(host, port):
+def createClient(host, port, startRPC):
     wpw_thrift = thriftpy.load('wpwithin.thrift', module_name="wpw_thrift")
+
+    if startRPC:
+        runRPCAgent(port)
 
     # add try ...
     TClient = make_client(wpw_thrift.WPWithin, host, port, proto_factory=TBinaryProtocolFactory(), trans_factory=TBufferedTransportFactory())

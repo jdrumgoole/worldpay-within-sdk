@@ -37,4 +37,4 @@ def runRPCAgent(execPath, port):
     agent = 'rpc-agent-' + os + '-' + os_arch()
     if os == 'win':
         agent += '.exe'
-    call([execPath + agent,'-port='+port)
+    call([execPath + agent,'-port='+str(port)])
