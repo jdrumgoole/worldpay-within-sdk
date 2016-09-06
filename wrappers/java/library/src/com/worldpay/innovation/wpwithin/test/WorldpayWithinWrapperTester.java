@@ -32,7 +32,7 @@ public class WorldpayWithinWrapperTester {
         // ######### SETUP RPC SERVICES ############
         String host = "127.0.0.1";
         Integer port = 9091;
-        WPWithinWrapper sdk = new WPWithinWrapperImpl(host, port);
+        WPWithinWrapper sdk = new WPWithinWrapperImpl(host, port, false);
 
         try {
             //        sdk.setupDefaultDevice();

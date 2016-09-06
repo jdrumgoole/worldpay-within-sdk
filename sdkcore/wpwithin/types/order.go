@@ -1,14 +1,14 @@
 package types
 
+// Order is placed by consumers. This object holds a record of that order
 type Order struct {
-
-	ServiceID int
-	ClientID string
+	UUID                  string
+	Service               Service
+	SelectedPriceID       int
+	ClientID              string
 	SelectedNumberOfUnits int
-	SelectedPriceId int
-	TotalPrice int
-	PaymentReference string
-	ClientUUID string
-	PSPReference string
-	DeliveryToken string
+	ClientUUID            string
+	PSPReference          string
+	DeliveryToken         ServiceDeliveryToken
+	ConsumedUnits         int
 }

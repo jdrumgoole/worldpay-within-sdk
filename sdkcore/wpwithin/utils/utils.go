@@ -104,3 +104,8 @@ func TimeFormatISO(input time.Time) string {
 
 	return input.Format("2006-01-02T15:04:05Z")
 }
+
+func ParseISOTime(input string) (time.Time, error) {
+
+	return time.Parse("2006-01-02T15:04:05Z", input)
+}

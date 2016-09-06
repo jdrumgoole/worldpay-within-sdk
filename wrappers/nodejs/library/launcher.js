@@ -5,30 +5,25 @@
  * @module wpwithin/launcher
  */
 module.exports = {
-  Config : Config,
-  launch : launch
+  startProcess : startProcess,
+  stopProcess : stopProcess
 };
 
-/**
- * Launcher config.
- * @class Config
- */
-function Config(requiredOSs, requiredArchs) {
-
-  // Arch can be { 'arm', 'ia32', or 'x64' } as per https://nodejs.org/dist/latest-v5.x/docs/api/process.html#process_process_arch
-  // OS can be { 'darwin', 'freebsd', 'linux', 'sunos' or 'win32' } as per https://nodejs.org/dist/latest-v5.x/docs/api/process.html#process_process_platform
-
-  this.requiredOSs = requiredOSs;
-  this.requiredArchs = requiredArchs;
-}
+var util = require("util");
 
 /**
-  * Launch an application
-  * config
-  * path is the path to the executable
-  * flags are optional but a way so specify extra information
+  * Stop a process
   */
-function launch(config, path, flags, callback) {
+function stopProcess(procHandle) {
+
+  // Send interrupt to process
+  procHandle.kill("SIGINT")
+}
+/**
+  * Start a process
+  * config the configuration of the application i.e. filenames for binaries of various platforms
+  */
+function startProcess(config, callback) {
 
   // Determine the OS and Architecture this application is currently running on
   var hostOS = detectHostOS().toLowerCase();
@@ -40,24 +35,24 @@ function launch(config, path, flags, callback) {
     switch(hostOS) {
 
       case "darwin":
-      launchDarwin(path, flags, callback);
+      return launchDarwin(config, callback);
       break;
 
       case "linux":
-      launchLinux(path, flags, callback);
+      return launchLinux(config, callback);
       break;
 
       case "win32":
-      launchWindows(path, flags, callback);
+      return launchWindows(config, callback);
       break;
 
       default:
-      throw new Error("Unable to launch binary on host architecture (Unsupported by launcher)(Host=%s)", hostOS);
+      throw new Error(util.format("Unable to launch binary on host os (Unsupported by launcher)(HostOS=%s)", hostOS));
       break;
     }
   } else {
 
-      console.log("Invalid OS/Architecture combination detected");
+      throw new Error(util.format("Unable to launch binary on host - unsupported by launcher. (OS=%s)(Architecture=%s)", hostOS, hostArchitecture));
   }
 }
 
@@ -77,54 +72,65 @@ function detectHostArchitecture() {
   return process.arch;
 }
 
-function launchDarwin(path, flags, callback) {
+function launchDarwin(config, callback) {
 
   var util = require('util');
 
   console.log("launching Darwin application");
 
-  var exec = require('child_process').exec;
-  var cmd = util.format('%s %s', path, flags == null ? "" : flags);
+  var cmd = config[detectHostOS()][detectHostArchitecture()];
 
-  exec(cmd, function(error, stdout, stderr) {
-
-    return callback(error, stdout, stderr);
-  });
+  launchBinary(cmd, callback)
 }
 
-function launchLinux(path, flags, callback) {
+function launchLinux(config, callback) {
 
   console.log("launching Linux application");
+
+  var cmd = config[detectHostOS()][detectHostArchitecture()];
+
+  launchBinary(cmd, callback)
 }
 
-function launchWindows(path, flags, callback) {
+function launchWindows(config, callback) {
 
   console.log("launching Windows application");
+
+  var cmd = config[detectHostOS()][detectHostArchitecture()];
+
+  launchBinary(cmd, callback)
 }
 /**
  * For a given config, determine if it matches the specified hostOS and hostArchitecture
  */
 function validateConfig(config, hostOS, hostArchitecture) {
 
-  // Validate detected parameters against config
-  var validOS = false;
-  var validArch = false;
+  console.log("Validating OS/Architecure. (%s/%s)", hostOS, hostArchitecture)
 
-  for(i in config.requiredOSs) {
+  if(config == null) {
 
-    if(config.requiredOSs[i].toLowerCase() === hostOS) {
-
-      validOS = true;
-    }
+    return false
   }
 
-  for(i in config.requiredArchs) {
+  var validationResult = config[hostOS] != null && config[hostOS][hostArchitecture] != null;
 
-    if(config.requiredArchs[i].toLowerCase() === hostArchitecture) {
+  console.log("Validation passed =", validationResult)
 
-      validArch = true;
-    }
-  }
+  return validationResult
+}
 
-  return validOS && validArch;
+function launchBinary(cmd, callback) {
+
+  console.log("Command: ", cmd)
+
+  var exec = require('child_process').exec;
+
+  // error - gets set if executing the program fails i.e. Exit code is non zero.
+  // stdout - Standard out - result of regular print states.
+  // stderr - Error out - result of spending
+
+  return exec(cmd, function(error, stdout, stderr) {
+
+      callback(error, stdout, stderr);
+  });
 }

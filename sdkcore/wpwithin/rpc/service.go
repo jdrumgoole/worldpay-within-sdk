@@ -1,25 +1,32 @@
 package rpc
+
 import (
-	"git.apache.org/thrift.git/lib/go/thrift"
-	"fmt"
-	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift"
-	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
 	"crypto/tls"
 	"errors"
+	"fmt"
+
+	"git.apache.org/thrift.git/lib/go/thrift"
+	log "github.com/Sirupsen/logrus"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
 type ServiceImpl struct {
-
-	wpWithin wpwithin.WPWithin
+	wpWithin         wpwithin.WPWithin
 	transportFactory thrift.TTransportFactory
-	protocolFactory thrift.TProtocolFactory
-	host string
-	port int
-	secure bool
+	protocolFactory  thrift.TProtocolFactory
+	host             string
+	port             int
+	secure           bool
+	callbackClient   event.Handler
 }
 
 func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, error) {
 
+	log.WithField("Config", fmt.Sprintf("%+v", config)).Debug("begin rpc.ServiceImpl.NewService()")
+
+	defer log.Debug("end rpc.ServiceImpl.NewService()")
 
 	var protocolFactory thrift.TProtocolFactory
 	switch config.Protocol {
@@ -46,7 +53,6 @@ func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, erro
 		transportFactory = thrift.NewTFramedTransportFactory(transportFactory)
 	}
 
-
 	result := new(ServiceImpl)
 	result.transportFactory = transportFactory
 	result.protocolFactory = protocolFactory
@@ -54,37 +60,56 @@ func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, erro
 	result.port = config.Port
 	result.secure = config.Secure
 	result.wpWithin = wpWithin
+	// Only setup callbacks if there is a callback port specified
+	if config.CallbackPort > 0 {
+
+		log.Debug("CallbackPort > 0, Setting up RPC Callback")
+		log.Debug("Will attempt to create new EventSender")
+
+		if cb, err := NewEventSender(config); err != nil {
+
+			return nil, err
+		} else {
+
+			log.Debug("Did create new EventSender.")
+			result.callbackClient = cb
+		}
+	}
 
 	return result, nil
 }
 
 func (svc *ServiceImpl) Start() error {
 
+	log.Debug("begin rpc.ServiceImpl.start()")
+
+	defer log.Debug("end rpc.ServiceImpl.start()")
+
 	strAddr := fmt.Sprintf("%s:%d", svc.host, svc.port)
 
 	var transport thrift.TServerTransport
 	var err error
-		if svc.secure {
-			cfg := new(tls.Config)
-			if cert, err := tls.LoadX509KeyPair("server.crt", "server.key"); err == nil {
-				cfg.Certificates = append(cfg.Certificates, cert)
-			} else {
-				return err
-			}
-			transport, err = thrift.NewTSSLServerSocket(strAddr, cfg)
+	if svc.secure {
+		cfg := new(tls.Config)
+		if cert, err := tls.LoadX509KeyPair("server.crt", "server.key"); err == nil {
+			cfg.Certificates = append(cfg.Certificates, cert)
 		} else {
-			transport, err = thrift.NewTServerSocket(strAddr)
+			return err
 		}
+		transport, err = thrift.NewTSSLServerSocket(strAddr, cfg)
+	} else {
+		transport, err = thrift.NewTServerSocket(strAddr)
+	}
 
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Transport: %T\n", transport)
-	handler := NewWPWithinHandler(svc.wpWithin)
+
+	handler := NewWPWithinHandler(svc.wpWithin, svc.callbackClient)
 	processor := wpthrift.NewWPWithinProcessor(handler)
 	server := thrift.NewTSimpleServer4(processor, transport, svc.transportFactory, svc.protocolFactory)
 
-	fmt.Printf("Starting the rpc server on...: %s\n", strAddr)
+	log.Debugf("Starting the rpc server on...: %s", strAddr)
 
 	return server.Serve()
 }

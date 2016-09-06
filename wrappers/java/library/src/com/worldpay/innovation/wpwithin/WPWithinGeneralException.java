@@ -10,7 +10,7 @@ package com.worldpay.innovation.wpwithin;
  *
  * @author worldpay
  */
-public class WPWithinGeneralException extends Exception {
+public class WPWithinGeneralException extends RuntimeException {
     public WPWithinGeneralException(String msg) {
         System.out.println(msg);
     }

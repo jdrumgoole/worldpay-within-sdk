@@ -1,3 +1,5 @@
+var util = require('util');
+
 module.exports = {
   createClient: createClient
 };
@@ -8,7 +10,6 @@ function WPWithin(thriftClient) {
 
   this.thriftClient = thriftClient;
 
-  this.startRPC = fnStartRPC;
   this.setup = fnSetup;
   this.addService = fnAddService;
   this.removeService = fnRemoveService;
@@ -139,17 +140,17 @@ var fnMakePayment = function(request, callback) {
   });
 };
 
-var fnBeginServiceDelivery = function(clientId, serviceDeliveryToken, unitsToSupply, callback) {
+var fnBeginServiceDelivery = function(serviceId, serviceDeliveryToken, unitsToSupply, callback) {
 
-  this.thriftClient.beginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply, function(err, result) {
+  this.thriftClient.beginServiceDelivery(serviceId, serviceDeliveryToken, unitsToSupply, function(err, result) {
 
     callback(err, result);
   });
 };
 
-var fnEndServiceDelivery = function(clientId, serviceDeliveryToken, unitsReceived, callback) {
+var fnEndServiceDelivery = function(serviceId, serviceDeliveryToken, unitsReceived, callback) {
 
-  this.thriftClient.endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived, function(err, result) {
+  this.thriftClient.endServiceDelivery(serviceId, serviceDeliveryToken, unitsReceived, function(err, result) {
 
     callback(err, result);
   });
@@ -157,27 +158,62 @@ var fnEndServiceDelivery = function(clientId, serviceDeliveryToken, unitsReceive
 
 // Factory setup WPWithinClient
 // Should return an instance of WPWithin
-function createClient(host, port, callback) {
+function createClient(host, port, startRPCAgent, callback) {
+
+  createClient(host, port, startRPCAgent, callback, null, 0);
+}
+
+// Factory setup WPWithinClient
+// Should return an instance of WPWithin
+function createClient(host, port, startRPC, callback, eventListener, callbackPort) {
 
   try {
 
     var thrift = require('thrift');
     var WPWithinLib = require('./wpwithin-thrift/WPWithin');
+    var evServer = require('./eventlistener/eventserver');
 
-    transport = thrift.TBufferedTransport;
-    protocol = thrift.TBinaryProtocol;
+    var doCreate = function() {
 
-    var connection = thrift.createConnection(host, port);
+      transport = thrift.TBufferedTransport;
+      protocol = thrift.TBinaryProtocol;
 
-    connection.on('error', function(err) {
+      var connection = thrift.createConnection(host, port);
 
-      callback(err, null);
-    });
+      connection.on('error', function(err) {
 
-    tc = thrift.createClient(WPWithinLib, connection);
+        callback(err, null);
+      });
 
-    return new WPWithin(tc);
+      tc = thrift.createClient(WPWithinLib, connection);
 
+      callback(null, new WPWithin(tc));
+    }
+
+    if(eventListener != null) {
+
+      new evServer.EventServer().start(eventListener, callbackPort);
+    }
+
+    if(startRPC) {
+
+      launchRPCAgent(port, callbackPort, function(error, stdout, stderr){
+
+          if(error == null) {
+
+            return doCreate();
+          } else {
+
+            var strErr = util.format("%s \n %s", error, stderr)
+
+            callback(strErr, null);
+          }
+      });
+
+    } else {
+
+      doCreate()
+    }
   } catch (err) {
 
     console.log("Caught error: %s", err)
@@ -186,9 +222,47 @@ function createClient(host, port, callback) {
   }
 };
 
-function fnStartRPC(port, callback) {
+function launchRPCAgent(port, callbackPort, callback) {
 
-  var rpc = require('./rpc');
+  var launcher = require('./launcher');
 
-  rpc.startRPC(port, callback);
-}
+  var flagLogFile = "wpwithin.log"
+  var flagLogLevels = "debug,error,info,warn,fatal"
+  var flagCallbackPort = callbackPort > 0 ? "-callbackport="+callbackPort : ""
+  var binBase = process.env.WPWBIN == "" ? "./rpc-agent-bin" : process.env.WPWBIN
+
+  var config = {
+  	"windows": {
+  		"x64": util.format("%s/rpc-agent-win-64 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"ia32": util.format("%s/rpc-agent-win-32 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"arm": null
+  	},
+  	"darwin": {
+  		"x64": util.format("%s/rpc-agent-mac-64 -port %d -logfile %s -loglevel %s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"ia32": util.format("%s/rpc-agent-mac-32 -port %d -logfile %s -loglevel %s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"arm": null
+  	},
+  	"linux": {
+  		"x64": util.format("%s/rpc-agent-linux-64 -port %d -logfile %s -loglevel %s %s",binBase, port, flagLogFile, flagLogFile, flagCallbackPort),
+  		"ia32": util.format("%s/rpc-agent-linux-32 -port %d -logfile %s -loglevel %s %s",binBase, port, flagLogFile, flagLogFile, flagCallbackPort),
+  		"arm": util.format("%s/rpc-agent-linux-arm -port %d -logfile %s -loglevel %s %s",binBase, port, flagLogFile, flagLogFile, flagCallbackPort),
+  	}
+  };
+
+  var launchCallback = function(error, stdout, stderr) {
+
+    console.log("-------------Launcher Process Event-------------");
+    console.log("error: " + error);
+    console.log("stdout: " + stdout);
+    console.log("stderr: " + stderr);
+    console.log("------------------------------------------------");
+
+    callback(error, stdout, stderr);
+  };
+
+  launcher.startProcess(config, launchCallback);
+
+  var sleep = require('sleep');
+  sleep.usleep(750);
+  callback(null, null, null);
+};

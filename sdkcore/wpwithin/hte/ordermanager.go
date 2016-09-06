@@ -7,6 +7,7 @@ import (
 // OrderManager coordinates during negotitation/payment/delivery flows
 type OrderManager interface {
 	AddOrder(order types.Order) error
-	GetOrder(paymentReference string) (types.Order, error)
-	OrderExists(paymentReference string) bool
+	GetOrder(orderUUID string) (*types.Order, error)
+	OrderExists(orderUUID string) bool
+	UpdateOrder(order types.Order) error
 }

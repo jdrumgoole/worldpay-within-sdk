@@ -1,11 +1,12 @@
 package types
 
-type Service struct {
+import "fmt"
 
-	Id int `json:"serviceID"`
-	Name string `json:"name"`
-	Description string `json:"description`
-	prices map[int]Price `json:"prices"`
+type Service struct {
+	Id          int           `json:"serviceID"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	prices      map[int]Price `json:"prices"`
 }
 
 func NewService() (*Service, error) {
@@ -18,6 +19,11 @@ func NewService() (*Service, error) {
 }
 
 func (service *Service) AddPrice(price Price) error {
+
+	if _, exists := service.prices[price.ID]; exists {
+
+		return fmt.Errorf("A price with that ID (%d) already exists for that service.", price.ID)
+	}
 
 	service.prices[price.ID] = price
 

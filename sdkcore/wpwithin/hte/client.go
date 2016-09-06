@@ -22,7 +22,7 @@ type Client interface {
 	// Given a negotiated price, make a payment for that order
 	MakeHtePayment(paymentReferenceID, clientID, clientToken string) (types.PaymentResponse, error)
 	// For a purchased service, begin delivery of that product/service
-	StartDelivery(serviceID int, serviceDeliveryToken string, unitsToSupply int) (int, error)
+	StartDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) (types.BeginServiceDeliveryResponse, error)
 	// For a purchased service, end delivery of that product/service
-	EndDelivery(serviceID int, serviceDeliveryToken string, unitsReceived int) (int, error)
+	EndDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) (types.EndServiceDeliveryResponse, error)
 }

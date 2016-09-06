@@ -9,15 +9,16 @@ import (
 )
 
 type IndividualConfig struct {
-	BufferSize int
-	Buffered   bool
-	Framed     bool
-	Host       string
-	Logfile    string
-	Loglevel   string
-	Port       int
-	Protocol   string
-	Secure     bool
+	BufferSize   int
+	Buffered     bool
+	Framed       bool
+	Host         string
+	Logfile      string
+	Loglevel     string
+	Port         int
+	Protocol     string
+	Secure       bool
+	CallbackPort int
 }
 
 type ConfigurationLocal struct {
@@ -53,6 +54,7 @@ func PopulateConfiguration(configPath string, rpcConfig rpc.Configuration) (rpcC
 	rpcConfig.Port = configuration.WorldpayWithinConfig.Port
 	rpcConfig.Secure = configuration.WorldpayWithinConfig.Secure
 	rpcConfig.BufferSize = configuration.WorldpayWithinConfig.BufferSize
+	rpcConfig.CallbackPort = configuration.WorldpayWithinConfig.CallbackPort
 
 	rpcConfigReturn = rpcConfig
 

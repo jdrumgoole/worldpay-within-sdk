@@ -4,11 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"runtime/debug"
+	"strings"
 	"time"
 
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configuration"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/core"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
+
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -30,8 +35,9 @@ type WPWithin interface {
 	GetServicePrices(serviceID int) ([]types.Price, error)
 	SelectService(serviceID, numberOfUnits, priceID int) (types.TotalPriceResponse, error)
 	MakePayment(payRequest types.TotalPriceResponse) (types.PaymentResponse, error)
-	BeginServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) error
-	EndServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error
+	BeginServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) (types.ServiceDeliveryToken, error)
+	EndServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) (types.ServiceDeliveryToken, error)
+	SetEventHandler(handler event.Handler) error
 }
 
 // Initialise Initialise the SDK - Returns an implementation of WPWithin
@@ -80,6 +86,14 @@ func Initialise(name, description string) (WPWithin, error) {
 	}
 
 	result.core = core
+
+	// Parse configuration
+	rawCfg, err := configuration.Load("wpwconfig.json")
+	wpwConfig := configuration.WPWithin{}
+	wpwConfig.ParseConfig(rawCfg)
+	core.Configuration = wpwConfig
+
+	doWebSocketLogSetup(core.Configuration)
 
 	dev, err := Factory.GetDevice(name, description)
 
@@ -255,7 +269,7 @@ func (wp *wpWithinImpl) InitProducer(merchantClientKey, merchantServiceKey strin
 		return err
 	}
 
-	hteSvcHandler := Factory.GetHTEServiceHandler(wp.core.Device, wp.core.Psp, hteCredential, wp.core.OrderManager)
+	hteSvcHandler := Factory.GetHTEServiceHandler(wp.core.Device, wp.core.Psp, hteCredential, wp.core.OrderManager, wp.core.EventHandler)
 
 	svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, hteCredential, wp.core.OrderManager, hteSvcHandler)
 
@@ -505,34 +519,111 @@ func (wp *wpWithinImpl) Core() (*core.Core, error) {
 	return wp.core, nil
 }
 
-func (wp *wpWithinImpl) BeginServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) error {
+func (wp *wpWithinImpl) BeginServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) (types.ServiceDeliveryToken, error) {
+
+	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "unitsToSupply": unitsToSupply}).Debug("begin wpwithin.wpwithinimpl.BeginServiceDelivery()")
+
+	defer log.Debug("end wpwithin.wpwithinimpl.BeginServiceDelivery()")
 
 	defer func() {
 		if r := recover(); r != nil {
 
 			fmt.Printf("%s", debug.Stack())
 
-			log.WithFields(log.Fields{"panic_message": r, "clientID": clientID, "unitsToSupply": unitsToSupply,
+			log.WithFields(log.Fields{"panic_message": r, "serviceID": serviceID, "unitsToSupply": unitsToSupply,
 				"serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.BeginServiceDelivery()")
 		}
 	}()
 
-	return errors.New("BeginServiceDelivery() not yet implemented..")
+	deliveryResponse, err := wp.core.HTEClient.StartDelivery(serviceID, serviceDeliveryToken, unitsToSupply)
+
+	if err != nil {
+
+		log.Errorf("Error calling beginServiceDelivery. Error: %s", err.Error())
+		return types.ServiceDeliveryToken{}, err
+	}
+
+	log.WithFields(log.Fields{"UnitsToSupply": deliveryResponse.UnitsToSupply}).Info("EndDeliveryResponse")
+
+	return deliveryResponse.ServiceDeliveryToken, nil
 }
 
-func (wp *wpWithinImpl) EndServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error {
+func (wp *wpWithinImpl) EndServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) (types.ServiceDeliveryToken, error) {
+
+	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "unitsReceived": unitsReceived}).Debug("begin wpwithin.wpwithinimpl.EndServiceDelivery()")
+
+	defer log.Debug("end wpwithin.wpwithinimpl.EndServiceDelivery()")
 
 	defer func() {
 		if r := recover(); r != nil {
 
 			fmt.Printf("%s", debug.Stack())
 
-			log.WithFields(log.Fields{"panic_message": r, "clientID": clientID, "unitsReceived": unitsReceived,
+			log.WithFields(log.Fields{"panic_message": r, "serviceID": serviceID, "unitsReceived": unitsReceived,
 				"serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.EndServiceDelivery()")
 		}
 	}()
 
-	return errors.New("EndServiceDelivery() not yet implemented..")
+	deliveryResponse, err := wp.core.HTEClient.EndDelivery(serviceID, serviceDeliveryToken, unitsReceived)
+
+	if err != nil {
+
+		log.Errorf("Error calling endServiceDelivery. Error: %s", err.Error())
+
+		return types.ServiceDeliveryToken{}, err
+	}
+
+	log.WithFields(log.Fields{"UnitsJustSupplied": deliveryResponse.UnitsJustSupplied, "UnitsRemaining": deliveryResponse.UnitsRemaining}).Info("EndDeliveryResponse")
+
+	return deliveryResponse.ServiceDeliveryToken, nil
+}
+
+func (wp *wpWithinImpl) SetEventHandler(handler event.Handler) error {
+
+	log.Debug("wpwithin.wpwithinimpl setting core event handler")
+
+	wp.core.EventHandler = handler
+
+	return nil
+}
+
+func doWebSocketLogSetup(cfg configuration.WPWithin) {
+
+	if cfg.WSLogEnable {
+
+		// Clean up the levels config value - just in case.
+		strLevels := strings.Replace(cfg.WSLogLevel, " ", "", -1)
+		logLevels := strings.Split(strLevels, ",")
+
+		// Support all levels
+		var levels []log.Level
+
+		for _, level := range logLevels {
+
+			switch strings.ToLower(level) {
+
+			case "panic":
+				levels = append(levels, log.PanicLevel)
+			case "fatal":
+				levels = append(levels, log.FatalLevel)
+			case "error":
+				levels = append(levels, log.ErrorLevel)
+			case "warn":
+				levels = append(levels, log.WarnLevel)
+			case "info":
+				levels = append(levels, log.InfoLevel)
+			case "debug":
+				levels = append(levels, log.DebugLevel)
+			}
+		}
+
+		err := wslog.Initialise("", cfg.WSLogPort, levels)
+
+		if err != nil {
+
+			fmt.Println(err.Error())
+		}
+	}
 }
