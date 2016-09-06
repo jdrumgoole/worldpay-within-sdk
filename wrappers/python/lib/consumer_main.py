@@ -4,7 +4,7 @@ import wpwithin
 
 hceCard = types.HCECard(FirstName='Samwise', LastName='Gamgee', ExpMonth=1, ExpYear=2018, CardNumber='3791421199999999', Type='Card', Cvc='865')
 
-client = wpwithin.createClient("127.0.0.1", 9090, False)
+client = wpwithin.createClient("127.0.0.1", 9091, True)
 
 consumer = SampleConsumer(client, hceCard)
 
