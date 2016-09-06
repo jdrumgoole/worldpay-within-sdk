@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Common.Logging;
 using Thrift.Protocol;
@@ -16,6 +15,22 @@ namespace Worldpay.Innovation.WPWithin
 
     public class WPWithinService : IDisposable
     {
+        private static readonly ILog Log = LogManager.GetLogger<WPWithinService>();
+        private ThriftWPWithinService.Client _client;
+        private bool _isDisposed;
+        private TTransport _transport;
+
+
+        public WPWithinService(string host, int port)
+        {
+            Init(host, port);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
         public void AddService(Service service)
         {
             _client.addService(ServiceAdapter.Create(service));
@@ -74,7 +89,8 @@ namespace Worldpay.Innovation.WPWithin
 
         public void BeginServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
         {
-            _client.beginServiceDelivery(clientId, ServiceDeliveryTokenAdapter.Create(serviceDeliveryToken), unitsToSupply);
+            _client.beginServiceDelivery(clientId, ServiceDeliveryTokenAdapter.Create(serviceDeliveryToken),
+                unitsToSupply);
         }
 
         public void EndServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
@@ -90,22 +106,6 @@ namespace Worldpay.Innovation.WPWithin
         public void SetupDevice(string deviceName, string deviceDescription)
         {
             _client.setup(deviceName, deviceDescription);
-        }
-        
-        private static readonly ILog Log = LogManager.GetLogger<WPWithinService>();
-        private ThriftWPWithinService.Client _client;
-        private bool _isDisposed;
-        private TTransport _transport;
-
-
-        public WPWithinService(string host, int port)
-        {
-            Init(host, port);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
         }
 
         private void Init(string host, int port)

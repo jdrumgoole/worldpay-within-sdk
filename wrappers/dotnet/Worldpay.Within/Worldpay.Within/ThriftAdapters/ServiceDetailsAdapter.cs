@@ -5,7 +5,7 @@ using ThriftServiceDetails = Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDetai
 
 namespace Worldpay.Innovation.WPWithin.ThriftAdapters
 {
-    public class ServiceDetailsAdapter
+    internal class ServiceDetailsAdapter
     {
         public static IEnumerable<ServiceDetails> Create(THashSet<ThriftServiceDetails> requestServices)
         {

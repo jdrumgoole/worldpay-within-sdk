@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Worldpay.Innovation.WPWithin.Rpc.Types;
+﻿using System.Net;
+
 using ThriftDevice = Worldpay.Innovation.WPWithin.Rpc.Types.Device;
 
 namespace Worldpay.Innovation.WPWithin.ThriftAdapters
@@ -13,7 +8,7 @@ namespace Worldpay.Innovation.WPWithin.ThriftAdapters
     {
         public static ThriftDevice Create(Device device)
         {
-            return new ThriftDevice()
+            return new ThriftDevice
             {
                 CurrencyCode = device.CurrencyCode,
                 Description = device.Description,

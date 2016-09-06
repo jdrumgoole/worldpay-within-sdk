@@ -2,7 +2,7 @@
 
 namespace Worldpay.Innovation.WPWithin.ThriftAdapters
 {
-    public class ServiceDeliveryTokenAdapter
+    internal class ServiceDeliveryTokenAdapter
     {
         public static ThriftServiceDeliveryToken Create(ServiceDeliveryToken serviceDeliveryToken)
         {
