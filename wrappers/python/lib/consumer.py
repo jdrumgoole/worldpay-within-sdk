@@ -134,3 +134,6 @@ class SampleConsumer:
         Client UUID: {0.clientUUID}""".format(response, response.serviceDeliveryToken)
 
         print(printMessage)
+
+        print("Shutting down...")
+        self.client.proc.kill()

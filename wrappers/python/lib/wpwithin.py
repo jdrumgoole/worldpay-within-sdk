@@ -3,6 +3,7 @@ from thriftpy.rpc import make_client
 from thriftpy.protocol.binary import TBinaryProtocolFactory
 from thriftpy.transport.buffered import TBufferedTransportFactory
 import launcher
+import time
 
 try:
     from ttypes import *
@@ -14,8 +15,10 @@ wptypes_thrift = thriftpy.load('wptypes.thrift', module_name="wptypes_thrift")
 import wptypes_thrift as wpt
 
 class WPWithin(object):
-    def __init__(self, thriftClient):
+    def __init__(self, thriftClient, proc=None):
         self.thriftClient = thriftClient
+        if proc != None:
+            self.proc = proc
 
     def setup(self, name, description):
         try:
@@ -114,16 +117,20 @@ class WPWithin(object):
         except wpt.Error as err:
             raise Error(err.message)
 
-def runRPCAgent(port):
-    launcher.runRPCAgent("./rpc-agent/", port)
+def runRPCAgent(port, dir="./rpc-agent/"):
+    return launcher.runRPCAgent(dir, port)
 
-def createClient(host, port, startRPC):
+def createClient(host, port, startRPC, dir=None):
     wpw_thrift = thriftpy.load('wpwithin.thrift', module_name="wpw_thrift")
 
     if startRPC:
-        runRPCAgent(port)
+        if dir == None:
+            proc = runRPCAgent(port)
+        else:
+            proc = runRPCAgent(port, dir)
 
+    time.sleep(2)
     # add try ...
     TClient = make_client(wpw_thrift.WPWithin, host, port, proto_factory=TBinaryProtocolFactory(), trans_factory=TBufferedTransportFactory())
-
-    return WPWithin(TClient)
+    
+    return WPWithin(TClient, proc=proc)
