@@ -1,6 +1,7 @@
 #!/usr/bin/python
 ## Python Launcher
 from subprocess import call
+from subprocess import Popen,PIPE
 import sys
 import ast
 import platform
@@ -37,4 +38,5 @@ def runRPCAgent(execPath, port):
     agent = 'rpc-agent-' + os + '-' + os_arch()
     if os == 'win':
         agent += '.exe'
-    call([execPath + agent,'-port='+str(port)])
+    proc=Popen([execPath + agent, '-port='+str(port)], stdout=PIPE, stderr=PIPE)
+    return proc
