@@ -18,7 +18,7 @@ public class Main {
 
             System.out.println("WorldpayWithin Sample Producer...");
 
-            WPWithinWrapper wpw = new WPWithinWrapperImpl("127.0.0.1", 9090);
+            WPWithinWrapper wpw = new WPWithinWrapperImpl("127.0.0.1", 9066, true);
 
             wpw.setup("Producer Example", "Example WorldpayWithin producer");
 
@@ -46,7 +46,7 @@ public class Main {
 
             wpw.initProducer("T_C_03eaa1d3-4642-4079-b030-b543ee04b5af", "T_S_f50ecb46-ca82-44a7-9c40-421818af5996");
 
-            wpw.startServiceBroadcast(20000);
+            wpw.startServiceBroadcast(0);
 
         } catch (WPWithinGeneralException e) {
 

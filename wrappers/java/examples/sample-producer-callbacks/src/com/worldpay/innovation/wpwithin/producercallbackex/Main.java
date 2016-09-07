@@ -20,7 +20,7 @@ public class Main {
 
             System.out.println("WorldpayWithin Sample Producer...");
 
-            WPWithinWrapper wpw = new WPWithinWrapperImpl("127.0.0.1", 9089, wpWithinEventListener, 9095);
+            WPWithinWrapper wpw = new WPWithinWrapperImpl("127.0.0.1", 9055, true, wpWithinEventListener, 9095);
 
             wpw.setup("Producer Example", "Example WorldpayWithin producer");
 

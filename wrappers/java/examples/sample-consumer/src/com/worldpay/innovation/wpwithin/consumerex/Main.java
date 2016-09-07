@@ -11,11 +11,14 @@ import java.util.Set;
 public class Main {
 
     private static WPWithinWrapper wpw;
+    private static WWDevice wpwDevice;
 
     public static void main(String[] args) {
 
         System.out.println("Starting Consumer Example Written in Java.");
-        wpw = new WPWithinWrapperImpl("127.0.0.1", 9087, false);
+
+        wpw = new WPWithinWrapperImpl("127.0.0.1", 8778, true);
+        wpwDevice = wpw.getDevice();
 
 
         try {
@@ -45,7 +48,10 @@ public class Main {
                         // Select the first price in the list
                         WWPrice svcPrice = svcPrices.iterator().next();
 
-                        WWTotalPriceResponse tpr = getServicePriceQuote(svcDetail.getServiceId(), 1, svcPrice.getId());
+                        WWTotalPriceResponse tpr = getServicePriceQuote(svcDetail.getServiceId(), 5, svcPrice.getId());
+
+                        System.out.printf("Client ID: %s\n", tpr.getClientId());
+                        System.out.printf("Server ID: %s\n", tpr.getServerId());
 
                         WWPaymentResponse paymentResponse = purchaseService(svcDetail.getServiceId(), tpr);
                     }
@@ -101,7 +107,7 @@ public class Main {
         card.setType("Card");
         card.setCvc("113");
 
-        wpw.initConsumer("http://", svcMsg.getHostname(), svcMsg.getPortNumber(), svcMsg.getUrlPrefix(), svcMsg.getServerId(), card);
+        wpw.initConsumer("http://", svcMsg.getHostname(), svcMsg.getPortNumber(), svcMsg.getUrlPrefix(), wpwDevice.getUid(), card);
     }
 
     private static Set<WWServiceDetails> getAvailableServices() throws WPWithinGeneralException {
@@ -193,7 +199,7 @@ public class Main {
             System.out.printf("ServiceDeliveryToken.signature: %s\n", pResp.getServiceDeliveryToken().getSignature());
             System.out.printf("ServiceDeliveryToken.refundOnExpiry: %b\n", pResp.getServiceDeliveryToken().isRefundOnExpiry());
 
-            beginServiceDelivery(serviceID, pResp.getServiceDeliveryToken(), 1);
+            beginServiceDelivery(serviceID, pResp.getServiceDeliveryToken(), 5);
 
         } else {
 
@@ -221,7 +227,7 @@ public class Main {
 
     private static void endServiceDelivery(int serviceID, WWServiceDeliveryToken token, int unitsReceived) throws WPWithinGeneralException {
 
-        System.out.println("Calling beginServiceDelivery()");
+        System.out.println("Calling endServiceDelivery()");
 
         wpw.endServiceDelivery(serviceID, token, unitsReceived);
     }

@@ -9,6 +9,7 @@ import com.worldpay.innovation.wpwithin.eventlistener.EventListener;
 import com.worldpay.innovation.wpwithin.eventlistener.EventServer;
 import com.worldpay.innovation.wpwithin.rpc.WPWithin;
 import com.worldpay.innovation.wpwithin.rpc.launcher.*;
+import com.worldpay.innovation.wpwithin.rpc.types.ServiceDeliveryToken;
 import com.worldpay.innovation.wpwithin.thriftadapter.*;
 import com.worldpay.innovation.wpwithin.types.*;
 import org.apache.thrift.TException;
@@ -47,30 +48,30 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
         this(host, port, startRPCAgent, null, 0);
     }
 
-    public WPWithinWrapperImpl(String rpcHost, Integer rpcPort, boolean startRPCAgent, EventListener eventListener, int callbackPort){
+    public WPWithinWrapperImpl(String rpcHost, Integer rpcPort, boolean startRPCAgent, EventListener eventListener, int rpcCallbackPort){
 
         this.hostConfig = rpcHost;
         this.portConfig = rpcPort;
 
         if(startRPCAgent) {
 
-            startRPCAgent(rpcPort);
+            startRPCAgent(rpcPort, rpcCallbackPort);
         }
 
         setClientIfNotSet();
 
         if(eventListener != null) {
 
-            if(callbackPort <= 0 || callbackPort > 65535) {
+            if(rpcCallbackPort <= 0 || rpcCallbackPort > 65535) {
 
                 throw new WPWithinGeneralException("Callback port must be >0 and <65535");
             }
 
             eventServer = new EventServer();
 
-            eventServer.start(eventListener, callbackPort);
+            eventServer.start(eventListener, rpcCallbackPort);
 
-            System.out.printf("Did setup and start event server on port: %d\n", callbackPort);
+            System.out.printf("Did setup and start event server on port: %d\n", rpcCallbackPort);
         }
     }
     
@@ -239,9 +240,13 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
     }
 
     @Override
-    public void beginServiceDelivery(int serviceId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsToSupply) throws WPWithinGeneralException {
+    public WWServiceDeliveryToken beginServiceDelivery(int serviceId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsToSupply) throws WPWithinGeneralException {
         try {
-            getClient().beginServiceDelivery(serviceId, ServiceDeliveryTokenAdapter.convertWWServiceDeliveryToken(serviceDeliveryToken), unitsToSupply);
+
+            ServiceDeliveryToken sdt = getClient().beginServiceDelivery(serviceId, ServiceDeliveryTokenAdapter.convertWWServiceDeliveryToken(serviceDeliveryToken), unitsToSupply);
+
+            return ServiceDeliveryTokenAdapter.convertServiceDeliveryToken(sdt);
+
         } catch (TException ex) {
             Logger.getLogger(WPWithinWrapperImpl.class.getName()).log(Level.SEVERE, "Failed to begin Service Delivery in the wrapper", ex);
             throw new WPWithinGeneralException("Failed to begin Service Delivery in the wrapper");
@@ -249,9 +254,11 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
     }
 
     @Override
-    public void endServiceDelivery(int serviceId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsReceived) throws WPWithinGeneralException {
+    public WWServiceDeliveryToken endServiceDelivery(int serviceId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsReceived) throws WPWithinGeneralException {
         try {
-            getClient().endServiceDelivery(serviceId, ServiceDeliveryTokenAdapter.convertWWServiceDeliveryToken(serviceDeliveryToken), unitsReceived);
+            ServiceDeliveryToken sdt = getClient().endServiceDelivery(serviceId, ServiceDeliveryTokenAdapter.convertWWServiceDeliveryToken(serviceDeliveryToken), unitsReceived);
+
+            return ServiceDeliveryTokenAdapter.convertServiceDeliveryToken(sdt);
         } catch (TException ex) {
             Logger.getLogger(WPWithinWrapperImpl.class.getName()).log(Level.SEVERE, "Failed to end Service Delivery in the wrapper", ex);
             throw new WPWithinGeneralException("Failed to end Service Delivery in the wrapper");
@@ -274,29 +281,34 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
         }
     }
 
-    private void startRPCAgent(int port) {
+    private void startRPCAgent(int port, int callbackPort) {
+
+        String flagLogfile = "wpwithin.log";
+        String flagLogLevels = "debug,error,info,warn,fatal";
+        String flagCallbackPort = callbackPort > 0 ? "-callbackPort="+callbackPort : "";
+        String binBase = System.getenv("WPWBIN") == null ? "./rpc-agent-bin" : System.getenv("WPWBIN");
 
         launcher = new Launcher();
 
         Map<OS, PlatformConfig> launchConfig = new HashMap<>(3);
 
         PlatformConfig winConfig = new PlatformConfig();
-        winConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent-win-32 -port=%d", port));
-        winConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-win-64 -port=%d", port));
-        winConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-win-armv5 -port=%d", port));
+        winConfig.setCommand(Architecture.IA32, String.format("%s/rpc-agent-win-32 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogfile, flagLogLevels, flagCallbackPort));
+        winConfig.setCommand(Architecture.X86_64, String.format("%s/rpc-agent-win-64 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogfile, flagLogLevels, flagCallbackPort));
+        winConfig.setCommand(Architecture.ARM, String.format("%s/rpc-agent-win-arm -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogfile, flagLogLevels, flagCallbackPort));
         launchConfig.put(OS.WINDOWS, winConfig);
 
         PlatformConfig linuxConfig = new PlatformConfig();
-        linuxConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent-linux-32 -port=%d", port));
-        linuxConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-linux-64 -port=%d", port));
-        linuxConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-linux-armv5 -port=%d", port));
+        linuxConfig.setCommand(Architecture.IA32, String.format("%s/rpc-agent-linux-32 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogfile, flagLogLevels, flagCallbackPort));
+        linuxConfig.setCommand(Architecture.X86_64, String.format("%s/rpc-agent-linux-64 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogfile, flagLogLevels, flagCallbackPort));
+        linuxConfig.setCommand(Architecture.ARM, String.format("%s/rpc-agent-linux-arm -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogfile, flagLogLevels, flagCallbackPort));
         launchConfig.put(OS.LINUX, linuxConfig);
 
 
         PlatformConfig macConfig = new PlatformConfig();
-        macConfig.setCommand(Architecture.IA32, String.format("./rpc-agent/rpc-agent/rpc-agent-mac-32 -port=%d", port));
-        macConfig.setCommand(Architecture.X86_64, String.format("./rpc-agent/rpc-agent-mac-64 -port=%d", port));
-        macConfig.setCommand(Architecture.ARM, String.format("./rpc-agent/rpc-agent-mac-armv5 -port=%d", port));
+        macConfig.setCommand(Architecture.IA32, String.format("%s/rpc-agent/rpc-agent-mac-32 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogfile, flagLogLevels, flagCallbackPort));
+        macConfig.setCommand(Architecture.X86_64, String.format("%s/rpc-agent-mac-64 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogfile, flagLogLevels, flagCallbackPort));
+        macConfig.setCommand(Architecture.ARM, String.format("%s/rpc-agent-mac-arm -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogfile, flagLogLevels, flagCallbackPort));
         launchConfig.put(OS.MAC, macConfig);
 
 

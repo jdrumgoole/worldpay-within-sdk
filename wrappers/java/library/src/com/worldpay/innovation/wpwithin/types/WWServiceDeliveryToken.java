@@ -14,12 +14,6 @@ import java.nio.ByteBuffer;
  */
 public class WWServiceDeliveryToken {
 
-//    	1: string key
-//	2: string issued
-//	3: string expiry
-//	4: bool refundOnExpiry
-//	5: binary signature
-                
     String key;
     String issued;
     String expiry;
