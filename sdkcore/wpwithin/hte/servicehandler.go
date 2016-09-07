@@ -317,7 +317,11 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 			totalPrice := _order.Service.Prices()[_order.SelectedPriceID].PricePerUnit.Amount * _order.SelectedNumberOfUnits
 			orderPPU := _order.Service.Prices()[_order.SelectedPriceID].PricePerUnit
-			orderDescription := fmt.Sprintf("%s - %d units @ %s%d per unit.", _order.Service.Name, _order.SelectedNumberOfUnits, orderPPU.CurrencyCode, orderPPU.Amount)
+
+			// Convert order price per unit from minor units (e.g. Pence) to major units (e.g. Pounds) (e.g. 100p -> £1.00)
+			strUnitPrice := utils.DoUnitConvertFormat(orderPPU.Amount, 2, fmt.Sprintf("%s <amount>", orderPPU.CurrencyCode))
+
+			orderDescription := fmt.Sprintf("%s - %d units @ %s per unit.", _order.Service.Name, _order.SelectedNumberOfUnits, strUnitPrice)
 			pspReference, err := srv.psp.MakePayment(totalPrice, orderCurrency, paymentRequest.ClientToken, orderDescription, _order.UUID)
 
 			if err != nil {
