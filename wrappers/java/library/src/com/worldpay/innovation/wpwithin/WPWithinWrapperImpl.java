@@ -54,7 +54,7 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
 
         if(startRPCAgent) {
 
-            startRPCAgent(callbackPort);
+            startRPCAgent(rpcPort);
         }
 
         setClientIfNotSet();
