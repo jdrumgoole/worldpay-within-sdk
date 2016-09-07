@@ -24,14 +24,14 @@ class Service(object):
         self.prices = prices
 
 class HCECard(object):
-    def __init__(self, FirstName=None, LastName=None, ExpMonth=None, ExpYear=None, CardNumber=None, Type=None, Cvc=None):
-        self.FirstName = FirstName
-        self.LastName = LastName
-        self.ExpMonth = ExpMonth
-        self.ExpYear = ExpYear
-        self.CardNumber = CardNumber
-        self.Type = Type
-        self.Cvc = Cvc
+    def __init__(self, firstName=None, lastName=None, expMonth=None, expYear=None, cardNumber=None, cardType=None, cvc=None):
+        self.firstName = firstName
+        self.lastName = lastName
+        self.expMonth = expMonth
+        self.expYear = expYear
+        self.cardNumber = cardNumber
+        self.cardType = cardType
+        self.cvc = cvc
 
 class Device(object):
     def __init__(self, uid=None, name=None, description=None, services=None, ipv4Address=None, currencyCode=None):
@@ -43,12 +43,13 @@ class Device(object):
         self.currencyCode = currencyCode
 
 class ServiceMessage(object):
-    def __init__(self, deviceDescription=None, hostname=None, portNumber=None, serverId=None, urlPrefix=None):
+    def __init__(self, deviceDescription=None, hostname=None, portNumber=None, serverId=None, urlPrefix=None, scheme=None):
         self.deviceDescription = deviceDescription
         self.hostname = hostname
         self.portNumber = portNumber
         self.serverId = serverId
         self.urlPrefix = urlPrefix
+        self.scheme = scheme
 
 class ServiceDetails(object):
     def __init__(self, serviceId=None, serviceDescription=None):
@@ -74,9 +75,8 @@ class ServiceDeliveryToken(object):
         self.signature = signature
 
 class PaymentResponse(object):
-    def __init__(self, serverId=None, clientId=None, totalPaid=None, serviceDeliveryToken=None, ClientUUID=None):
+    def __init__(self, serverId=None, clientId=None, totalPaid=None, serviceDeliveryToken=None):
         self.serverId = serverId
         self.clientId = clientId
         self.totalPaid = totalPaid
-        self.serviceDeliveryToken = serviceDeliveryToken 
-        self.ClientUUID = ClientUUID
+        self.serviceDeliveryToken = serviceDeliveryToken
