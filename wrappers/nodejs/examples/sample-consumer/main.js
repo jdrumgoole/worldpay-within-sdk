@@ -90,7 +90,7 @@ function connectToDevice(serviceMessage) {
   hceCard.type = "Card";
   hceCard.cvc = "123";
 
-  client.initConsumer("http://", serviceMessage.hostname, serviceMessage.portNumber,
+  client.initConsumer(serviceMessage.scheme, serviceMessage.hostname, serviceMessage.portNumber,
   serviceMessage.urlPrefix, device.uid, hceCard, function(err, response){
 
     console.log("initConsumer.callback.err: %s" + err);

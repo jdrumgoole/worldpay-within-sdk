@@ -271,7 +271,7 @@ func (wp *wpWithinImpl) InitProducer(merchantClientKey, merchantServiceKey strin
 
 	hteSvcHandler := Factory.GetHTEServiceHandler(wp.core.Device, wp.core.Psp, hteCredential, wp.core.OrderManager, wp.core.EventHandler)
 
-	svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, hteCredential, wp.core.OrderManager, hteSvcHandler)
+	svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, "http://", hteCredential, wp.core.OrderManager, hteSvcHandler)
 
 	if err != nil {
 
@@ -337,6 +337,7 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 		ServerID:          wp.core.Device.UID,
 		UrlPrefix:         wp.core.HTE.UrlPrefix(),
 		PortNumber:        wp.core.HTE.Port(),
+		Scheme:            wp.core.HTE.Scheme(),
 	}
 
 	// Set up a channel to get the error out of the go routine

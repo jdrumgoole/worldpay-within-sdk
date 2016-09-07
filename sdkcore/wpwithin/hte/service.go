@@ -13,4 +13,6 @@ type Service interface {
 	Port() int
 	// Url prefix of route URLs
 	UrlPrefix() string
+	// Scheme e.g. HTTP/HTTPS
+	Scheme() string
 }

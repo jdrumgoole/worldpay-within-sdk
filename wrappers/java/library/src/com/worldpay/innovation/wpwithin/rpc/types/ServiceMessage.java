@@ -43,6 +43,7 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
   private static final org.apache.thrift.protocol.TField PORT_NUMBER_FIELD_DESC = new org.apache.thrift.protocol.TField("portNumber", org.apache.thrift.protocol.TType.I32, (short)3);
   private static final org.apache.thrift.protocol.TField SERVER_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("serverId", org.apache.thrift.protocol.TType.STRING, (short)4);
   private static final org.apache.thrift.protocol.TField URL_PREFIX_FIELD_DESC = new org.apache.thrift.protocol.TField("urlPrefix", org.apache.thrift.protocol.TType.STRING, (short)5);
+  private static final org.apache.thrift.protocol.TField SCHEME_FIELD_DESC = new org.apache.thrift.protocol.TField("scheme", org.apache.thrift.protocol.TType.STRING, (short)6);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -55,6 +56,7 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
   public int portNumber; // required
   public String serverId; // required
   public String urlPrefix; // required
+  public String scheme; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -62,7 +64,8 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
     HOSTNAME((short)2, "hostname"),
     PORT_NUMBER((short)3, "portNumber"),
     SERVER_ID((short)4, "serverId"),
-    URL_PREFIX((short)5, "urlPrefix");
+    URL_PREFIX((short)5, "urlPrefix"),
+    SCHEME((short)6, "scheme");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -87,6 +90,8 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
           return SERVER_ID;
         case 5: // URL_PREFIX
           return URL_PREFIX;
+        case 6: // SCHEME
+          return SCHEME;
         default:
           return null;
       }
@@ -142,6 +147,8 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.URL_PREFIX, new org.apache.thrift.meta_data.FieldMetaData("urlPrefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.SCHEME, new org.apache.thrift.meta_data.FieldMetaData("scheme", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(ServiceMessage.class, metaDataMap);
   }
@@ -154,7 +161,8 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
     String hostname,
     int portNumber,
     String serverId,
-    String urlPrefix)
+    String urlPrefix,
+    String scheme)
   {
     this();
     this.deviceDescription = deviceDescription;
@@ -163,6 +171,7 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
     setPortNumberIsSet(true);
     this.serverId = serverId;
     this.urlPrefix = urlPrefix;
+    this.scheme = scheme;
   }
 
   /**
@@ -183,6 +192,9 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
     if (other.isSetUrlPrefix()) {
       this.urlPrefix = other.urlPrefix;
     }
+    if (other.isSetScheme()) {
+      this.scheme = other.scheme;
+    }
   }
 
   public ServiceMessage deepCopy() {
@@ -197,6 +209,7 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
     this.portNumber = 0;
     this.serverId = null;
     this.urlPrefix = null;
+    this.scheme = null;
   }
 
   public String getDeviceDescription() {
@@ -318,6 +331,30 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
     }
   }
 
+  public String getScheme() {
+    return this.scheme;
+  }
+
+  public ServiceMessage setScheme(String scheme) {
+    this.scheme = scheme;
+    return this;
+  }
+
+  public void unsetScheme() {
+    this.scheme = null;
+  }
+
+  /** Returns true if field scheme is set (has been assigned a value) and false otherwise */
+  public boolean isSetScheme() {
+    return this.scheme != null;
+  }
+
+  public void setSchemeIsSet(boolean value) {
+    if (!value) {
+      this.scheme = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case DEVICE_DESCRIPTION:
@@ -360,6 +397,14 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
       }
       break;
 
+    case SCHEME:
+      if (value == null) {
+        unsetScheme();
+      } else {
+        setScheme((String)value);
+      }
+      break;
+
     }
   }
 
@@ -379,6 +424,9 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
 
     case URL_PREFIX:
       return getUrlPrefix();
+
+    case SCHEME:
+      return getScheme();
 
     }
     throw new IllegalStateException();
@@ -401,6 +449,8 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
       return isSetServerId();
     case URL_PREFIX:
       return isSetUrlPrefix();
+    case SCHEME:
+      return isSetScheme();
     }
     throw new IllegalStateException();
   }
@@ -463,6 +513,15 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
         return false;
     }
 
+    boolean this_present_scheme = true && this.isSetScheme();
+    boolean that_present_scheme = true && that.isSetScheme();
+    if (this_present_scheme || that_present_scheme) {
+      if (!(this_present_scheme && that_present_scheme))
+        return false;
+      if (!this.scheme.equals(that.scheme))
+        return false;
+    }
+
     return true;
   }
 
@@ -494,6 +553,11 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
     list.add(present_urlPrefix);
     if (present_urlPrefix)
       list.add(urlPrefix);
+
+    boolean present_scheme = true && (isSetScheme());
+    list.add(present_scheme);
+    if (present_scheme)
+      list.add(scheme);
 
     return list.hashCode();
   }
@@ -556,6 +620,16 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetScheme()).compareTo(other.isSetScheme());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetScheme()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.scheme, other.scheme);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -609,6 +683,14 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
       sb.append("null");
     } else {
       sb.append(this.urlPrefix);
+    }
+    first = false;
+    if (!first) sb.append(", ");
+    sb.append("scheme:");
+    if (this.scheme == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.scheme);
     }
     first = false;
     sb.append(")");
@@ -696,6 +778,14 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 6: // SCHEME
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.scheme = iprot.readString();
+              struct.setSchemeIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -734,6 +824,11 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
         oprot.writeString(struct.urlPrefix);
         oprot.writeFieldEnd();
       }
+      if (struct.scheme != null) {
+        oprot.writeFieldBegin(SCHEME_FIELD_DESC);
+        oprot.writeString(struct.scheme);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -767,7 +862,10 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
       if (struct.isSetUrlPrefix()) {
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetScheme()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
       if (struct.isSetDeviceDescription()) {
         oprot.writeString(struct.deviceDescription);
       }
@@ -783,12 +881,15 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
       if (struct.isSetUrlPrefix()) {
         oprot.writeString(struct.urlPrefix);
       }
+      if (struct.isSetScheme()) {
+        oprot.writeString(struct.scheme);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, ServiceMessage struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
         struct.deviceDescription = iprot.readString();
         struct.setDeviceDescriptionIsSet(true);
@@ -808,6 +909,10 @@ public class ServiceMessage implements org.apache.thrift.TBase<ServiceMessage, S
       if (incoming.get(4)) {
         struct.urlPrefix = iprot.readString();
         struct.setUrlPrefixIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.scheme = iprot.readString();
+        struct.setSchemeIsSet(true);
       }
     }
   }

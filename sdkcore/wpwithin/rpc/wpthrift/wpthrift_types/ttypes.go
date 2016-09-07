@@ -1309,12 +1309,14 @@ func (p *Device) String() string {
 //  - PortNumber
 //  - ServerId
 //  - UrlPrefix
+//  - Scheme
 type ServiceMessage struct {
 	DeviceDescription string `thrift:"deviceDescription,1" json:"deviceDescription"`
 	Hostname          string `thrift:"hostname,2" json:"hostname"`
 	PortNumber        int32  `thrift:"portNumber,3" json:"portNumber"`
 	ServerId          string `thrift:"serverId,4" json:"serverId"`
 	UrlPrefix         string `thrift:"urlPrefix,5" json:"urlPrefix"`
+	Scheme            string `thrift:"scheme,6" json:"scheme"`
 }
 
 func NewServiceMessage() *ServiceMessage {
@@ -1339,6 +1341,10 @@ func (p *ServiceMessage) GetServerId() string {
 
 func (p *ServiceMessage) GetUrlPrefix() string {
 	return p.UrlPrefix
+}
+
+func (p *ServiceMessage) GetScheme() string {
+	return p.Scheme
 }
 func (p *ServiceMessage) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
@@ -1372,6 +1378,10 @@ func (p *ServiceMessage) Read(iprot thrift.TProtocol) error {
 			}
 		case 5:
 			if err := p.readField5(iprot); err != nil {
+				return err
+			}
+		case 6:
+			if err := p.readField6(iprot); err != nil {
 				return err
 			}
 		default:
@@ -1434,6 +1444,15 @@ func (p *ServiceMessage) readField5(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *ServiceMessage) readField6(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return thrift.PrependError("error reading field 6: ", err)
+	} else {
+		p.Scheme = v
+	}
+	return nil
+}
+
 func (p *ServiceMessage) Write(oprot thrift.TProtocol) error {
 	if err := oprot.WriteStructBegin("ServiceMessage"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
@@ -1451,6 +1470,9 @@ func (p *ServiceMessage) Write(oprot thrift.TProtocol) error {
 		return err
 	}
 	if err := p.writeField5(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField6(oprot); err != nil {
 		return err
 	}
 	if err := oprot.WriteFieldStop(); err != nil {
@@ -1523,6 +1545,19 @@ func (p *ServiceMessage) writeField5(oprot thrift.TProtocol) (err error) {
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write field end error 5:urlPrefix: ", p), err)
+	}
+	return err
+}
+
+func (p *ServiceMessage) writeField6(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("scheme", thrift.STRING, 6); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 6:scheme: ", p), err)
+	}
+	if err := oprot.WriteString(string(p.Scheme)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.scheme (6) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 6:scheme: ", p), err)
 	}
 	return err
 }
@@ -1966,13 +2001,11 @@ func (p *TotalPriceResponse) String() string {
 //  - ClientId
 //  - TotalPaid
 //  - ServiceDeliveryToken
-//  - ClientUUID
 type PaymentResponse struct {
 	ServerId             string                `thrift:"serverId,1" json:"serverId"`
 	ClientId             string                `thrift:"clientId,2" json:"clientId"`
 	TotalPaid            int32                 `thrift:"totalPaid,3" json:"totalPaid"`
 	ServiceDeliveryToken *ServiceDeliveryToken `thrift:"serviceDeliveryToken,4" json:"serviceDeliveryToken"`
-	ClientUUID           string                `thrift:"ClientUUID,5" json:"ClientUUID"`
 }
 
 func NewPaymentResponse() *PaymentResponse {
@@ -1998,10 +2031,6 @@ func (p *PaymentResponse) GetServiceDeliveryToken() ServiceDeliveryToken {
 		return PaymentResponse_ServiceDeliveryToken_DEFAULT
 	}
 	return *p.ServiceDeliveryToken
-}
-
-func (p *PaymentResponse) GetClientUUID() string {
-	return p.ClientUUID
 }
 func (p *PaymentResponse) IsSetServiceDeliveryToken() bool {
 	return p.ServiceDeliveryToken != nil
@@ -2035,10 +2064,6 @@ func (p *PaymentResponse) Read(iprot thrift.TProtocol) error {
 			}
 		case 4:
 			if err := p.readField4(iprot); err != nil {
-				return err
-			}
-		case 5:
-			if err := p.readField5(iprot); err != nil {
 				return err
 			}
 		default:
@@ -2091,15 +2116,6 @@ func (p *PaymentResponse) readField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PaymentResponse) readField5(iprot thrift.TProtocol) error {
-	if v, err := iprot.ReadString(); err != nil {
-		return thrift.PrependError("error reading field 5: ", err)
-	} else {
-		p.ClientUUID = v
-	}
-	return nil
-}
-
 func (p *PaymentResponse) Write(oprot thrift.TProtocol) error {
 	if err := oprot.WriteStructBegin("PaymentResponse"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
@@ -2114,9 +2130,6 @@ func (p *PaymentResponse) Write(oprot thrift.TProtocol) error {
 		return err
 	}
 	if err := p.writeField4(oprot); err != nil {
-		return err
-	}
-	if err := p.writeField5(oprot); err != nil {
 		return err
 	}
 	if err := oprot.WriteFieldStop(); err != nil {
@@ -2176,19 +2189,6 @@ func (p *PaymentResponse) writeField4(oprot thrift.TProtocol) (err error) {
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write field end error 4:serviceDeliveryToken: ", p), err)
-	}
-	return err
-}
-
-func (p *PaymentResponse) writeField5(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("ClientUUID", thrift.STRING, 5); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 5:ClientUUID: ", p), err)
-	}
-	if err := oprot.WriteString(string(p.ClientUUID)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.ClientUUID (5) field write error: ", p), err)
-	}
-	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 5:ClientUUID: ", p), err)
 	}
 	return err
 }

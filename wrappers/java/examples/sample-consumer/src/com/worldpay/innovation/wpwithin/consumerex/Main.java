@@ -67,7 +67,7 @@ public class Main {
 
     private static Set<WWServiceMessage> discoverDevices() throws WPWithinGeneralException {
 
-        Set<WWServiceMessage> devices = wpw.deviceDiscovery(25000);
+        Set<WWServiceMessage> devices = wpw.deviceDiscovery(15000);
 
         if(devices.size() > 0) {
 
@@ -82,6 +82,7 @@ public class Main {
                 System.out.printf("Port: %d\n", svcMsg.getPortNumber());
                 System.out.printf("URL Prefix: %s\n", svcMsg.getUrlPrefix());
                 System.out.printf("ServerId: %s\n", svcMsg.getServerId());
+                System.out.printf("Scheme: %s\n", svcMsg.getScheme());
 
                 System.out.println("--------");
             }
@@ -106,7 +107,7 @@ public class Main {
         card.setType("Card");
         card.setCvc("113");
 
-        wpw.initConsumer("http://", svcMsg.getHostname(), svcMsg.getPortNumber(), svcMsg.getUrlPrefix(), wpwDevice.getUid(), card);
+        wpw.initConsumer(svcMsg.getScheme(), svcMsg.getHostname(), svcMsg.getPortNumber(), svcMsg.getUrlPrefix(), wpwDevice.getUid(), card);
     }
 
     private static Set<WWServiceDetails> getAvailableServices() throws WPWithinGeneralException {

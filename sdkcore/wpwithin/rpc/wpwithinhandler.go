@@ -218,6 +218,7 @@ func (wp *WPWithinHandler) DeviceDiscovery(timeoutMillis int32) (r map[*wpthrift
 			PortNumber:        int32(gSvcMsg.PortNumber),
 			ServerId:          gSvcMsg.ServerID,
 			UrlPrefix:         gSvcMsg.UrlPrefix,
+			Scheme:            gSvcMsg.Scheme,
 		}
 
 		result[tmp] = true
