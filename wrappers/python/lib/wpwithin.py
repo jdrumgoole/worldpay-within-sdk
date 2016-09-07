@@ -126,7 +126,7 @@ def runRPCAgent(port, dir="./rpc-agent/", callbackPort=None):
 def createClient(host, port, startRPC, startCallbackServer=false, callbackPort=None, callbackService=None, rpcDir=None):
     
     if (startCallbackServer == true) and (callbackPort == None or callbackService == None):
-        raise 
+        raise ValueError('No callback port or service provided')
 
     wpw_thrift = thriftpy.load('wpwithin.thrift', module_name="wpw_thrift")
 
@@ -154,5 +154,5 @@ def createClient(host, port, startRPC, startCallbackServer=false, callbackPort=N
     if len(returnDict) > 0:
         returnDict['client'] = WPWithin(client)
         return returnDict
-        
+
     return WPWithin(TClient)
