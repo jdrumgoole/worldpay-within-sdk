@@ -23,7 +23,7 @@ const (
 	// UUIDFilePath Path to store devie UUID once created
 	UUIDFilePath = "uuid.txt"
 	// HteSvcPort Port that the HTE REST API listens on
-	HteSvcPort = 8080
+	HteSvcPort = 64521
 	// WPOnlineAPIEndpoint Worldpay online API endpoint
 	WPOnlineAPIEndpoint = "https://api.worldpay.com/v1"
 	// HteClientScheme HTE REST API Scheme typically http:// or https://
