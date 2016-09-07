@@ -2,7 +2,11 @@ import ttypes as types
 import wpwithin
 
 
-client = wpwithin.createClient("127.0.0.1", 9090, True)
+out = wpwithin.createClient("127.0.0.1", 9090, True)
+
+client = out['client']
+agent = out['rpc']
+
 client.setup("Python3 Device", "Sample Python3 producer device")
 
 pricePerUnit = types.PricePerUnit(amount=650, currencyCode="GBP")

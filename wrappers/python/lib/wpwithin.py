@@ -152,7 +152,7 @@ def createClient(host, port, startRPC, startCallbackServer=False, callbackPort=N
         returnDict['server'] = server
 
     if len(returnDict) > 0:
-        returnDict['client'] = WPWithin(client)
+        returnDict['client'] = WPWithin(TClient)
         return returnDict
 
     return WPWithin(TClient)
