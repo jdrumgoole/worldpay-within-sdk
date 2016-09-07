@@ -33,31 +33,79 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
         private static readonly ILog Log = LogManager.GetLogger<RpcAgentManager>();
         private static readonly ILog ThriftRpcLog = LogManager.GetLogger("ThriftRpcAgent");
 
+        /// <summary>
+        /// Delegate used for <see cref="RpcAgentManager.RpcAgentMessages"/> and <see cref="RpcAgentManager.RpcAgentErrors"/>.
+        /// </summary>
+        /// <param name="process">The process that the RPC Agent process is running under.</param>
+        /// <param name="message">The message received from the RPC Agent process.</param>
         public delegate void ThriftRpcAgentOutput(Process process, string message);
 
+        /// <summary>
+        /// Invoked whenever a message is sent to the RPC Agent process's standard output stream.
+        /// </summary>
         public event ThriftRpcAgentOutput RpcAgentMessages;
+
+        /// <summary>
+        /// Invoked whenever a message is sent ot the RPC Agent process's standard error stream.
+        /// </summary>
         public event ThriftRpcAgentOutput RpcAgentErrors;
+
+        /// <summary>
+        /// Invoked when the Thrift RPC Agent has successfully been started.
+        /// </summary>
         public event EventHandler ThriftRpcAgentStarted;
+
+        /// <summary>
+        /// Invoked when the Thrift RPC Agent has successfully been stopped, or has crashed out.
+        /// </summary>
         public event EventHandler ThriftRpcAgentExited;
 
+        /// <summary>
+        /// The application config property name for the full file path to the Thrift RPC Agent.
+        /// </summary>
         public static readonly string RpcAgentPathProperty = "ThriftRpcAgent.Path";
+        /// <summary>
+        /// The application config property name for the host name to bind the Thrift RPC Agent to.
+        /// </summary>
         public static readonly string RpcAgentHostProperty = "ThriftRpcAgent.Host";
+        /// <summary>
+        /// The default value for the full file path to the Thrift RPC Agent.
+        /// </summary>
         public static readonly string RpcAgentHostPropertyDefault = "127.0.0.1";
+        /// <summary>
+        /// The application config property name for the port to launch the Thrift RPC Agent on.
+        /// </summary>
         public static readonly string RpcAgentPortProperty = "ThriftRpcAgent.Port";
+        /// <summary>
+        /// The default value for the port to launch the Thrift RPC Agent on.
+        /// </summary>
         public static readonly int RpcAgentPortPropertyDefault = 9091;
+        /// <summary>
+        /// The application config property name for the Thrift protocol to use to connect to the Thrift RPC Agent.
+        /// </summary>
         public static readonly string RpcAgentProtocolProperty = "ThriftRpcAgent.Protocol";
+        /// <summary>
+        /// The default value for the protocol to use to connect to the Thrift RPC Agent.
+        /// </summary>
         public static readonly string RpcAgentProtocolPropertyDefault = "binary";
 
         private Process _thriftRpcProcess;
         private string _rpcAgentPath;
 
-        protected WPWithinService ThriftClient { get; private set; }
-
+        /// <summary>
+        /// Retrieves the RPC Agent host property from application config or provides default value.
+        /// </summary>
         public static string RpcAgentServiceHost
             => ConfigurationManager.AppSettings[RpcAgentHostProperty] ?? RpcAgentHostPropertyDefault;
 
+        /// <summary>
+        /// Retrieves the RPC Agent protocol property from application config or provides default value.
+        /// </summary>
         public static string RpcAgentProtcol => ConfigurationManager.AppSettings[RpcAgentProtocolProperty] ?? RpcAgentProtocolPropertyDefault;
 
+        /// <summary>
+        /// Retrieves the RPC Agent port property from application config or provides default value.
+        /// </summary>
         public int RpcAgentServicePort
         {
             get
@@ -122,17 +170,19 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
         {
             Log.InfoFormat("Attempting to launch Thrift RPC Agent {0}", RpcAgentPath);
 
-            Process thriftRpcProcess = new Process();
-            thriftRpcProcess.StartInfo = new ProcessStartInfo(RpcAgentPath, string.Join(" ",
-                "-host", RpcAgentServiceHost,
-                "-port", RpcAgentServicePort,
-                "-protocol", RpcAgentProtcol
-                ))
+            Process thriftRpcProcess = new Process
             {
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
+                StartInfo = new ProcessStartInfo(RpcAgentPath, string.Join(" ",
+                    "-host", RpcAgentServiceHost,
+                    "-port", RpcAgentServicePort,
+                    "-protocol", RpcAgentProtcol
+                    ))
+                {
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
             };
             thriftRpcProcess.OutputDataReceived += ThriftRpcProcess_OutputDataReceived;
             thriftRpcProcess.ErrorDataReceived += ThriftRpcProcess_ErrorDataReceived;
@@ -154,7 +204,7 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
             {
                 ThriftRpcLog.Fatal($"Thrift RPC Agent has exited abnormally with exit code {proc.ExitCode}");
             }
-            this.ThriftRpcAgentExited?.Invoke(this, EventArgs.Empty);
+            ThriftRpcAgentExited?.Invoke(this, EventArgs.Empty);
         }
 
 
@@ -196,7 +246,7 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
             ThriftRpcLog.Info($"RpcAgent({process.Id}): {e.Data}");
             RpcAgentMessages?.Invoke(process, e.Data);
             const string startString = "Starting the rpc server on";
-            if (e.Data.Contains(startString))
+            if (e.Data!=null && e.Data.Contains(startString))
             {
                 Log.InfoFormat("Found magic string \"{0}\" indicating that RPC Agent {1} has started successfully", startString, process.Id);
                 ThriftRpcAgentStarted?.Invoke(this, EventArgs.Empty);
@@ -205,7 +255,7 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
 
         #region Managing Process shutdown gracefully (Ctrl+C instead of kill)
 
-        internal const int CTRL_C_EVENT = 0;
+        internal const int CtrlCEvent = 0;
         [DllImport("kernel32.dll")]
         internal static extern bool GenerateConsoleCtrlEvent(uint dwCtrlEvent, uint dwProcessGroupId);
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -213,10 +263,10 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         internal static extern bool FreeConsole();
         [DllImport("kernel32.dll")]
-        static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate HandlerRoutine, bool Add);
+        static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate handlerRoutine, bool add);
 
         // Delegate type to be used as the Handler Routine for SCCH
-        delegate Boolean ConsoleCtrlDelegate(uint CtrlType);
+        delegate Boolean ConsoleCtrlDelegate(uint ctrlType);
 
         private bool SentCtrlCToProcess(Process process)
         {
@@ -227,7 +277,7 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
                 SetConsoleCtrlHandler(null, true);
                 try
                 {
-                    if (!GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0))
+                    if (!GenerateConsoleCtrlEvent(CtrlCEvent, 0))
                     {
                         Log.Warn("Unable to generate Ctrl event for process");
                         return false;

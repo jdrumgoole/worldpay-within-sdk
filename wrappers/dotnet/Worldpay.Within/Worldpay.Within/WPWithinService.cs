@@ -3,32 +3,60 @@ using System.Collections.Generic;
 using Common.Logging;
 using Thrift.Protocol;
 using Thrift.Transport;
+using Worldpay.Innovation.WPWithin.EventListener;
 using Worldpay.Innovation.WPWithin.ThriftAdapters;
 using ThriftWPWithinService = Worldpay.Innovation.WPWithin.Rpc.WPWithin;
 
 
 namespace Worldpay.Innovation.WPWithin
 {
-    /**
-     * Service wrapper that hides all references to underlying implementation (i.e. Thrift).
-     */
-
+    /// <summary>
+    ///     Service wrapper that hides all references to underlying implementation (i.e. Thrift).
+    /// </summary>
     public class WPWithinService : IDisposable
     {
+        public delegate void BeginServiceDeliveryHandler(
+            int serviceId, ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply);
+
+        public delegate void EndServiceDeliveryHandler(
+            int serviceId, ServiceDeliveryToken serviceDeliveryToken, int unitsReceived);
+
         private static readonly ILog Log = LogManager.GetLogger<WPWithinService>();
+
+        private readonly object _listenerLock = new object();
+
         private ThriftWPWithinService.Client _client;
         private bool _isDisposed;
+
+        private readonly CallbackServerManager _listener;
         private TTransport _transport;
 
-
-        public WPWithinService(string host, int port)
+        public WPWithinService(string host, int port) : this(host, port, 0)
         {
-            Init(host, port);
+        }
+
+        public WPWithinService(string host, int port, int callbackPort)
+        {
+            InitClient(host, port);
+            _listener = new CallbackServerManager(callbackPort);
+            _listener.Start();
         }
 
         public void Dispose()
         {
             Dispose(true);
+        }
+
+        public event BeginServiceDeliveryHandler OnBeginServiceDelivery
+        {
+            add { _listener.BeginServiceDelivery += value; }
+            remove { _listener.BeginServiceDelivery -= value; }
+        }
+
+        public event EndServiceDeliveryHandler OnEndServiceDelivery
+        {
+            add { _listener.EndServiceDelivery += value; }
+            remove { _listener.EndServiceDelivery -= value; }
         }
 
         public void AddService(Service service)
@@ -87,15 +115,16 @@ namespace Worldpay.Innovation.WPWithin
             return PaymentResponseAdapter.Create(_client.makePayment(TotalPriceResponseAdapter.Create(request)));
         }
 
-        public void BeginServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
+        public void BeginServiceDelivery(int serviceId, ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
         {
-            _client.beginServiceDelivery(clientId, ServiceDeliveryTokenAdapter.Create(serviceDeliveryToken),
+            _client.beginServiceDelivery(serviceId, ServiceDeliveryTokenAdapter.Create(serviceDeliveryToken),
                 unitsToSupply);
         }
 
-        public void EndServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
+        public void EndServiceDelivery(int serviceId, ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
         {
-            _client.endServiceDelivery(clientId, ServiceDeliveryTokenAdapter.Create(serviceDeliveryToken), unitsReceived);
+            _client.endServiceDelivery(serviceId, ServiceDeliveryTokenAdapter.Create(serviceDeliveryToken),
+                unitsReceived);
         }
 
         public void StartServiceBroadcast(int timeoutMillis)
@@ -108,7 +137,7 @@ namespace Worldpay.Innovation.WPWithin
             _client.setup(deviceName, deviceDescription);
         }
 
-        private void Init(string host, int port)
+        private void InitClient(string host, int port)
         {
             Log.InfoFormat("Opening TSocket to {0}:{1}", host, port);
             TTransport transport = new TSocket(host, port);
@@ -137,7 +166,16 @@ namespace Worldpay.Innovation.WPWithin
             }
             catch (Exception e)
             {
-                Log.Warn("Error closing transport.", e);
+                Log.Warn("Error closing connection to RPC Agent", e);
+            }
+
+            try
+            {
+                _listener.Stop();
+            }
+            catch (Exception e)
+            {
+                Log.Warn("Error stopping callback listener", e);
             }
             //Dispose of resources here
             _isDisposed = true;

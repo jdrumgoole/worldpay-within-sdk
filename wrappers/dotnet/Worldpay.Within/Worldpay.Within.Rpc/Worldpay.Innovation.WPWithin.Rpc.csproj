@@ -57,6 +57,7 @@
     <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\ServiceMessage.cs" />
     <Compile Include="Worldpay\Innovation\WPWithin\Rpc\Types\TotalPriceResponse.cs" />
     <Compile Include="Worldpay\Innovation\WPWithin\Rpc\WPWithin.cs" />
+    <Compile Include="Worldpay\Innovation\WPWithin\Rpc\WPWithinCallback.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
