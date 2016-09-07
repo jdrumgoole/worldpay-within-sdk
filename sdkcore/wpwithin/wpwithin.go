@@ -25,7 +25,7 @@ var Factory core.SDKFactory
 type WPWithin interface {
 	AddService(service *types.Service) error
 	RemoveService(service *types.Service) error
-	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string, hceCard *types.HCECard) error
+	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, clientID string, hceCard *types.HCECard) error
 	InitProducer(merchantClientKey, merchantServiceKey string) error
 	GetDevice() *types.Device
 	StartServiceBroadcast(timeoutMillis int) error
@@ -184,13 +184,13 @@ func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 	return nil
 }
 
-func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string, hceCard *types.HCECard) error {
+func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, clientID string, hceCard *types.HCECard) error {
 
 	defer func() {
 		if r := recover(); r != nil {
 
 			log.WithFields(log.Fields{"panic_message": r, "scheme": scheme, "hostname": hostname, "port": portNumber,
-				"urlPrefix": urlPrefix, "serverID": serverID, "hceCard": fmt.Sprintf("%+v", hceCard), "stack": fmt.Sprintf("%s", debug.Stack())}).
+				"urlPrefix": urlPrefix, "clientID": clientID, "hceCard": fmt.Sprintf("%+v", hceCard), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.InitConsumer()")
 		}
 	}()
@@ -219,7 +219,7 @@ func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, ur
 		return err
 	}
 
-	client, err := hte.NewClient(scheme, hostname, portNumber, urlPrefix, serverID, httpHTE)
+	client, err := hte.NewClient(scheme, hostname, portNumber, urlPrefix, clientID, httpHTE)
 
 	if err != nil {
 

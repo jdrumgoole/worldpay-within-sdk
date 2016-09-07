@@ -2,6 +2,7 @@ var wpwithin = require('../../library/wpwithin');
 var types = require('../../library/types/types');
 var typesConverter = require('../../library/types/converter');
 var client;
+var device;
 
 wpwithin.createClient("127.0.0.1", 9088, true, function(err, response){
 
@@ -25,6 +26,19 @@ function setup() {
     console.log("setup.callback.response: %j", response);
 
     console.log("Calling discover devices..");
+
+    device = client.getDevice(function(err, response){
+
+      console.log("getDevice.callback")
+      console.log("getDevice.callback.err: " + err)
+      console.log("getDevice.callback.response: %j", response);
+
+      if(err == null) {
+
+        device = response;
+      }
+    });
+
     discoverDevices();
   })
 };
@@ -77,7 +91,7 @@ function connectToDevice(serviceMessage) {
   hceCard.cvc = "123";
 
   client.initConsumer("http://", serviceMessage.hostname, serviceMessage.portNumber,
-  serviceMessage.urlPrefix, serviceMessage.serverId, hceCard, function(err, response){
+  serviceMessage.urlPrefix, device.uid, hceCard, function(err, response){
 
     console.log("initConsumer.callback.err: %s" + err);
     console.log("initConsumer.callback.response: %j", response);

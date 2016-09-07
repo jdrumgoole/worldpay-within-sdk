@@ -23,7 +23,7 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "  void setup(string name, string description)")
 	fmt.Fprintln(os.Stderr, "  void addService(Service svc)")
 	fmt.Fprintln(os.Stderr, "  void removeService(Service svc)")
-	fmt.Fprintln(os.Stderr, "  void initConsumer(string scheme, string hostname, i32 port, string urlPrefix, string serverId, HCECard hceCard)")
+	fmt.Fprintln(os.Stderr, "  void initConsumer(string scheme, string hostname, i32 port, string urlPrefix, string clientID, HCECard hceCard)")
 	fmt.Fprintln(os.Stderr, "  void initProducer(string merchantClientKey, string merchantServiceKey)")
 	fmt.Fprintln(os.Stderr, "  Device getDevice()")
 	fmt.Fprintln(os.Stderr, "  void startServiceBroadcast(i32 timeoutMillis)")

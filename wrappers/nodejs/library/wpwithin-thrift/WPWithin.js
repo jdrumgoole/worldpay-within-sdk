@@ -366,7 +366,7 @@ wpthrift.WPWithin_initConsumer_args = function(args) {
   this.hostname = null;
   this.port = null;
   this.urlPrefix = null;
-  this.serverId = null;
+  this.clientID = null;
   this.hceCard = null;
   if (args) {
     if (args.scheme !== undefined && args.scheme !== null) {
@@ -381,8 +381,8 @@ wpthrift.WPWithin_initConsumer_args = function(args) {
     if (args.urlPrefix !== undefined && args.urlPrefix !== null) {
       this.urlPrefix = args.urlPrefix;
     }
-    if (args.serverId !== undefined && args.serverId !== null) {
-      this.serverId = args.serverId;
+    if (args.clientID !== undefined && args.clientID !== null) {
+      this.clientID = args.clientID;
     }
     if (args.hceCard !== undefined && args.hceCard !== null) {
       this.hceCard = new wptypes_ttypes.HCECard(args.hceCard);
@@ -433,7 +433,7 @@ wpthrift.WPWithin_initConsumer_args.prototype.read = function(input) {
       break;
       case 5:
       if (ftype == Thrift.Type.STRING) {
-        this.serverId = input.readString();
+        this.clientID = input.readString();
       } else {
         input.skip(ftype);
       }
@@ -477,9 +477,9 @@ wpthrift.WPWithin_initConsumer_args.prototype.write = function(output) {
     output.writeString(this.urlPrefix);
     output.writeFieldEnd();
   }
-  if (this.serverId !== null && this.serverId !== undefined) {
-    output.writeFieldBegin('serverId', Thrift.Type.STRING, 5);
-    output.writeString(this.serverId);
+  if (this.clientID !== null && this.clientID !== undefined) {
+    output.writeFieldBegin('clientID', Thrift.Type.STRING, 5);
+    output.writeString(this.clientID);
     output.writeFieldEnd();
   }
   if (this.hceCard !== null && this.hceCard !== undefined) {
@@ -2110,7 +2110,7 @@ wpthrift.WPWithinClient.prototype.recv_removeService = function(input,mtype,rseq
   }
   callback(null)
 };
-wpthrift.WPWithinClient.prototype.initConsumer = function(scheme, hostname, port, urlPrefix, serverId, hceCard, callback) {
+wpthrift.WPWithinClient.prototype.initConsumer = function(scheme, hostname, port, urlPrefix, clientID, hceCard, callback) {
   this._seqid = this.new_seqid();
   if (callback === undefined) {
     var _defer = Q.defer();
@@ -2121,15 +2121,15 @@ wpthrift.WPWithinClient.prototype.initConsumer = function(scheme, hostname, port
         _defer.resolve(result);
       }
     };
-    this.send_initConsumer(scheme, hostname, port, urlPrefix, serverId, hceCard);
+    this.send_initConsumer(scheme, hostname, port, urlPrefix, clientID, hceCard);
     return _defer.promise;
   } else {
     this._reqs[this.seqid()] = callback;
-    this.send_initConsumer(scheme, hostname, port, urlPrefix, serverId, hceCard);
+    this.send_initConsumer(scheme, hostname, port, urlPrefix, clientID, hceCard);
   }
 };
 
-wpthrift.WPWithinClient.prototype.send_initConsumer = function(scheme, hostname, port, urlPrefix, serverId, hceCard) {
+wpthrift.WPWithinClient.prototype.send_initConsumer = function(scheme, hostname, port, urlPrefix, clientID, hceCard) {
   var output = new this.pClass(this.output);
   output.writeMessageBegin('initConsumer', Thrift.MessageType.CALL, this.seqid());
   var args = new wpthrift.WPWithin_initConsumer_args();
@@ -2137,7 +2137,7 @@ wpthrift.WPWithinClient.prototype.send_initConsumer = function(scheme, hostname,
   args.hostname = hostname;
   args.port = port;
   args.urlPrefix = urlPrefix;
-  args.serverId = serverId;
+  args.clientID = clientID;
   args.hceCard = hceCard;
   args.write(output);
   output.writeMessageEnd();
@@ -2847,7 +2847,7 @@ wpthrift.WPWithinProcessor.prototype.process_initConsumer = function(seqid, inpu
   args.read(input);
   input.readMessageEnd();
   if (this._handler.initConsumer.length === 6) {
-    Q.fcall(this._handler.initConsumer, args.scheme, args.hostname, args.port, args.urlPrefix, args.serverId, args.hceCard)
+    Q.fcall(this._handler.initConsumer, args.scheme, args.hostname, args.port, args.urlPrefix, args.clientID, args.hceCard)
       .then(function(result) {
         var result = new wpthrift.WPWithin_initConsumer_result({success: result});
         output.writeMessageBegin("initConsumer", Thrift.MessageType.REPLY, seqid);
@@ -2867,7 +2867,7 @@ wpthrift.WPWithinProcessor.prototype.process_initConsumer = function(seqid, inpu
         output.flush();
       });
   } else {
-    this._handler.initConsumer(args.scheme, args.hostname, args.port, args.urlPrefix, args.serverId, args.hceCard, function (err, result) {
+    this._handler.initConsumer(args.scheme, args.hostname, args.port, args.urlPrefix, args.clientID, args.hceCard, function (err, result) {
       if (err == null || err instanceof wptypes_ttypes.Error) {
         var result = new wpthrift.WPWithin_initConsumer_result((err != null ? err : {success: result}));
         output.writeMessageBegin("initConsumer", Thrift.MessageType.REPLY, seqid);

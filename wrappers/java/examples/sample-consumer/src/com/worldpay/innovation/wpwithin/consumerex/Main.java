@@ -18,12 +18,11 @@ public class Main {
         System.out.println("Starting Consumer Example Written in Java.");
 
         wpw = new WPWithinWrapperImpl("127.0.0.1", 8778, true);
-        wpwDevice = wpw.getDevice();
-
 
         try {
 
             wpw.setup("my-device", "an example consumer device");
+            wpwDevice = wpw.getDevice();
 
             Set<WWServiceMessage> devices = discoverDevices();
 
