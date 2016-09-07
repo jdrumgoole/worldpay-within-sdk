@@ -154,7 +154,7 @@ public class Main {
                 System.out.printf("UnitId: %d\n", price.getUnitId());
                 System.out.printf("UnitDescription: %s\n", price.getUnitDescription());
                 System.out.printf("Unit Price Amount: %d\n", price.getPricePerUnit().getAmount());
-                System.out.printf("Unit Price CurrencyCode: %s\n", price.getPricePerUnit().getCurrentCode());
+                System.out.printf("Unit Price CurrencyCode: %s\n", price.getPricePerUnit().getCurrencyCode());
                 System.out.println("------");
 
             }

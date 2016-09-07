@@ -34,7 +34,7 @@ public class Main {
             ccPrice.setUnitId(1);
             WWPricePerUnit ppu = new WWPricePerUnit();
             ppu.setAmount(25);
-            ppu.setCurrentCode("GBP");
+            ppu.setCurrencyCode("GBP");
             ccPrice.setPricePerUnit(ppu);
 
             HashMap<Integer, WWPrice> prices = new HashMap<>(1);
