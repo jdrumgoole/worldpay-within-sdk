@@ -685,6 +685,7 @@ wpthrift_types.ServiceMessage = module.exports.ServiceMessage = function(args) {
   this.portNumber = null;
   this.serverId = null;
   this.urlPrefix = null;
+  this.scheme = null;
   if (args) {
     if (args.deviceDescription !== undefined && args.deviceDescription !== null) {
       this.deviceDescription = args.deviceDescription;
@@ -700,6 +701,9 @@ wpthrift_types.ServiceMessage = module.exports.ServiceMessage = function(args) {
     }
     if (args.urlPrefix !== undefined && args.urlPrefix !== null) {
       this.urlPrefix = args.urlPrefix;
+    }
+    if (args.scheme !== undefined && args.scheme !== null) {
+      this.scheme = args.scheme;
     }
   }
 };
@@ -752,6 +756,13 @@ wpthrift_types.ServiceMessage.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 6:
+      if (ftype == Thrift.Type.STRING) {
+        this.scheme = input.readString();
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -786,6 +797,11 @@ wpthrift_types.ServiceMessage.prototype.write = function(output) {
   if (this.urlPrefix !== null && this.urlPrefix !== undefined) {
     output.writeFieldBegin('urlPrefix', Thrift.Type.STRING, 5);
     output.writeString(this.urlPrefix);
+    output.writeFieldEnd();
+  }
+  if (this.scheme !== null && this.scheme !== undefined) {
+    output.writeFieldBegin('scheme', Thrift.Type.STRING, 6);
+    output.writeString(this.scheme);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -1010,7 +1026,6 @@ wpthrift_types.PaymentResponse = module.exports.PaymentResponse = function(args)
   this.clientId = null;
   this.totalPaid = null;
   this.serviceDeliveryToken = null;
-  this.ClientUUID = null;
   if (args) {
     if (args.serverId !== undefined && args.serverId !== null) {
       this.serverId = args.serverId;
@@ -1023,9 +1038,6 @@ wpthrift_types.PaymentResponse = module.exports.PaymentResponse = function(args)
     }
     if (args.serviceDeliveryToken !== undefined && args.serviceDeliveryToken !== null) {
       this.serviceDeliveryToken = new ttypes.ServiceDeliveryToken(args.serviceDeliveryToken);
-    }
-    if (args.ClientUUID !== undefined && args.ClientUUID !== null) {
-      this.ClientUUID = args.ClientUUID;
     }
   }
 };
@@ -1072,13 +1084,6 @@ wpthrift_types.PaymentResponse.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 5:
-      if (ftype == Thrift.Type.STRING) {
-        this.ClientUUID = input.readString();
-      } else {
-        input.skip(ftype);
-      }
-      break;
       default:
         input.skip(ftype);
     }
@@ -1108,11 +1113,6 @@ wpthrift_types.PaymentResponse.prototype.write = function(output) {
   if (this.serviceDeliveryToken !== null && this.serviceDeliveryToken !== undefined) {
     output.writeFieldBegin('serviceDeliveryToken', Thrift.Type.STRUCT, 4);
     this.serviceDeliveryToken.write(output);
-    output.writeFieldEnd();
-  }
-  if (this.ClientUUID !== null && this.ClientUUID !== undefined) {
-    output.writeFieldBegin('ClientUUID', Thrift.Type.STRING, 5);
-    output.writeString(this.ClientUUID);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

@@ -68,6 +68,7 @@ function ServiceMessage() {
   var portNumber;
   var serverId;
   var urlPrefix;
+  var scheme;
 };
 
 function ServiceDetails() {
