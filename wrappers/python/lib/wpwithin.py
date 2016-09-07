@@ -15,10 +15,8 @@ wptypes_thrift = thriftpy.load('wptypes.thrift', module_name="wptypes_thrift")
 import wptypes_thrift as wpt
 
 class WPWithin(object):
-    def __init__(self, thriftClient, proc=None):
+    def __init__(self, thriftClient):
         self.thriftClient = thriftClient
-        if proc != None:
-            self.proc = proc
 
     def setup(self, name, description):
         try:
@@ -38,9 +36,9 @@ class WPWithin(object):
         except wpt.Error as err:
             raise Error(err.message)
 
-    def initConsumer(self, scheme, hostname, port, urlPrefix, serverId, hceCard):
+    def initConsumer(self, scheme, hostname, port, urlPrefix, clientId, hceCard):
         try:
-            self.thriftClient.initConsumer(scheme, hostname, port, urlPrefix, serverId, hceCard)
+            self.thriftClient.initConsumer(scheme, hostname, port, urlPrefix, clientId, hceCard)
         except wpt.Error as err:
             raise Error(err.message)
 
@@ -105,17 +103,21 @@ class WPWithin(object):
         else:
             return response
 
-    def beginServiceDelivery(self, clientId, serviceDeliveryToken, unitsToSupply):
+    def beginServiceDelivery(self, serviceId, serviceDeliveryToken, unitsToSupply):
         try:
-            self.thriftClient.beginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply)
+            serviceDeliveryToken = self.thriftClient.beginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply)
         except wpt.Error as err:
             raise Error(err.message)
+        else:
+            return serviceDeliveryToken
 
-    def endServiceDelivery(self, clientId, serviceDeliveryToken, unitsReceived):
+    def endServiceDelivery(self, serviceId, serviceDeliveryToken, unitsReceived):
         try:
-            self.thriftClient.endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived)
+            serviceDeliveryToken = self.thriftClient.endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived)
         except wpt.Error as err:
             raise Error(err.message)
+        else:
+            return serviceDeliveryToken
 
 def runRPCAgent(port, dir="./rpc-agent/"):
     return launcher.runRPCAgent(dir, port)
@@ -133,4 +135,6 @@ def createClient(host, port, startRPC, dir=None):
     # add try ...
     TClient = make_client(wpw_thrift.WPWithin, host, port, proto_factory=TBinaryProtocolFactory(), trans_factory=TBufferedTransportFactory())
     
-    return WPWithin(TClient, proc=proc)
+    if startRPC:
+        return [WPWithin(TClient), proc]
+    return WPWithin(TClient)
