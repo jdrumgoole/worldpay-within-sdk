@@ -5,6 +5,8 @@ type Service interface {
 
 	// Start the HTE service to allow consumer connect
 	Start() error
+	// Stop the HTE service
+	Stop() error
 	// Setup the routes i.e. The urls that map to functions
 	setupRoutes()
 	// Listening IP address

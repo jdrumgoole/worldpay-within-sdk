@@ -2,6 +2,7 @@ package hte
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -19,6 +20,7 @@ type ServiceImpl struct {
 	handler       *ServiceHandler
 	HTECredential *Credential
 	orderManager  OrderManager
+	listener      net.Listener
 }
 
 type Route struct {
@@ -57,7 +59,23 @@ func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, 
 
 func (service *ServiceImpl) Start() error {
 
-	return http.ListenAndServe(fmt.Sprintf(":%d", service.Port()), service.router)
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", service.Port()))
+
+	if err != nil {
+
+		return err
+	}
+
+	service.listener = l
+
+	return http.Serve(l, service.router)
+
+	//return http.ListenAndServe(fmt.Sprintf(":%d", service.Port()), service.router)
+}
+
+func (srv *ServiceImpl) Stop() error {
+
+	return srv.listener.Close()
 }
 
 func (srv *ServiceImpl) setupRoutes() {
