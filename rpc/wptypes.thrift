@@ -12,12 +12,12 @@ namespace go wpthrift_types
 namespace js wpthrift_types
 
 exception Error {
-	
+
 	1: string message
 }
 
 struct Service {
-	
+
 	1: i32 id
 	2: string name
 	3:  string description
@@ -25,7 +25,7 @@ struct Service {
 }
 
 struct Price {
-	
+
 	1: i32 id
 	2: string description
 	3: PricePerUnit pricePerUnit
@@ -34,13 +34,13 @@ struct Price {
 }
 
 struct PricePerUnit {
-	
+
 	1: i32 amount
 	2: string currencyCode
 }
 
 struct HCECard {
-	
+
 	1: string FirstName
 	2: string LastName
 	3: i32 ExpMonth
@@ -51,7 +51,7 @@ struct HCECard {
 }
 
 struct Device {
-	
+
 	1: string uid
 	2: string name
 	3:  string description
@@ -61,7 +61,7 @@ struct Device {
 }
 
 struct ServiceMessage {
-	
+
 	1: string deviceDescription
 	2: string hostname
 	3: i32 portNumber
@@ -70,13 +70,13 @@ struct ServiceMessage {
 }
 
 struct ServiceDetails {
-	
+
 	1: i32 serviceId
 	2: string serviceDescription
 }
 
 struct TotalPriceResponse {
-	
+
 	1: string serverId
 	2: string clientId
 	3: i32 priceId
@@ -87,16 +87,15 @@ struct TotalPriceResponse {
 }
 
 struct PaymentResponse {
-	
+
 	1: string serverId
 	2: string clientId
 	3: i32 totalPaid
 	4: ServiceDeliveryToken serviceDeliveryToken
-	5: string ClientUUID
 }
 
 struct ServiceDeliveryToken {
-	
+
 	1: string key
 	2: string issued
 	3: string expiry

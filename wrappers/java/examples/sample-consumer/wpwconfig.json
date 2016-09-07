@@ -1,6 +1,6 @@
 [{
 	"key": "wsLogEnable",
-	"value": "fals"
+	"value": "false"
 },
 {
 	"key": "wsLogPort",

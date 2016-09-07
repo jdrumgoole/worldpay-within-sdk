@@ -208,7 +208,6 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 				UUID:                  orderUUID,
 				ClientID:              response.ClientID,
 				SelectedNumberOfUnits: response.UnitsToSupply,
-				ClientUUID:            totalPriceRequest.ClientUUID,
 				SelectedPriceID:       response.PriceID,
 				Service:               *svc,
 			}
@@ -344,7 +343,6 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 					ServerID:             srv.device.UID,
 					TotalPaid:            totalPrice,
 					ServiceDeliveryToken: deliveryToken,
-					ClientUUID:           _order.ClientUUID,
 				}
 
 				_order.PSPReference = pspReference

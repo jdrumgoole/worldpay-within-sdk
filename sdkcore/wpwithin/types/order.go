@@ -7,7 +7,6 @@ type Order struct {
 	SelectedPriceID       int
 	ClientID              string
 	SelectedNumberOfUnits int
-	ClientUUID            string
 	PSPReference          string
 	DeliveryToken         ServiceDeliveryToken
 	ConsumedUnits         int

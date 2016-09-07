@@ -93,7 +93,6 @@ function PaymentResponse() {
   var clientId;
   var totalPaid;
   var serviceDeliveryToken;
-  var clientUUID;
 }
 
 function ServiceDeliveryToken() {

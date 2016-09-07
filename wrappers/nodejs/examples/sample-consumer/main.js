@@ -202,7 +202,6 @@ function purchaseService(serviceId, totalPriceResponse) {
       console.log("\tExpiry: %s", response.serviceDeliveryToken.expiry);
       console.log("\tRefundOnExpiry: %b", response.serviceDeliveryToken.refundOnExpiry);
       console.log("\tSignature: %s", response.serviceDeliveryToken.signature);
-      console.log("ClientUUID: %s", response.clientUUID);
       console.log("----------");
 
       beginServiceDelivery(serviceId, response.serviceDeliveryToken, 8);

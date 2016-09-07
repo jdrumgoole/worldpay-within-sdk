@@ -189,8 +189,6 @@ public class Main {
         if(pResp != null) {
 
             System.out.printf("Payment response: ");
-            System.out.printf("Client UUID: %s\n", pResp.getClientUuid());
-            System.out.printf("Client ServiceId: %s\n", pResp.getServerId());
             System.out.printf("Total paid: %d\n", pResp.getTotalPaid());
             System.out.printf("ServiceDeliveryToken.issued: %s\n", pResp.getServiceDeliveryToken().getIssued());
             System.out.printf("ServiceDeliveryToken.expiry: %s\n", pResp.getServiceDeliveryToken().getExpiry());
