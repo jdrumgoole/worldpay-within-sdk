@@ -27,7 +27,7 @@ def os_platform():
         out = os
     return out;
 
-def runRPCAgent(execPath, port):
+def runRPCAgent(execPath, port, callbackPort=None):
     """Run RPC Agent
     
     Args:
@@ -38,5 +38,10 @@ def runRPCAgent(execPath, port):
     agent = 'rpc-agent-' + os + '-' + os_arch()
     if os == 'win':
         agent += '.exe'
-    proc=Popen([execPath + agent, '-port='+str(port)], stdout=PIPE, stderr=PIPE)
+    
+    flags = '-port='+str(port)
+    if callbackPort != None:
+        flags += '-callbackport='+str(callbackPort)
+        
+    proc=Popen([execPath + agent, flags], stdout=PIPE, stderr=PIPE)
     return proc

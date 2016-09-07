@@ -29,11 +29,3 @@ class WPWithinCallback(object):
             self.thriftClient.beginServiceDelivery(self, serviceId, serviceDeliveryToken, unitsToSupply)
         except wpt.Error as err:
             raise Error(err.message)
-
-def createClient(host, port):
-    wpw_thrift = thriftpy.load('wpwithin.thrift', module_name="wpw_thrift")
-
-    # add try ...
-    TClient = make_client(wpw_thrift.WPWithinCallbacks, host, port, proto_factory=TBinaryProtocolFactory(), trans_factory=TBufferedTransportFactory())
-    
-    return WPWithinCallback(TClient)

@@ -1,9 +1,10 @@
 import thriftpy
-from thriftpy.rpc import make_client
+from thriftpy.rpc import make_client, make_server
 from thriftpy.protocol.binary import TBinaryProtocolFactory
 from thriftpy.transport.buffered import TBufferedTransportFactory
 import launcher
 import time
+import wpwithincallbacks
 
 try:
     from ttypes import *
@@ -119,22 +120,39 @@ class WPWithin(object):
         else:
             return serviceDeliveryToken
 
-def runRPCAgent(port, dir="./rpc-agent/"):
-    return launcher.runRPCAgent(dir, port)
+def runRPCAgent(port, dir="./rpc-agent/", callbackPort=None):
+    return launcher.runRPCAgent(dir, port, callbackPort=callbackPort)
 
-def createClient(host, port, startRPC, dir=None):
+def createClient(host, port, startRPC, startCallbackServer=false, callbackPort=None, callbackService=None, rpcDir=None):
+    
+    if (startCallbackServer == true) and (callbackPort == None or callbackService == None):
+        raise 
+
     wpw_thrift = thriftpy.load('wpwithin.thrift', module_name="wpw_thrift")
 
+    returnDict = {}
+    
     if startRPC:
-        if dir == None:
+        if dir == None and startCallbackServer == None:
             proc = runRPCAgent(port)
+        elif dir == None:
+            proc = runRPCAgent(port, callbackPort=callbackPort)
+        elif startCallbackServer == None:
+            proc = runRPCAgent(port, dir=dir)
         else:
-            proc = runRPCAgent(port, dir)
+            proc = runRPCAgent(port, dir=dir, callbackPort=callbackPort)
+        returnDict['rpc'] = proc
 
     time.sleep(2)
     # add try ...
-    TClient = make_client(wpw_thrift.WPWithin, host, port, proto_factory=TBinaryProtocolFactory(), trans_factory=TBufferedTransportFactory())
+    TClient = make_client(wpw_thrift.WPWithin, host=host, port=port, proto_factory=TBinaryProtocolFactory(), trans_factory=TBufferedTransportFactory())
     
-    if startRPC:
-        return [WPWithin(TClient), proc]
+    if startCallbackServer:
+        server = make_server(callbackService, wpwithincallbacks, host=host, port=callbackPort, proto_factory=TBinaryProtocolFactory(), trans_factory=TBufferedTransportFactory()) 
+        returnDict['server'] = server
+
+    if len(returnDict) > 0:
+        returnDict['client'] = WPWithin(client)
+        return returnDict
+        
     return WPWithin(TClient)
