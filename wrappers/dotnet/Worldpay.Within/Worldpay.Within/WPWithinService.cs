@@ -23,8 +23,6 @@ namespace Worldpay.Innovation.WPWithin
 
         private static readonly ILog Log = LogManager.GetLogger<WPWithinService>();
 
-        private readonly object _listenerLock = new object();
-
         private ThriftWPWithinService.Client _client;
         private bool _isDisposed;
 

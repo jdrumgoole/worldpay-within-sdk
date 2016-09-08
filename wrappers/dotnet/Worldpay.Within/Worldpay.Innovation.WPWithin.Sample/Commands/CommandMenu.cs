@@ -14,14 +14,21 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
         private readonly TextWriter _output;
         private readonly TextReader _reader;
         private RpcAgentManager _rpcManager;
+        private SimpleProducer _simpleProducer;
 
         public CommandMenu()
         {
             _menuItems = new List<Command>(new[]
             {
-                new Command("Exit", "Exits the application.", (a) => CommandResult.Exit),
+                new Command("Exit", "Exits the application.", (a) =>
+                {
+                    _output.WriteLine("Exiting...");
+                    return CommandResult.Exit;
+                }),
                 new Command("StartRPCClient", "Starts the Thrift RPC Client", StartRpcClient),
                 new Command("StopRPCClient", "Stops the Thrift RPC Client", StopRpcClient),
+                new Command("StartSimpleProducer", "Starts a simple producer", StartSimpleProducer),
+                new Command("StopSimpleProducer", "Starts a simple producer", StopSimpleProducer),
             });
 
             // TODO Parameterise these so output can be written to a specific file
@@ -30,12 +37,36 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
             _reader = Console.In;
         }
 
+        private CommandResult StartSimpleProducer(string[] arg)
+        {
+            if (_simpleProducer != null)
+            {
+                _output.WriteLine("Simple producer already started, stop it before trying to start it again.");
+                return CommandResult.NonCriticalError;
+            }
+            _simpleProducer = new SimpleProducer(_output, _error);
+            _simpleProducer.Start();
+            return CommandResult.Success;
+        }
+
+        private CommandResult StopSimpleProducer(string[] arg)
+        {
+            if (_simpleProducer == null)
+            {
+                _output.WriteLine("Cannot stop Simple producer as it is not started.");
+                return CommandResult.NonCriticalError;
+            }
+            _simpleProducer.Stop();
+            _simpleProducer = null;
+            return CommandResult.Success;
+        }
+
         private CommandResult StopRpcClient(string[] arg)
         {
             if (_rpcManager == null)
             {
                 _error.WriteLine("Thift RPC Agent not active.  Start it before trying to stop it.");
-                return CommandResult.Failure;
+                return CommandResult.NonCriticalError;
             }
             _rpcManager.StopThriftRpcAgentProcess();
             _rpcManager = null;
@@ -47,44 +78,65 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
             if (_rpcManager != null)
             {
                 _error.WriteLine("Thrift RPC Agent already active.  Stop it before trying to start a new one");
-                return CommandResult.Failure;
+                return CommandResult.NonCriticalError;
             }
             _rpcManager = new RpcAgentManager();
             _rpcManager.StartThriftRpcAgentProcess();
             return CommandResult.Success;
         }
 
-        internal CommandResult ReadEvalPrint()
+        internal CommandResult ReadEvalPrint(string[] args)
         {
-            _output.WriteLine("Sample Application.");
-            foreach (Command item in _menuItems)
+            // Only show the menu if there isn't already a command line to deal with
+            if (args != null)
             {
-                _output.WriteLine("{0}: {1}", item.Name, item.Description);
-            }
+                _output.WriteLine("\nSample Application.");
+                int count = 0;
+                foreach (Command item in _menuItems)
+                {
+                    _output.WriteLine("{0}. {1}: {2}", count, item.Name, item.Description);
+                    count++;
+                }
 
-            // Read
-            _output.Write("\nCommand: ");
-            string readLine = _reader.ReadLine();
-            if (readLine == null)
-            {
-                return CommandResult.NoOp;
-            }
+                // Read
+                _output.Write("\nCommand: ");
+                string readLine = _reader.ReadLine();
+                if (readLine == null)
+                {
+                    return CommandResult.NoOp;
+                }
 
-            string[] args = readLine.Split();
+                args = readLine.Split();
+            }
 
             // If no arguments, then don't error, just return success;
-            if (args.Length == 0 || string.IsNullOrEmpty(args[0]))
+            if (args == null || args.Length == 0 || string.IsNullOrEmpty(args[0]))
             {
                 return CommandResult.NoOp;
             }
 
-            Command selectedItem = _menuItems.FirstOrDefault(m => m.Name.Equals(args[0]));
+            int optionNumber;
+            Command selectedItem = int.TryParse(args[0], out optionNumber) ? _menuItems[optionNumber] : _menuItems.FirstOrDefault(m => m.Name.Equals(args[0]));
+
             if (selectedItem != null)
             {
-                return selectedItem.Function(args);
+                try
+                {
+                    return selectedItem.Function(args);
+                }
+                catch (WPWithinException wpwe)
+                {
+                    _error.WriteLine(wpwe);
+                    return CommandResult.NonCriticalError;
+                }
+                catch (Exception wpwe)
+                {
+                    _error.WriteLine(wpwe);
+                    return CommandResult.CriticalError;
+                }
             }
 
-            _output.WriteLine("No such option.");
+            _output.WriteLine($"Invalid command: \"{args[0]}\"");
             return CommandResult.NoSuchCommand;
         }
     }

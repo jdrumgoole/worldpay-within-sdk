@@ -145,8 +145,7 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
                     }
                     if (parent == null)
                     {
-                        throw new Exception("Unable to locate " + sdkDir +
-                                            " override with property " + RpcAgentPathProperty + "property in App.config");
+                        throw new Exception($"Unable to locate {sdkDir} override with property {RpcAgentPathProperty} property in App.config");
                     }
                     _rpcAgentPath =
                         new FileInfo(string.Join(Path.DirectorySeparatorChar.ToString(), parent.FullName, "applications",
@@ -170,13 +169,15 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
         {
             Log.InfoFormat("Attempting to launch Thrift RPC Agent {0}", RpcAgentPath);
 
+            string parameters = string.Join(" ",
+                "-host", RpcAgentServiceHost,
+                "-port", RpcAgentServicePort,
+                "-protocol", RpcAgentProtcol
+                );
+            Log.InfoFormat("Attempting to start Thift RPC Agent: {0} {1}", RpcAgentPath, parameters);
             Process thriftRpcProcess = new Process
             {
-                StartInfo = new ProcessStartInfo(RpcAgentPath, string.Join(" ",
-                    "-host", RpcAgentServiceHost,
-                    "-port", RpcAgentServicePort,
-                    "-protocol", RpcAgentProtcol
-                    ))
+                StartInfo = new ProcessStartInfo(RpcAgentPath, parameters)
                 {
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -225,11 +226,12 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
             }
             else
             {
-                if (!SentCtrlCToProcess(_thriftRpcProcess))
-                {
+                // BUG Commented out Ctrl-C style kill code as it won't work if in a Console app, will re-enable once I've fixed it properly
+//                if (!SentCtrlCToProcess(_thriftRpcProcess))
+//                {
                     Log.Info("Unable to gracefully stop Thift RPC Agent, issuing kill instead");
                     _thriftRpcProcess.Kill();
-                }
+//                }
             }
         }
 
@@ -274,21 +276,24 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
 
             if (AttachConsole((uint)process.Id))
             {
+                // Stop the Ctrl-C from terminating this process
                 SetConsoleCtrlHandler(null, true);
                 try
                 {
+                    // Attempt to send a Ctrl-C to the thrift RPC agent process
                     if (!GenerateConsoleCtrlEvent(CtrlCEvent, 0))
                     {
-                        Log.Warn("Unable to generate Ctrl event for process");
+                        Log.Warn("Unable to generate Ctrl-C event for process");
                         return false;
                     }
-                    Log.Info("Send Ctrl-C to Thrid RPC agent, now waiting for exit");
+                    Log.Info("Sent Ctrl-C to Thrift RPC agent, now waiting for the process to terminate.");
                     process.WaitForExit();
                     Log.Info("Thrift RPC agent has exited cleanly.");
                 }
                 finally
                 {
-                    Log.Debug("Restoring console handler for host process (i.e. us)");
+                    // Always restore the default Ctrl-C handler so that we honour a Ctrl-C from the user.
+                    Log.Debug("Restoring Ctrl-C default handler for this process");
                     FreeConsole();
                     SetConsoleCtrlHandler(null, false);
                 }

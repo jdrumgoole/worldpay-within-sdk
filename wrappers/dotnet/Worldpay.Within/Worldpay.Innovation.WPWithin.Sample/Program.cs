@@ -1,5 +1,4 @@
-﻿
-using Worldpay.Innovation.WPWithin.Sample.Commands;
+﻿using Worldpay.Innovation.WPWithin.Sample.Commands;
 
 namespace Worldpay.Innovation.WPWithin.Sample
 {
@@ -12,15 +11,11 @@ namespace Worldpay.Innovation.WPWithin.Sample
 
         private void Run(string[] args)
         {
-            bool terminate = false;
             CommandMenu menu = new CommandMenu();
-            while (!terminate)
+            CommandResult result = CommandResult.NoOp;
+            while (result != CommandResult.CriticalError && result != CommandResult.Exit)
             {
-                CommandResult result = menu.ReadEvalPrint();
-                if (result == CommandResult.CriticalFailure || result == CommandResult.Exit)
-                {
-                    terminate = true;
-                }
+                result = menu.ReadEvalPrint(args);
             }
         }
     }

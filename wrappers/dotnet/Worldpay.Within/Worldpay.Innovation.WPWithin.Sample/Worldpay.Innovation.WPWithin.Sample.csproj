@@ -58,6 +58,7 @@
     <Compile Include="Commands\CommandMenu.cs" />
     <Compile Include="Commands\CommandResult.cs" />
     <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\SimpleProducer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

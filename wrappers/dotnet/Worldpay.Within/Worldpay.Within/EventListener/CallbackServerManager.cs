@@ -69,7 +69,7 @@ namespace Worldpay.Innovation.WPWithin.EventListener
             TServerSocket serverTransport = new TServerSocket(_callbackListenerPort);
             TThreadPoolServer server = new TThreadPoolServer(processor, serverTransport);
 
-            Log.InfoFormat("Starting callback server on {0} ");
+            Log.InfoFormat("Starting callback server on {0}", _callbackListenerPort);
             _serverTask = Task.Run(() => server.Serve());
             _server = server;
         }
