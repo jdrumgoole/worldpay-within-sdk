@@ -122,6 +122,8 @@ class WPWithin(object):
             serviceDeliveryToken = self.thriftClient.beginServiceDelivery(clientId, token, unitsToSupply)
         except wpt.Error as err:
             raise Error(err.message)
+        else:
+            return ConvertFromThriftServiceDeliveryToken(serviceDeliveryToken)
 
     def endServiceDelivery(self, serviceId, serviceDeliveryToken, unitsReceived):
         token = ConvertToThriftServiceDeliveryToken(serviceDeliveryToken)
@@ -129,6 +131,8 @@ class WPWithin(object):
             serviceDeliveryToken = self.thriftClient.endServiceDelivery(clientId, token, unitsReceived)
         except wpt.Error as err:
             raise Error(err.message)
+        else:
+            return ConvertFromThriftServiceDeliveryToken(serviceDeliveryToken)
 
 def runRPCAgent(port, dir="./rpc-agent/", callbackPort=None):
     return launcher.runRPCAgent(dir, port, callbackPort=callbackPort)
