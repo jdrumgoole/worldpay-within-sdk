@@ -17,7 +17,7 @@ type broadcasterImpl struct {
 	comm      Communicator
 }
 
-func (bcast *broadcasterImpl) StartBroadcast(msg types.ServiceMessage, timeoutMillis int) error {
+func (bcast *broadcasterImpl) StartBroadcast(msg types.BroadcastMessage, timeoutMillis int) error {
 
 	log.Debug("Start svc broadcast")
 

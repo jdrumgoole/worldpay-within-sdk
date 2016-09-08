@@ -57,15 +57,15 @@ var sdk wpwithin.WPWithin
 var rpcConfig rpc.Configuration
 
 const (
-	keyBufferSize string = "BufferSize"
-	keyBuffered   string = "Buffered"
-	keyFramed     string = "Framed"
-	keyHost       string = "Host"
-	keyLogfile    string = "Logfile"
-	keyLoglevel   string = "Loglevel"
-	keyPort       string = "Port"
-	keyProtocol   string = "Protocol"
-	keySecure     string = "Secure"
+	keyBufferSize   string = "BufferSize"
+	keyBuffered     string = "Buffered"
+	keyFramed       string = "Framed"
+	keyHost         string = "Host"
+	keyLogfile      string = "Logfile"
+	keyLoglevel     string = "Loglevel"
+	keyPort         string = "Port"
+	keyProtocol     string = "Protocol"
+	keySecure       string = "Secure"
 	keyCallbackPort string = "CallbackPort"
 )
 

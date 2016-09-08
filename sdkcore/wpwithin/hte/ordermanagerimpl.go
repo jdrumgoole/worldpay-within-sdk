@@ -7,11 +7,12 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-// Concrete implementation of order manager.. uses an in memory persistence for orders
+// OrderManagerImpl Concrete implementation of order manager.. uses an in memory persistence for orders
 type OrderManagerImpl struct {
 	orders map[string]types.Order
 }
 
+// NewOrderManager Create a new instance of OrderManager
 func NewOrderManager() (OrderManager, error) {
 
 	result := &OrderManagerImpl{}
@@ -20,19 +21,20 @@ func NewOrderManager() (OrderManager, error) {
 	return result, nil
 }
 
+// AddOrder add an order
 func (om *OrderManagerImpl) AddOrder(order types.Order) error {
 
 	if _, ok := om.orders[order.UUID]; ok {
 
 		return errors.New("Order already exists")
-	} else {
-
-		om.orders[order.UUID] = order
-
-		return nil
 	}
+
+	om.orders[order.UUID] = order
+
+	return nil
 }
 
+// GetOrder get an order from the manager by searching for its payment reference
 func (om *OrderManagerImpl) GetOrder(paymentReference string) (*types.Order, error) {
 
 	if order, ok := om.orders[paymentReference]; ok {
@@ -43,9 +45,10 @@ func (om *OrderManagerImpl) GetOrder(paymentReference string) (*types.Order, err
 	return nil, errors.New("Order not found")
 }
 
-func (om *OrderManagerImpl) OrderExists(uuid string) bool {
+// OrderExists check if an order exists by searching for its payment reference
+func (om *OrderManagerImpl) OrderExists(paymentReference string) bool {
 
-	if _, found := om.orders[uuid]; found {
+	if _, found := om.orders[paymentReference]; found {
 
 		return true
 	}
@@ -54,6 +57,7 @@ func (om *OrderManagerImpl) OrderExists(uuid string) bool {
 
 }
 
+// UpdateOrder update an order in the manager.
 func (om *OrderManagerImpl) UpdateOrder(order types.Order) error {
 
 	if om.OrderExists(order.UUID) {

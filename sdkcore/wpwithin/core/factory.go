@@ -33,15 +33,15 @@ const (
 // SDKFactory for creating WPWithin instances. // TODO Needs to be reworked so can be partially implemented.
 type SDKFactory interface {
 	GetDevice(name, description string) (*types.Device, error)
-	GetPSPMerchant(merchantClientKey, merchantServiceKey string) (psp.Psp, error)
-	GetPSPClient() (psp.Psp, error)
+	GetPSPMerchant(merchantClientKey, merchantServiceKey string) (psp.PSP, error)
+	GetPSPClient() (psp.PSP, error)
 	GetSvcBroadcaster(ipv4Address string) (servicediscovery.Broadcaster, error)
 	GetSvcScanner() (servicediscovery.Scanner, error)
-	GetHTE(device *types.Device, psp psp.Psp, ipv4Address, scheme string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error)
+	GetHTE(device *types.Device, psp psp.PSP, ipv4Address, scheme string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error)
 	GetOrderManager() (hte.OrderManager, error)
 	GetHTEClient() (hte.Client, error)
-	GetHTEClientHTTP() (hte.HTEClientHTTP, error)
-	GetHTEServiceHandler(device *types.Device, psp psp.Psp, credential *hte.Credential, orderManager hte.OrderManager, eventHandler event.Handler) *hte.ServiceHandler
+	GetHTEClientHTTP() (hte.ClientHTTP, error)
+	GetHTEServiceHandler(device *types.Device, psp psp.PSP, credential *hte.Credential, orderManager hte.OrderManager, eventHandler event.Handler) *hte.ServiceHandler
 }
 
 // SDKFactoryImpl implementation of SDKFactory
@@ -53,30 +53,32 @@ func NewSDKFactory() (SDKFactory, error) {
 	return &SDKFactoryImpl{}, nil
 }
 
+// GetDevice create a device with Name and Description
 func (factory *SDKFactoryImpl) GetDevice(name, description string) (*types.Device, error) {
 
 	var deviceGUID string
 
 	if b, _ := utils.FileExists(UUIDFilePath); b {
 
-		if _deviceGUID, err := utils.ReadLocalUUID(UUIDFilePath); err != nil {
+		_deviceGUID, err := utils.ReadLocalUUID(UUIDFilePath)
+
+		if err != nil {
 
 			return nil, fmt.Errorf("Could not read UUID file (%s). Try deleting it. %q", UUIDFilePath, err.Error())
-
-		} else {
-
-			deviceGUID = _deviceGUID
 		}
+
+		deviceGUID = _deviceGUID
+
 	} else {
 
-		if _deviceGUID, err := utils.NewUUID(); err != nil {
+		_deviceGUID, err := utils.NewUUID()
+
+		if err != nil {
 
 			return nil, fmt.Errorf("Unable to create new UUID: %q", err.Error())
-
-		} else {
-
-			deviceGUID = _deviceGUID
 		}
+
+		deviceGUID = _deviceGUID
 
 		if err := utils.WriteString(UUIDFilePath, deviceGUID, true); err != nil {
 
@@ -84,58 +86,68 @@ func (factory *SDKFactoryImpl) GetDevice(name, description string) (*types.Devic
 		}
 	}
 
-	if deviceAddress, err := utils.ExternalIPv4(); err != nil {
+	deviceAddress, err := utils.ExternalIPv4()
+
+	if err != nil {
 
 		return nil, fmt.Errorf("Unable to get IP address: %q", err.Error())
-	} else {
-
-		d, e := types.NewDevice(name, description, deviceGUID, deviceAddress.String(), "GBP")
-
-		return d, e
 	}
+
+	d, e := types.NewDevice(name, description, deviceGUID, deviceAddress.String(), "GBP")
+
+	return d, e
 }
 
-func (factory *SDKFactoryImpl) GetPSPMerchant(merchantClientKey, merchantServiceKey string) (psp.Psp, error) {
+// GetPSPMerchant get a new PSP implementation in context of Merchant i.e. client/service keys are set
+func (factory *SDKFactoryImpl) GetPSPMerchant(merchantClientKey, merchantServiceKey string) (psp.PSP, error) {
 
 	return onlineworldpay.NewMerchant(merchantClientKey, merchantServiceKey, WPOnlineAPIEndpoint)
 }
 
-func (factory *SDKFactoryImpl) GetPSPClient() (psp.Psp, error) {
+// GetPSPClient get a new PSP implementation in context of a client i.e. only the endpoint is set
+func (factory *SDKFactoryImpl) GetPSPClient() (psp.PSP, error) {
 
 	return onlineworldpay.NewClient(WPOnlineAPIEndpoint)
 }
 
+// GetSvcBroadcaster get an instance of service broadcaster
 func (factory *SDKFactoryImpl) GetSvcBroadcaster(ipv4Address string) (servicediscovery.Broadcaster, error) {
 
 	return servicediscovery.NewBroadcaster(ipv4Address, BroadcastPort, BroadcastStepSleep)
 }
 
+// GetSvcScanner get an instance of service scanner
 func (factory *SDKFactoryImpl) GetSvcScanner() (servicediscovery.Scanner, error) {
 
 	return servicediscovery.NewScanner(BroadcastPort, BroadcastStepSleep)
 }
 
-func (factory *SDKFactoryImpl) GetHTE(device *types.Device, psp psp.Psp, ipv4Address, scheme string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error) {
+// GetHTE get an instance of HTE
+func (factory *SDKFactoryImpl) GetHTE(device *types.Device, psp psp.PSP, ipv4Address, scheme string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error) {
 
 	return hte.NewService(device, psp, ipv4Address, HteSvcURLPrefix, scheme, HteSvcPort, hteCredential, om, hteSvcHandler)
 }
 
+// GetOrderManager get an instance of OrderManager
 func (factory *SDKFactoryImpl) GetOrderManager() (hte.OrderManager, error) {
 
 	return hte.NewOrderManager()
 }
 
+// GetHTEClient get an instance of HTEClient
 func (factory *SDKFactoryImpl) GetHTEClient() (hte.Client, error) {
 
 	return nil, nil
 }
 
-func (factory *SDKFactoryImpl) GetHTEClientHTTP() (hte.HTEClientHTTP, error) {
+// GetHTEClientHTTP get an instance of HTEClientHTTP
+func (factory *SDKFactoryImpl) GetHTEClientHTTP() (hte.ClientHTTP, error) {
 
 	return hte.NewHTEClientHTTP()
 }
 
-func (factory *SDKFactoryImpl) GetHTEServiceHandler(device *types.Device, psp psp.Psp, credential *hte.Credential, orderManager hte.OrderManager, eventHandler event.Handler) *hte.ServiceHandler {
+// GetHTEServiceHandler get an instance of HTE Service Handler
+func (factory *SDKFactoryImpl) GetHTEServiceHandler(device *types.Device, psp psp.PSP, credential *hte.Credential, orderManager hte.OrderManager, eventHandler event.Handler) *hte.ServiceHandler {
 
 	return hte.NewServiceHandler(device, psp, credential, orderManager, eventHandler)
 }

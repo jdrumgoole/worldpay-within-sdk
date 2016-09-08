@@ -40,7 +40,7 @@ func main() {
 
 				for _, dev := range devices {
 
-					fmt.Printf("[%s] %s @ %s:%d%s\n", dev.ServerID, dev.DeviceDescription, dev.Hostname, dev.PortNumber, dev.UrlPrefix)
+					fmt.Printf("[%s] %s @ %s:%d%s\n", dev.ServerID, dev.DeviceDescription, dev.Hostname, dev.PortNumber, dev.URLPrefix)
 				}
 				fmt.Println("------------------------------------------------------------")
 			}

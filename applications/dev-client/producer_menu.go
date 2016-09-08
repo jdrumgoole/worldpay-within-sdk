@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+
 	devclienttypes "github.com/wptechinnovation/worldpay-within-sdk/applications/dev-client/types"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
@@ -31,15 +32,9 @@ func mNewProducer() error {
 		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
 	}
 
+	defer fmt.Println("Initialised new producer")
+
 	return sdk.InitProducer(merchantClientKey, merchantServiceKey)
-
-	if sdk == nil {
-		return errors.New(devclienttypes.ErrorDeviceNotInitialised)
-	}
-
-	fmt.Println("Initialised new producer")
-
-	return nil
 }
 
 func mAddRoboWashService() error {
@@ -47,7 +42,7 @@ func mAddRoboWashService() error {
 	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
 	roboWash.Description = "Car washed by robot"
-	roboWash.Id = 1
+	roboWash.ID = 1
 
 	washPriceCar := types.Price{
 
@@ -95,7 +90,7 @@ func mAddRoboAirService() error {
 	roboAir, _ := types.NewService()
 	roboAir.Name = "RoboAir"
 	roboAir.Description = "Car tyre pressure checked and topped up by robot"
-	roboAir.Id = 2
+	roboAir.ID = 2
 
 	airSinglePrice := types.Price{
 

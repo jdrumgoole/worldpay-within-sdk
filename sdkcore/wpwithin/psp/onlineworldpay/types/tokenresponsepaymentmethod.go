@@ -1,5 +1,6 @@
 package types
 
+// TokenResponsePaymentMethod HTTP Response Message
 type TokenResponsePaymentMethod struct {
 	Type string `json:"type"`
 
