@@ -6,14 +6,13 @@ import launcher
 import time
 import wpwithincallbacks
 
-try:
-    from ttypes import *
-except ImportError:
-    from .ttypes import *
-
 wptypes_thrift = thriftpy.load('wptypes.thrift', module_name="wptypes_thrift")
 
 import wptypes_thrift as wpt
+
+from ttypes import *
+from converters import *
+
 
 class WPWithin(object):
     def __init__(self, thriftClient):
@@ -26,20 +25,23 @@ class WPWithin(object):
             raise Error(err.message)
 
     def addService(self, svc):
+        service = ConvertToThriftService(svc)
         try:
-            self.thriftClient.addService(svc)
+            self.thriftClient.addService(service)
         except wpt.Error as err:
             raise Error(err.message)
 
     def removeService(self, svc):
+        service = ConvertToThriftService(svc)
         try:
-            self.thriftClient.removeService(svc)
+            self.thriftClient.removeService(service)
         except wpt.Error as err:
             raise Error(err.message)
 
     def initConsumer(self, scheme, hostname, port, urlPrefix, clientId, hceCard):
+        card = ConvertToThriftHCECard(hceCard)
         try:
-            self.thriftClient.initConsumer(scheme, hostname, port, urlPrefix, clientId, hceCard)
+            self.thriftClient.initConsumer(scheme, hostname, port, urlPrefix, clientId, card)
         except wpt.Error as err:
             raise Error(err.message)
 
@@ -50,7 +52,7 @@ class WPWithin(object):
             raise Error(err.message)
 
     def getDevice(self):
-        return self.thriftClient.getDevice()
+        return ConvertFromThriftDevice(self.thriftClient.getDevice())
 
     def startServiceBroadcast(self, timeoutMillis):
         try:
@@ -70,7 +72,10 @@ class WPWithin(object):
         except wpt.Error as err:
             raise Error(err.message)
         else:
-            return serviceMessages
+            svcMessages = []
+            for val in serviceMessages:
+                svcMessages.append(ConvertFromThriftServiceMessage(val))
+            return svcMessages
 
     def requestServices(self):
         try:
@@ -78,7 +83,10 @@ class WPWithin(object):
         except wpt.Error as err:
             raise Error(err.message)
         else:
-            return serviceDetails
+            svcDetails = []
+            for val in serviceDetails:
+                svcDetails.append(ConvertFromThriftServiceDetails(val))
+            return svcDetails
 
     def getServicePrices(self, serviceId):
         try:
@@ -86,7 +94,10 @@ class WPWithin(object):
         except wpt.Error as err:
             raise Error(err.message)
         else:
-            return prices
+            wprices = []
+            for val in prices:
+                wprices.append(ConvertFromThriftPrice(val))
+            return wprices
 
     def selectServices(self, serviceId, numberOfUnits, priceId):
         try:
@@ -94,31 +105,30 @@ class WPWithin(object):
         except wpt.Error as err:
             raise Error(err.message)
         else:
-            return service
+            return ConvertFromThriftTotalPriceResponse(service)
 
     def makePayment(self, request):
+        trequest = ConvertToThriftTotalPriceResponse(request)
         try:
-            response = self.thriftClient.makePayment(request)
+            response = self.thriftClient.makePayment(trequest)
         except wpt.Error as err:
             raise Error(err.message)
         else:
-            return response
+            return ConvertFromThriftPaymentResponse(response)
 
     def beginServiceDelivery(self, serviceId, serviceDeliveryToken, unitsToSupply):
+        token = ConvertToThriftServiceDeliveryToken(serviceDeliveryToken)
         try:
-            serviceDeliveryToken = self.thriftClient.beginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply)
+            serviceDeliveryToken = self.thriftClient.beginServiceDelivery(clientId, token, unitsToSupply)
         except wpt.Error as err:
             raise Error(err.message)
-        else:
-            return serviceDeliveryToken
 
     def endServiceDelivery(self, serviceId, serviceDeliveryToken, unitsReceived):
+        token = ConvertToThriftServiceDeliveryToken(serviceDeliveryToken)
         try:
-            serviceDeliveryToken = self.thriftClient.endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived)
+            serviceDeliveryToken = self.thriftClient.endServiceDelivery(clientId, token, unitsReceived)
         except wpt.Error as err:
             raise Error(err.message)
-        else:
-            return serviceDeliveryToken
 
 def runRPCAgent(port, dir="./rpc-agent/", callbackPort=None):
     return launcher.runRPCAgent(dir, port, callbackPort=callbackPort)

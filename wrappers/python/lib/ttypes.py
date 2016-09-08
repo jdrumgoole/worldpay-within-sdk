@@ -1,15 +1,15 @@
-class Error(Exception):
-    def __init__(self, message=None):
-        super(ValidationError, self).__init__(message)
+class Error(object):
+    def __init__(self, message):
+        super().__init__(message)
         self.message = message
 
 class PricePerUnit(object):
-    def __init__(self, amount=None, currencyCode=None):
+    def __init__(self, amount, currencyCode):
         self.amount = amount
         self.currencyCode = currencyCode
 
 class Price(object):
-    def __init__(self, id=None, description=None, pricePerUnit=None, unitId=None, unitDescription=None):
+    def __init__(self, id, description, pricePerUnit, unitId, unitDescription):
         self.id = id
         self.description = description
         self.pricePerUnit = pricePerUnit
@@ -17,14 +17,14 @@ class Price(object):
         self.unitDescription = unitDescription
 
 class Service(object):
-    def __init__(self, id=None, name=None, description=None, prices=None):
+    def __init__(self, id, name, description, prices=None):
         self.id = id
         self.name = name
         self.description = description
         self.prices = prices
 
 class HCECard(object):
-    def __init__(self, firstName=None, lastName=None, expMonth=None, expYear=None, cardNumber=None, cardType=None, cvc=None):
+    def __init__(self, firstName, lastName, expMonth, expYear, cardNumber, cardType, cvc):
         self.firstName = firstName
         self.lastName = lastName
         self.expMonth = expMonth
@@ -34,7 +34,7 @@ class HCECard(object):
         self.cvc = cvc
 
 class Device(object):
-    def __init__(self, uid=None, name=None, description=None, services=None, ipv4Address=None, currencyCode=None):
+    def __init__(self, uid, name, description, services, ipv4Address, currencyCode):
         self.uid = uid
         self.name = name
         self.description = description 
@@ -43,7 +43,7 @@ class Device(object):
         self.currencyCode = currencyCode
 
 class ServiceMessage(object):
-    def __init__(self, deviceDescription=None, hostname=None, portNumber=None, serverId=None, urlPrefix=None, scheme=None):
+    def __init__(self, deviceDescription, hostname, portNumber, serverId, urlPrefix, scheme):
         self.deviceDescription = deviceDescription
         self.hostname = hostname
         self.portNumber = portNumber
@@ -52,12 +52,12 @@ class ServiceMessage(object):
         self.scheme = scheme
 
 class ServiceDetails(object):
-    def __init__(self, serviceId=None, serviceDescription=None):
+    def __init__(self, serviceId, serviceDescription):
         self.serviceId = serviceId
         self.serviceDescription = serviceDescription
 
 class TotalPriceResponse(object):
-    def __init__(self, serverId=None, clientId=None, priceId=None, unitsToSupply=None, totalPrice=None, paymentReferenceId=None, merchantClientKey=None):
+    def __init__(self, serverId, clientId, priceId, unitsToSupply, totalPrice, paymentReferenceId, merchantClientKey):
         self.serverId = serverId
         self.clientId = clientId
         self.priceId = priceId
@@ -67,7 +67,7 @@ class TotalPriceResponse(object):
         self.merchantClientKey = merchantClientKey
 
 class ServiceDeliveryToken(object):
-    def __init__(self, key=None, issues=None, expiry=None, refundOnExpiry=None, signature=None):
+    def __init__(self, key, issued, expiry, refundOnExpiry, signature):
         self.key = key
         self.issued = issued
         self.expiry = expiry
@@ -75,7 +75,7 @@ class ServiceDeliveryToken(object):
         self.signature = signature
 
 class PaymentResponse(object):
-    def __init__(self, serverId=None, clientId=None, totalPaid=None, serviceDeliveryToken=None):
+    def __init__(self, serverId, clientId, totalPaid, serviceDeliveryToken):
         self.serverId = serverId
         self.clientId = clientId
         self.totalPaid = totalPaid
