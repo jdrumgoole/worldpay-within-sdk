@@ -86,6 +86,7 @@ function TotalPriceResponse() {
   var totalPrice;
   var paymentReferenceId;
   var merchantClientKey;
+  var currencyCode;
 };
 
 function PaymentResponse() {

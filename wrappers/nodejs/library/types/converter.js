@@ -115,6 +115,7 @@ function constructFromThrift() {
     result.totalPrice = totalPriceResponse.totalPrice;
     result.paymentReferenceId = totalPriceResponse.paymentReferenceId;
     result.merchantClientKey = totalPriceResponse.merchantClientKey;
+    result.currencyCode = totalPriceResponse.currencyCode;
 
     return result;
   };
@@ -253,6 +254,7 @@ function constructToThrift() {
     result.totalPrice = totalPriceResponse.totalPrice;
     result.paymentReferenceId = totalPriceResponse.paymentReferenceId;
     result.merchantClientKey = totalPriceResponse.merchantClientKey;
+    result.currencyCode = totalPriceResponse.currencyCode;
 
     return result;
   };

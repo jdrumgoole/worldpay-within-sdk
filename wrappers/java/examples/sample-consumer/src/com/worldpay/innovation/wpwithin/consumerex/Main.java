@@ -173,6 +173,7 @@ public class Main {
             System.out.printf("Merchant client key: %s\n", tpr.getMerchantClientKey());
             System.out.printf("Payment reference id: %s\n", tpr.getPaymentReferenceId());
             System.out.printf("Units to supply: %d\n", tpr.getUnitsToSupply());
+            System.out.printf("Currency code: %s\n", tpr.getCurrencyCode());
             System.out.printf("Total price: %d\n", tpr.getTotalPrice());
 
         } else {

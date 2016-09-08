@@ -323,6 +323,7 @@ func (wp *WPWithinHandler) SelectService(serviceID int32, numberOfUnits int32, p
 		TotalPrice:         int32(gPriceResponse.TotalPrice),
 		PaymentReferenceId: gPriceResponse.PaymentReferenceID,
 		MerchantClientKey:  gPriceResponse.MerchantClientKey,
+		CurrencyCode:       gPriceResponse.CurrencyCode,
 	}
 
 	log.Debug("End RPC.WPWithinHandler.SelectService()")
@@ -343,6 +344,7 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 		TotalPrice:         int(request.TotalPrice),
 		PaymentReferenceID: request.PaymentReferenceId,
 		MerchantClientKey:  request.MerchantClientKey,
+		CurrencyCode:       request.CurrencyCode,
 	}
 
 	log.Debug("Finised converting thrift.TotalPriceResponse to go.TotalPriceResponse")

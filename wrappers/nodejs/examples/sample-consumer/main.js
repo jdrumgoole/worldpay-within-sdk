@@ -172,6 +172,7 @@ function getServicePriceQuote(serviceId, numberOfUnits, priceId) {
       console.log("TotalPrice: %d", response.totalPrice);
       console.log("PaymentReferenceId: %s", response.paymentReferenceId);
       console.log("MerchantClientKey: %s", response.merchantClientKey);
+      console.log("CurrencyCode: %s", response.currencyCode);
       console.log("------");
 
       purchaseService(serviceId, response);
