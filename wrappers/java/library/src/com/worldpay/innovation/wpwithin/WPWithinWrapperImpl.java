@@ -53,13 +53,6 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
         this.hostConfig = rpcHost;
         this.portConfig = rpcPort;
 
-        if(startRPCAgent) {
-
-            startRPCAgent(rpcPort, rpcCallbackPort);
-        }
-
-        setClientIfNotSet();
-
         if(eventListener != null) {
 
             if(rpcCallbackPort <= 0 || rpcCallbackPort > 65535) {
@@ -72,7 +65,17 @@ public class WPWithinWrapperImpl implements WPWithinWrapper {
             eventServer.start(eventListener, rpcCallbackPort);
 
             System.out.printf("Did setup and start event server on port: %d\n", rpcCallbackPort);
+        } else {
+
+            rpcCallbackPort = 0;
         }
+
+        if(startRPCAgent) {
+
+            startRPCAgent(rpcPort, rpcCallbackPort);
+        }
+
+        setClientIfNotSet();
     }
     
     private void setClientIfNotSet() {
