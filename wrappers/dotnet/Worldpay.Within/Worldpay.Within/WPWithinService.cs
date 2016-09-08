@@ -36,8 +36,14 @@ namespace Worldpay.Innovation.WPWithin
         public WPWithinService(string host, int port, int callbackPort)
         {
             InitClient(host, port);
-            _listener = new CallbackServerManager(callbackPort);
-//            _listener.Start();
+            if (callbackPort > 0)
+            {
+                _listener = new CallbackServerManager(callbackPort);
+                _listener.Start();
+            } else
+            {
+                Log.Info("Callbacks disabled as port specified as 0");
+            }
         }
 
         public void Dispose()
@@ -167,13 +173,16 @@ namespace Worldpay.Innovation.WPWithin
                 Log.Warn("Error closing connection to RPC Agent", e);
             }
 
-            try
+            if (_listener != null)
             {
-                _listener.Stop();
-            }
-            catch (Exception e)
-            {
-                Log.Warn("Error stopping callback listener", e);
+                try
+                {
+                    _listener.Stop();
+                }
+                catch (Exception e)
+                {
+                    Log.Warn("Error stopping callback listener", e);
+                }
             }
             //Dispose of resources here
             _isDisposed = true;

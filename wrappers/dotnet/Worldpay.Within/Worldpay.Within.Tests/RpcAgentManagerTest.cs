@@ -14,7 +14,7 @@ namespace Worldpay.Within.Tests
             RpcAgentManager mgr = new RpcAgentManager();
 
             bool started = false;
-            mgr.ThriftRpcAgentStarted += (s,e) =>
+            mgr.OnStarted += (s,e) =>
             {
                 mgr.StopThriftRpcAgentProcess();
                 started = true;
