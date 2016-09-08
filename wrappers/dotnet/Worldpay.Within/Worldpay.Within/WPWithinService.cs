@@ -37,7 +37,7 @@ namespace Worldpay.Innovation.WPWithin
         {
             InitClient(host, port);
             _listener = new CallbackServerManager(callbackPort);
-            _listener.Start();
+//            _listener.Start();
         }
 
         public void Dispose()

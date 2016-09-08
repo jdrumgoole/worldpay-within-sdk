@@ -9,7 +9,7 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
     internal class SimpleProducer
     {
         private static readonly ILog Log = LogManager.GetLogger<SimpleProducer>();
-        private TextWriter _error;
+        private readonly TextWriter _error;
         private readonly TextWriter _output;
         private Task _task;
         private WPWithinService _wpWithinService;

@@ -29,12 +29,20 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
                 new Command("StopRPCClient", "Stops the Thrift RPC Client", StopRpcClient),
                 new Command("StartSimpleProducer", "Starts a simple producer", StartSimpleProducer),
                 new Command("StopSimpleProducer", "Starts a simple producer", StopSimpleProducer),
+                new Command("ConsumePurchase", "Consumes a service (first price of first service found)", ConsumePurchase),
             });
 
             // TODO Parameterise these so output can be written to a specific file
             _output = Console.Out;
             _error = Console.Error;
             _reader = Console.In;
+        }
+
+        private CommandResult ConsumePurchase(string[] arg)
+        {
+            SimpleConsumer consumer = new SimpleConsumer(_output, _error);
+            consumer.MakePurchase(9091);
+            return CommandResult.Success;
         }
 
         private CommandResult StartSimpleProducer(string[] arg)
