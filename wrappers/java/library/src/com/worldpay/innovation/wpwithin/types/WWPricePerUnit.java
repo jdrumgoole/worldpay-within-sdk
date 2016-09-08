@@ -16,7 +16,7 @@ public class WWPricePerUnit {
 //    2: string currencyCode
 
     int amount;
-    String currentCode;
+    String currencyCode;
 
     public int getAmount() {
         return amount;
@@ -26,12 +26,12 @@ public class WWPricePerUnit {
         this.amount = amount;
     }
 
-    public String getCurrentCode() {
-        return currentCode;
+    public String getCurrencyCode() {
+        return currencyCode;
     }
 
-    public void setCurrentCode(String currentCode) {
-        this.currentCode = currentCode;
+    public void setCurrencyCode(String currencyCode) {
+        this.currencyCode = currencyCode;
     }
     
     

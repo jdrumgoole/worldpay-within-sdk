@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"strings"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
 	log "github.com/Sirupsen/logrus"
@@ -27,6 +28,13 @@ func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, erro
 	log.WithField("Config", fmt.Sprintf("%+v", config)).Debug("begin rpc.ServiceImpl.NewService()")
 
 	defer log.Debug("end rpc.ServiceImpl.NewService()")
+
+	// Validate configuration host - should be local only as we don't want to receive commands
+	// from remote hosts
+	if !strings.EqualFold(config.Host, "127.0.0.1") && !strings.EqualFold(config.Host, "localhost") {
+
+		return nil, fmt.Errorf("Invalid configuration.Host provided (%s) - this service will only listen on local interface i.e. 127.0.0.1 or localhost", config.Host)
+	}
 
 	var protocolFactory thrift.TProtocolFactory
 	switch config.Protocol {

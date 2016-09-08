@@ -5,5 +5,4 @@ type PaymentResponse struct {
 	ClientID             string                `json:"clientID"`
 	TotalPaid            int                   `json:"totalPaid"`
 	ServiceDeliveryToken *ServiceDeliveryToken `json:"serviceDeliveryToken"`
-	ClientUUID string `json:"client-uuid"`
 }

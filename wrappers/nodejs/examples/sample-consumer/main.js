@@ -2,6 +2,7 @@ var wpwithin = require('../../library/wpwithin');
 var types = require('../../library/types/types');
 var typesConverter = require('../../library/types/converter');
 var client;
+var device;
 
 wpwithin.createClient("127.0.0.1", 9088, true, function(err, response){
 
@@ -25,6 +26,19 @@ function setup() {
     console.log("setup.callback.response: %j", response);
 
     console.log("Calling discover devices..");
+
+    device = client.getDevice(function(err, response){
+
+      console.log("getDevice.callback")
+      console.log("getDevice.callback.err: " + err)
+      console.log("getDevice.callback.response: %j", response);
+
+      if(err == null) {
+
+        device = response;
+      }
+    });
+
     discoverDevices();
   })
 };
@@ -76,8 +90,8 @@ function connectToDevice(serviceMessage) {
   hceCard.type = "Card";
   hceCard.cvc = "123";
 
-  client.initConsumer("http://", serviceMessage.hostname, serviceMessage.portNumber,
-  serviceMessage.urlPrefix, serviceMessage.serverId, hceCard, function(err, response){
+  client.initConsumer(serviceMessage.scheme, serviceMessage.hostname, serviceMessage.portNumber,
+  serviceMessage.urlPrefix, device.uid, hceCard, function(err, response){
 
     console.log("initConsumer.callback.err: %s" + err);
     console.log("initConsumer.callback.response: %j", response);
@@ -188,7 +202,6 @@ function purchaseService(serviceId, totalPriceResponse) {
       console.log("\tExpiry: %s", response.serviceDeliveryToken.expiry);
       console.log("\tRefundOnExpiry: %b", response.serviceDeliveryToken.refundOnExpiry);
       console.log("\tSignature: %s", response.serviceDeliveryToken.signature);
-      console.log("ClientUUID: %s", response.clientUUID);
       console.log("----------");
 
       beginServiceDelivery(serviceId, response.serviceDeliveryToken, 8);

@@ -91,6 +91,7 @@ function constructFromThrift() {
     result.portNumber = serviceMessage.portNumber;
     result.serverId = serviceMessage.serverId;
     result.urlPrefix = serviceMessage.urlPrefix;
+    result.scheme = serviceMessage.scheme;
 
     return result;
   };
@@ -228,6 +229,7 @@ function constructToThrift() {
     result.portNumber = serviceMessage.portNumber;
     result.serverId = serviceMessage.serverId;
     result.urlPrefix = serviceMessage.urlPrefix;
+    result.scheme = serviceMessage.scheme;
 
     return result;
   };

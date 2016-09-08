@@ -15,6 +15,7 @@ type ServiceImpl struct {
 	_IPv4Address  string
 	_Port         int
 	_UrlPrefix    string
+	_Scheme       string
 	routes        []Route
 	handler       *ServiceHandler
 	HTECredential *Credential
@@ -28,7 +29,7 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential, orderManager OrderManager, svcHandler *ServiceHandler) (Service, error) {
+func NewService(device *types.Device, psp psp.Psp, ip, prefix, scheme string, port int, hteCredential *Credential, orderManager OrderManager, svcHandler *ServiceHandler) (Service, error) {
 
 	service := &ServiceImpl{}
 
@@ -37,6 +38,7 @@ func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, 
 	service._UrlPrefix = prefix
 	service._Port = port
 	service._IPv4Address = ip
+	service._Scheme = scheme
 	service.orderManager = orderManager
 
 	service.setupRoutes()
@@ -115,4 +117,9 @@ func (srv *ServiceImpl) Port() int {
 func (srv *ServiceImpl) UrlPrefix() string {
 
 	return srv._UrlPrefix
+}
+
+func (srv *ServiceImpl) Scheme() string {
+
+	return srv._Scheme
 }

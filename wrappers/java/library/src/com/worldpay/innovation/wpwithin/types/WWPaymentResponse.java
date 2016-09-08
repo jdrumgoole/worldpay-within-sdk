@@ -12,17 +12,10 @@ package com.worldpay.innovation.wpwithin.types;
  */
 public class WWPaymentResponse {
 
-//    	1: string serverId
-//	2: string clientId
-//	3: i32 totalPaid
-//	4: ServiceDeliveryToken serviceDeliveryToken
-//	5: string ClientUUID
-                
     String serverId;
     String clientId;
     int totalPaid;
     WWServiceDeliveryToken serviceDeliveryToken;
-    String clientUuid;
 
     public String getServerId() {
         return serverId;
@@ -56,14 +49,6 @@ public class WWPaymentResponse {
         this.serviceDeliveryToken = serviceDeliveryToken;
     }
 
-    public String getClientUuid() {
-        return clientUuid;
-    }
 
-    public void setClientUuid(String clientUuid) {
-        this.clientUuid = clientUuid;
-    }
-    
-    
-    
+
 }

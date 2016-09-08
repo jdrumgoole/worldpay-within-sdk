@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"git.apache.org/thrift.git/lib/go/thrift"
-
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
 )
 
@@ -36,9 +35,9 @@ type WPWithin interface { //WorldpayWithin Service - exposing all WorldpayWithin
 	//  - Hostname
 	//  - Port
 	//  - UrlPrefix
-	//  - ServerId
+	//  - ClientID
 	//  - HceCard
-	InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serverId string, hceCard *wpthrift_types.HCECard) (err error)
+	InitConsumer(scheme string, hostname string, port int32, urlPrefix string, clientID string, hceCard *wpthrift_types.HCECard) (err error)
 	// Parameters:
 	//  - MerchantClientKey
 	//  - MerchantServiceKey
@@ -349,16 +348,16 @@ func (p *WPWithinClient) recvRemoveService() (err error) {
 //  - Hostname
 //  - Port
 //  - UrlPrefix
-//  - ServerId
+//  - ClientID
 //  - HceCard
-func (p *WPWithinClient) InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serverId string, hceCard *wpthrift_types.HCECard) (err error) {
-	if err = p.sendInitConsumer(scheme, hostname, port, urlPrefix, serverId, hceCard); err != nil {
+func (p *WPWithinClient) InitConsumer(scheme string, hostname string, port int32, urlPrefix string, clientID string, hceCard *wpthrift_types.HCECard) (err error) {
+	if err = p.sendInitConsumer(scheme, hostname, port, urlPrefix, clientID, hceCard); err != nil {
 		return
 	}
 	return p.recvInitConsumer()
 }
 
-func (p *WPWithinClient) sendInitConsumer(scheme string, hostname string, port int32, urlPrefix string, serverId string, hceCard *wpthrift_types.HCECard) (err error) {
+func (p *WPWithinClient) sendInitConsumer(scheme string, hostname string, port int32, urlPrefix string, clientID string, hceCard *wpthrift_types.HCECard) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -373,7 +372,7 @@ func (p *WPWithinClient) sendInitConsumer(scheme string, hostname string, port i
 		Hostname:  hostname,
 		Port:      port,
 		UrlPrefix: urlPrefix,
-		ServerId:  serverId,
+		ClientID:  clientID,
 		HceCard:   hceCard,
 	}
 	if err = args.Write(oprot); err != nil {
@@ -1547,7 +1546,7 @@ func (p *wPWithinProcessorInitConsumer) Process(seqId int32, iprot, oprot thrift
 	iprot.ReadMessageEnd()
 	result := WPWithinInitConsumerResult{}
 	var err2 error
-	if err2 = p.handler.InitConsumer(args.Scheme, args.Hostname, args.Port, args.UrlPrefix, args.ServerId, args.HceCard); err2 != nil {
+	if err2 = p.handler.InitConsumer(args.Scheme, args.Hostname, args.Port, args.UrlPrefix, args.ClientID, args.HceCard); err2 != nil {
 		switch v := err2.(type) {
 		case *wpthrift_types.Error:
 			result.Err = v
@@ -2781,14 +2780,14 @@ func (p *WPWithinRemoveServiceResult) String() string {
 //  - Hostname
 //  - Port
 //  - UrlPrefix
-//  - ServerId
+//  - ClientID
 //  - HceCard
 type WPWithinInitConsumerArgs struct {
 	Scheme    string                  `thrift:"scheme,1" json:"scheme"`
 	Hostname  string                  `thrift:"hostname,2" json:"hostname"`
 	Port      int32                   `thrift:"port,3" json:"port"`
 	UrlPrefix string                  `thrift:"urlPrefix,4" json:"urlPrefix"`
-	ServerId  string                  `thrift:"serverId,5" json:"serverId"`
+	ClientID  string                  `thrift:"clientID,5" json:"clientID"`
 	HceCard   *wpthrift_types.HCECard `thrift:"hceCard,6" json:"hceCard"`
 }
 
@@ -2812,8 +2811,8 @@ func (p *WPWithinInitConsumerArgs) GetUrlPrefix() string {
 	return p.UrlPrefix
 }
 
-func (p *WPWithinInitConsumerArgs) GetServerId() string {
-	return p.ServerId
+func (p *WPWithinInitConsumerArgs) GetClientID() string {
+	return p.ClientID
 }
 
 var WPWithinInitConsumerArgs_HceCard_DEFAULT *wpthrift_types.HCECard
@@ -2921,7 +2920,7 @@ func (p *WPWithinInitConsumerArgs) readField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return thrift.PrependError("error reading field 5: ", err)
 	} else {
-		p.ServerId = v
+		p.ClientID = v
 	}
 	return nil
 }
@@ -3018,14 +3017,14 @@ func (p *WPWithinInitConsumerArgs) writeField4(oprot thrift.TProtocol) (err erro
 }
 
 func (p *WPWithinInitConsumerArgs) writeField5(oprot thrift.TProtocol) (err error) {
-	if err := oprot.WriteFieldBegin("serverId", thrift.STRING, 5); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field begin error 5:serverId: ", p), err)
+	if err := oprot.WriteFieldBegin("clientID", thrift.STRING, 5); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 5:clientID: ", p), err)
 	}
-	if err := oprot.WriteString(string(p.ServerId)); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T.serverId (5) field write error: ", p), err)
+	if err := oprot.WriteString(string(p.ClientID)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.clientID (5) field write error: ", p), err)
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
-		return thrift.PrependError(fmt.Sprintf("%T write field end error 5:serverId: ", p), err)
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 5:clientID: ", p), err)
 	}
 	return err
 }

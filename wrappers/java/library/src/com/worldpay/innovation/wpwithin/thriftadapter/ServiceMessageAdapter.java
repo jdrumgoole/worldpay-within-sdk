@@ -19,6 +19,7 @@ public class ServiceMessageAdapter {
         wwSvcMsg.setPortNumber(svcMsg.getPortNumber());
         wwSvcMsg.setServerId(svcMsg.getServerId());
         wwSvcMsg.setUrlPrefix(svcMsg.getUrlPrefix());
+        wwSvcMsg.setScheme(svcMsg.getScheme());
         return wwSvcMsg;
 
     }

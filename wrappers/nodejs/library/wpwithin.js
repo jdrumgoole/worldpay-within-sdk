@@ -1,4 +1,7 @@
 var util = require('util');
+var thrift = require('thrift');
+var wpwithinThrift = require('./wpwithin-thrift/WPWithin');
+var eventServer = require('./eventlistener/eventserver');
 
 module.exports = {
   createClient: createClient
@@ -169,30 +172,25 @@ function createClient(host, port, startRPC, callback, eventListener, callbackPor
 
   try {
 
-    var thrift = require('thrift');
-    var WPWithinLib = require('./wpwithin-thrift/WPWithin');
-    var evServer = require('./eventlistener/eventserver');
-
-    var doCreate = function() {
-
-      transport = thrift.TBufferedTransport;
-      protocol = thrift.TBinaryProtocol;
-
-      var connection = thrift.createConnection(host, port);
-
-      connection.on('error', function(err) {
-
-        callback(err, null);
-      });
-
-      tc = thrift.createClient(WPWithinLib, connection);
-
-      callback(null, new WPWithin(tc));
-    }
-
+    // First, we validate the callback parameters. There are two and both need to be set
+    // to setup the callback server.
     if(eventListener != null) {
 
-      new evServer.EventServer().start(eventListener, callbackPort);
+      // If eventListener is set, then need to validate the port
+      if(callbackPort <= 0 || callbackPort > 65535) {
+
+        callback(util.format("callbackPort (%d) is invalid should be > 0 and <= 65535", callbackPort), null)
+
+        return
+      }
+
+      new eventServer.EventServer().start(eventListener, callbackPort);
+
+    } else {
+
+      // So the event listener is not set, meaning the developer doesn't want any feedback of events
+      // in this case there is no need start the callback server. We can do this by setting the port to 0
+      callbackPort = 0
     }
 
     if(startRPC) {
@@ -201,7 +199,7 @@ function createClient(host, port, startRPC, callback, eventListener, callbackPor
 
           if(error == null) {
 
-            return doCreate();
+            createThriftClient(host, port, callback)
           } else {
 
             var strErr = util.format("%s \n %s", error, stderr)
@@ -212,7 +210,7 @@ function createClient(host, port, startRPC, callback, eventListener, callbackPor
 
     } else {
 
-      doCreate()
+      createThriftClient(host, port, callback)
     }
   } catch (err) {
 
@@ -266,3 +264,21 @@ function launchRPCAgent(port, callbackPort, callback) {
   sleep.usleep(750);
   callback(null, null, null);
 };
+
+// Create a WPWithin Thrift client
+function createThriftClient(host, port, callback) {
+
+  transport = thrift.TBufferedTransport;
+  protocol = thrift.TBinaryProtocol;
+
+  var connection = thrift.createConnection(host, port);
+
+  connection.on('error', function(err) {
+
+    callback(err, null);
+  });
+
+  client = thrift.createClient(wpwithinThrift, connection);
+
+  callback(null, new WPWithin(client));
+}

@@ -25,7 +25,7 @@ var Factory core.SDKFactory
 type WPWithin interface {
 	AddService(service *types.Service) error
 	RemoveService(service *types.Service) error
-	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string, hceCard *types.HCECard) error
+	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, clientID string, hceCard *types.HCECard) error
 	InitProducer(merchantClientKey, merchantServiceKey string) error
 	GetDevice() *types.Device
 	StartServiceBroadcast(timeoutMillis int) error
@@ -184,13 +184,13 @@ func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 	return nil
 }
 
-func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string, hceCard *types.HCECard) error {
+func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, clientID string, hceCard *types.HCECard) error {
 
 	defer func() {
 		if r := recover(); r != nil {
 
 			log.WithFields(log.Fields{"panic_message": r, "scheme": scheme, "hostname": hostname, "port": portNumber,
-				"urlPrefix": urlPrefix, "serverID": serverID, "hceCard": fmt.Sprintf("%+v", hceCard), "stack": fmt.Sprintf("%s", debug.Stack())}).
+				"urlPrefix": urlPrefix, "clientID": clientID, "hceCard": fmt.Sprintf("%+v", hceCard), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.InitConsumer()")
 		}
 	}()
@@ -219,7 +219,7 @@ func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, ur
 		return err
 	}
 
-	client, err := hte.NewClient(scheme, hostname, portNumber, urlPrefix, serverID, httpHTE)
+	client, err := hte.NewClient(scheme, hostname, portNumber, urlPrefix, clientID, httpHTE)
 
 	if err != nil {
 
@@ -271,7 +271,7 @@ func (wp *wpWithinImpl) InitProducer(merchantClientKey, merchantServiceKey strin
 
 	hteSvcHandler := Factory.GetHTEServiceHandler(wp.core.Device, wp.core.Psp, hteCredential, wp.core.OrderManager, wp.core.EventHandler)
 
-	svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, hteCredential, wp.core.OrderManager, hteSvcHandler)
+	svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, "http://", hteCredential, wp.core.OrderManager, hteSvcHandler)
 
 	if err != nil {
 
@@ -337,6 +337,7 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 		ServerID:          wp.core.Device.UID,
 		UrlPrefix:         wp.core.HTE.UrlPrefix(),
 		PortNumber:        wp.core.HTE.Port(),
+		Scheme:            wp.core.HTE.Scheme(),
 	}
 
 	// Set up a channel to get the error out of the go routine

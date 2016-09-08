@@ -218,6 +218,7 @@ func (wp *WPWithinHandler) DeviceDiscovery(timeoutMillis int32) (r map[*wpthrift
 			PortNumber:        int32(gSvcMsg.PortNumber),
 			ServerId:          gSvcMsg.ServerID,
 			UrlPrefix:         gSvcMsg.UrlPrefix,
+			Scheme:            gSvcMsg.Scheme,
 		}
 
 		result[tmp] = true
@@ -354,7 +355,6 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 		ClientId:             gPaymentResponse.ClientID,
 		TotalPaid:            int32(gPaymentResponse.TotalPaid),
 		ServiceDeliveryToken: deliveryToken,
-		ClientUUID:           gPaymentResponse.ClientUUID,
 	}
 
 	log.Debug("End RPC.WPWithinHandler.MakePayment()")

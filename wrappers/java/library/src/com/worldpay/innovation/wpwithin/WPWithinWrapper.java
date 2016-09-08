@@ -175,7 +175,7 @@ public interface WPWithinWrapper {
      * at this time.
      * @throws WPWithinGeneralException
      */
-    public void beginServiceDelivery(int serviceId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsToSupply) throws WPWithinGeneralException;
+    public WWServiceDeliveryToken beginServiceDelivery(int serviceId, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsToSupply) throws WPWithinGeneralException;
 
     /**
      * This ends the service delivery, a request initiated by the consumer.
@@ -187,7 +187,7 @@ public interface WPWithinWrapper {
      * consistent with what the produce understands
      * @throws WPWithinGeneralException
      */
-    public void endServiceDelivery(int serviceID, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsReceived) throws WPWithinGeneralException;
+    public WWServiceDeliveryToken endServiceDelivery(int serviceID, WWServiceDeliveryToken serviceDeliveryToken, Integer unitsReceived) throws WPWithinGeneralException;
 
     void stopRPCAgent();
 }

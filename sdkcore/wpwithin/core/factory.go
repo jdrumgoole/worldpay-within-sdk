@@ -23,7 +23,7 @@ const (
 	// UUIDFilePath Path to store devie UUID once created
 	UUIDFilePath = "uuid.txt"
 	// HteSvcPort Port that the HTE REST API listens on
-	HteSvcPort = 8080
+	HteSvcPort = 64521
 	// WPOnlineAPIEndpoint Worldpay online API endpoint
 	WPOnlineAPIEndpoint = "https://api.worldpay.com/v1"
 	// HteClientScheme HTE REST API Scheme typically http:// or https://
@@ -37,7 +37,7 @@ type SDKFactory interface {
 	GetPSPClient() (psp.Psp, error)
 	GetSvcBroadcaster(ipv4Address string) (servicediscovery.Broadcaster, error)
 	GetSvcScanner() (servicediscovery.Scanner, error)
-	GetHTE(device *types.Device, psp psp.Psp, ipv4Address string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error)
+	GetHTE(device *types.Device, psp psp.Psp, ipv4Address, scheme string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error)
 	GetOrderManager() (hte.OrderManager, error)
 	GetHTEClient() (hte.Client, error)
 	GetHTEClientHTTP() (hte.HTEClientHTTP, error)
@@ -115,9 +115,9 @@ func (factory *SDKFactoryImpl) GetSvcScanner() (servicediscovery.Scanner, error)
 	return servicediscovery.NewScanner(BroadcastPort, BroadcastStepSleep)
 }
 
-func (factory *SDKFactoryImpl) GetHTE(device *types.Device, psp psp.Psp, ipv4Address string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error) {
+func (factory *SDKFactoryImpl) GetHTE(device *types.Device, psp psp.Psp, ipv4Address, scheme string, hteCredential *hte.Credential, om hte.OrderManager, hteSvcHandler *hte.ServiceHandler) (hte.Service, error) {
 
-	return hte.NewService(device, psp, ipv4Address, HteSvcURLPrefix, HteSvcPort, hteCredential, om, hteSvcHandler)
+	return hte.NewService(device, psp, ipv4Address, HteSvcURLPrefix, scheme, HteSvcPort, hteCredential, om, hteSvcHandler)
 }
 
 func (factory *SDKFactoryImpl) GetOrderManager() (hte.OrderManager, error) {
