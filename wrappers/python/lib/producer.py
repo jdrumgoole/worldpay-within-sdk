@@ -1,5 +1,6 @@
 import ttypes as types
 import wpwithin
+import time
 
 
 out = wpwithin.createClient("127.0.0.1", 9090, True)
@@ -17,4 +18,10 @@ client.addService(service)
 
 client.initProducer(merchantClientKey="A_P_03eaa1d3-4642-4079-b030-b543ee04b5af", merchantServiceKey="A_P_f50ecb46-ca82-44a7-9c40-421818af5996")
 
-client.startServiceBroadcast(20000)
+print("Start service broadcast")
+client.startServiceBroadcast(200000)
+
+time.sleep(300)
+
+print("shutting down...")
+agent.kill()

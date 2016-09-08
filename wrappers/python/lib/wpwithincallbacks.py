@@ -1,9 +1,4 @@
 import thriftpy
-from thriftpy.rpc import make_client
-from thriftpy.protocol.binary import TBinaryProtocolFactory
-from thriftpy.transport.buffered import TBufferedTransportFactory
-import launcher
-import time
 
 try:
     from ttypes import *

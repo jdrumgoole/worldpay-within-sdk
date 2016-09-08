@@ -1,12 +1,14 @@
-class Error(object):
+class Error(Exception):
     def __init__(self, message):
         super().__init__(message)
         self.message = message
+
 
 class PricePerUnit(object):
     def __init__(self, amount, currencyCode):
         self.amount = amount
         self.currencyCode = currencyCode
+
 
 class Price(object):
     def __init__(self, id, description, pricePerUnit, unitId, unitDescription):
@@ -16,12 +18,14 @@ class Price(object):
         self.unitId = unitId
         self.unitDescription = unitDescription
 
+
 class Service(object):
     def __init__(self, id, name, description, prices=None):
         self.id = id
         self.name = name
         self.description = description
         self.prices = prices
+
 
 class HCECard(object):
     def __init__(self, firstName, lastName, expMonth, expYear, cardNumber, cardType, cvc):
@@ -33,6 +37,7 @@ class HCECard(object):
         self.cardType = cardType
         self.cvc = cvc
 
+
 class Device(object):
     def __init__(self, uid, name, description, services, ipv4Address, currencyCode):
         self.uid = uid
@@ -41,6 +46,7 @@ class Device(object):
         self.services = services
         self.ipv4Address = ipv4Address
         self.currencyCode = currencyCode
+
 
 class ServiceMessage(object):
     def __init__(self, deviceDescription, hostname, portNumber, serverId, urlPrefix, scheme):
@@ -51,10 +57,12 @@ class ServiceMessage(object):
         self.urlPrefix = urlPrefix
         self.scheme = scheme
 
+
 class ServiceDetails(object):
     def __init__(self, serviceId, serviceDescription):
         self.serviceId = serviceId
         self.serviceDescription = serviceDescription
+
 
 class TotalPriceResponse(object):
     def __init__(self, serverId, clientId, priceId, unitsToSupply, totalPrice, paymentReferenceId, merchantClientKey):
@@ -66,6 +74,7 @@ class TotalPriceResponse(object):
         self.paymentReferenceId = paymentReferenceId
         self.merchantClientKey = merchantClientKey
 
+
 class ServiceDeliveryToken(object):
     def __init__(self, key, issued, expiry, refundOnExpiry, signature):
         self.key = key
@@ -73,6 +82,7 @@ class ServiceDeliveryToken(object):
         self.expiry = expiry
         self.refundOnExpiry = refundOnExpiry
         self.signature = signature
+
 
 class PaymentResponse(object):
     def __init__(self, serverId, clientId, totalPaid, serviceDeliveryToken):

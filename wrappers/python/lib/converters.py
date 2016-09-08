@@ -3,6 +3,8 @@ try:
 except ImportError:
     from .ttypes import *
 
+import thriftpy
+
 wptypes_thrift = thriftpy.load('wptypes.thrift', module_name="wptypes_thrift")
 
 import wptypes_thrift as wpt
@@ -16,8 +18,8 @@ def ConvertToThriftPrice(price):
         
 def ConvertToThriftService(service):
     thriftPrices = {}
-    for key, value in service.prices():
-        thriftPrices[key] = ConvertoToThriftPrice(value)
+    for key, value in service.prices.items():
+        thriftPrices[key] = ConvertToThriftPrice(value)
     return wpt.Service(id=service.id, name=service.name, description=service.description, prices=thriftPrices)
 
 def ConvertToThriftHCECard(card):
@@ -38,14 +40,14 @@ def ConvertFromThriftPrice(price):
         
 def ConvertFromThriftService(service):
     prices = {}
-    for key, value in service.prices():
-        prices[key] = ConvertoFromThriftPrice(value)
+    for key, value in service.prices.items():
+        prices[key] = ConvertFromThriftPrice(value)
     return Service(id=service.id, name=service.name, description=service.description, prices=prices)
 
 def ConvertFromThriftDevice(device):
     services = {}
-    for key, value in device.services():
-        services[key] = ConvertoFromThriftService(value)
+    for key, value in device.services.items():
+        services[key] = ConvertFromThriftService(value)
     return Device(uid=device.uid, name=device.name, description=device.description, services=services, ipv4Address=device.ipv4Address, currencyCode=device.currencyCode)
 
 def ConvertFromThriftServiceMessage(message):
@@ -61,5 +63,5 @@ def ConvertFromThriftServiceDeliveryToken(token):
     return ServiceDeliveryToken(key=token.key, issued=token.issued, expiry=token.expiry, refundOnExpiry=token.refundOnExpiry, signature=token.signature)
 
 def ConvertFromThriftPaymentResponse(response):
-    token = ConvertFromThriftServiceDeliveryToken(token.serviceDeliveryToken)
+    token = ConvertFromThriftServiceDeliveryToken(response.serviceDeliveryToken)
     return PaymentResponse(serverId=response.serverId, clientId=response.clientId, totalPaid=response.totalPaid, serviceDeliveryToken=token)

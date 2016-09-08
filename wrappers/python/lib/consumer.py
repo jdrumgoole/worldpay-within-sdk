@@ -1,5 +1,5 @@
 import ttypes as types
-import wpwithin
+
 
 class SampleConsumer:
     def __init__(self, client, hceCard):
@@ -12,10 +12,11 @@ class SampleConsumer:
         except types.Error as err:
             print("deviceDiscovery.callback.err: " + err.message)
             raise err
-        if serviceMessages == None:
+        if len(serviceMessages) == 0:
             print("Did not discover any devices on the network.")
             return None
-        
+
+        print(serviceMessages)
         deviceCount = len(serviceMessages)
         print("Discovered {0} devices on the network.".format(len(serviceMessages)))
         print("Devices:")
@@ -47,7 +48,7 @@ class SampleConsumer:
         except types.Error as err:
             print("requestServices.callback.err: " + err.message)
             raise err
-        if serviceDetails != None:
+        if len(serviceDetails) == 0:
             service = serviceDetails[0]
             print("Services:")
             print("Id: " + service.serviceId)
@@ -62,7 +63,7 @@ class SampleConsumer:
             print("requestServicePrices.callback.err: " + err.message)
             raise err
         
-        if prices != None:
+        if len(prices) > 0:
             price = prices[0]
             printMessage = """Price details for serviceId {0}:
             Id: {1.id}
@@ -76,7 +77,7 @@ class SampleConsumer:
             """.format(serviceId, price)
 
         else:
-            print("Did not receive any service prices :/")
+            raise types.Error("Did not receive any service prices :/")
 
         return price
 
@@ -87,7 +88,7 @@ class SampleConsumer:
             print("selectService.callback.err: " + err.message)
             raise err
 
-        if priceResponse == None:
+        if priceResponse is None:
             print("Did not receive total price response from selectService()")
             return None
 
@@ -103,7 +104,7 @@ class SampleConsumer:
         
         return priceResponse
         
-    def purchaseFirstServiceFirstPrice(numberOfUnits):
+    def purchaseFirstServiceFirstPrice(self, numberOfUnits):
 
         serviceId = self.getAvailableServices()
 
@@ -117,7 +118,7 @@ class SampleConsumer:
             print("makePayment.callback.err: " + err.message)
             raise err
 
-        if response == None:
+        if response is None:
             print("Did not receive correct response to make payment")
             return None
         

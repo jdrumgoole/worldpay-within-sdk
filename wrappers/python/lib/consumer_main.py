@@ -17,6 +17,6 @@ print("Calling discover devices...")
 
 serviceMessage = consumer.discoverDevices()
 
-if serviceMessage != None:
+if serviceMessage is not None:
     consumer.connectToDevice(serviceMessage)
     consumer.purchaseFirstServiceFirstPrice(1)
