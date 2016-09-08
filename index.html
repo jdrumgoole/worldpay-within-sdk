@@ -7,7 +7,7 @@
     <title>Welcome to Worldpay Within</title>
     <link rel="stylesheet" href="css/foundation.css">
     <link rel="stylesheet" href="css/app.css">
-    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">    
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
   </head>
   <body>
     <div class="row">
@@ -36,7 +36,7 @@
               <div class="row">
 
                     <div class="large-3 columns">
-                            
+
                   <!--
                                   <label>Select Wrapper Language</label>
                                   <select>
@@ -46,9 +46,9 @@
                                     <option value="nodejs">Node.js</option>
                                   </select>
                                 -->
-                                
+
                                   <div class="callout">
-                                    <p><a href="">Introduction</a></p>                                    
+                                    <p><a href="">Introduction</a></p>
                                     <p><a href="getting-started.html">Getting started</a></p>
                                     <p><a href="getit.html">Get the SDK</a></p>
                                     <hr/>
@@ -69,15 +69,16 @@
                                     <p><a href="api-spec.html">API specification</a>
                                         <ul>
                                           <li><a href="wrapper-doc/javadoc/" target="_blank">Java (Javadoc)</a></li>
-                                          <li>.net C#</li>
-                                          <li>GOLANG</li>
-                                          <li>node.js</li>
+                                          <li>.NET</li>
+                                          <li><a href="https://godoc.org/github.com/WPTechInnovation/worldpay-within-sdk" target="_blank">Go</a></li>
+                                          <li>Node.js</li>
+                                          <li>Python</li>
                                         </ul>
                                     </p>
                                     <p><a href="architecture.html">Architecture</a></p>
                                   </div>
-                            
-                    </div>             
+
+                    </div>
                     <div class="large-9 columns">
 <!-- Insert page content below -->
 
@@ -96,10 +97,10 @@
 
                               <a href="getting-started.html" class="alert button">Getting started guide</a>
                               <a href="getit.html" class="alert button">Get the SDK</a>
-                              <a href="architecture.html" class="alert button">The Worldpay Within Architecture</a>      
+                              <a href="architecture.html" class="alert button">The Worldpay Within Architecture</a>
 
                               <h3>What is Worldpay Within and what does Worldpay within do</h3>
-                              
+
                               <p>Worldpay is an embeddable payments agent, for the Internet of Things (IoT) that can be 'plugged' into your app for a smart device, enabling it to discover services of other devices, pay for those services, and then consume those services. Conversely it also allows your smart device to expose services to consumers, receive payments for those services, and then release services to a consumer using the idea of a 'Trusted Trigger'.</p>
 
                               <p>It is all about enabling payments in IoT, and allowing smart devices to communicate with each other and exchange value for services in IoT</p>
@@ -140,18 +141,18 @@
                               <p>This is another view on the SDK and the app - this scenario there are two devices with Worldpay Within installed on them, and they communicate over the internet. You'll note that one is the 'consumer' and the other is the 'producer', as explained above. Now as you go down the layers, you have the RPC layer, then the Thrift layer and finally the wrapper layer, which is above to communicate with the SDK via RPC calls, what is not shown is your app will be the next layer shown on the diagram.</p>
 
                               <p>In this scenario, the producer is UDP broadcasting a service message, which includes what it's hostname, IP and UrlPrefix are. Once the consumer does device discovery, it is able to communicate over HTTP with the restful endpoint on the producer to find out what services it offers, and then begins the rest of the flow</p>
-                             
+
                               <h3>What's happening inside the SDK</h3>
 
                               <p>Certainly for the first release, we have open sourced the wrappers and example apps, but kept the internals of the Golang SDK closed source, however with the appropriate success of the project, we shall consider open sourcing this component too.</p>
 
                               <p>It is useful, of course, to know exactly what is happening inside this black box, so the following details the architecure of Worldpay Within and what is happening in the internals</p>
 
-                              <a href="architecture.html" class="alert button">The Worldpay Within Architecture</a>   
+                              <a href="architecture.html" class="alert button">The Worldpay Within Architecture</a>
 
 
 <!-- Insert page content above -->
-                    </div>                       
+                    </div>
               </div>
             </div>
         </div>
@@ -160,10 +161,10 @@
 
 
 <!--
-        
-            
 
-  
+
+
+
         <
 
 
