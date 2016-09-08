@@ -85,6 +85,7 @@ struct TotalPriceResponse {
 	5: i32 totalPrice
 	6: string paymentReferenceId
 	7: string merchantClientKey
+	8: string currencyCode
 }
 
 struct PaymentResponse {
