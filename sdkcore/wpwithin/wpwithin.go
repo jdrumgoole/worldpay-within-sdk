@@ -12,6 +12,7 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
 
 	log "github.com/Sirupsen/logrus"
@@ -618,12 +619,22 @@ func doWebSocketLogSetup(cfg configuration.WPWithin) {
 				levels = append(levels, log.DebugLevel)
 			}
 		}
+		ip, err := utils.ExternalIPv4()
+		strIP := ""
 
-		err := wslog.Initialise("", cfg.WSLogPort, levels)
+		if err == nil {
+
+			strIP = ip.String()
+		} else {
+
+			fmt.Printf("Error getting ExternalIPv4: %s\n", err.Error())
+		}
+
+		err = wslog.Initialise(strIP, cfg.WSLogPort, levels)
 
 		if err != nil {
 
-			fmt.Println(err.Error())
+			fmt.Printf("Error initialising WebSocket logger: %s\n", err.Error())
 		}
 	}
 }
