@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Common.Logging;
 using Thrift.Protocol;
 using Thrift.Transport;
+using Worldpay.Innovation.WPWithin.AgentManager;
 using Worldpay.Innovation.WPWithin.EventListener;
 using Worldpay.Innovation.WPWithin.ThriftAdapters;
 using ThriftWPWithinService = Worldpay.Innovation.WPWithin.Rpc.WPWithin;
@@ -23,27 +24,53 @@ namespace Worldpay.Innovation.WPWithin
 
         private static readonly ILog Log = LogManager.GetLogger<WPWithinService>();
 
+        private readonly CallbackServerManager _listener;
+
         private ThriftWPWithinService.Client _client;
         private bool _isDisposed;
-
-        private readonly CallbackServerManager _listener;
         private TTransport _transport;
+        private string v1;
+        private int v2;
+        private int v3;
 
+
+        public WPWithinService(RpcAgentConfiguration localAgentConfiguration)
+        {
+            InitClient(localAgentConfiguration);
+            if (localAgentConfiguration.CallbackPort>0)
+            {
+                _listener = new CallbackServerManager(localAgentConfiguration);
+                _listener.Start();
+            }
+            else
+            {
+                Log.Info("Callbacks disabled as port specified as 0");
+            }
+        }
+
+
+        /// <summary>
+        ///     Convenience constructor for minimal configuration with no callbacks using defaults wherever possible.
+        /// </summary>
+        /// <param name="host">The host to find/create the RPC agent on.</param>
+        /// <param name="port">The port to find/create the RPC agent on.</param>
         public WPWithinService(string host, int port) : this(host, port, 0)
         {
         }
 
-        public WPWithinService(string host, int port, int callbackPort)
+        /// <summary>
+        ///     Convenience constructor for minimal configuration with callbacks using defaults wherever possible.
+        /// </summary>
+        /// <param name="host">The host to find/create the RPC agent on.</param>
+        /// <param name="port">The port to find/create the RPC agent on.</param>
+        /// <param name="callbackPort">The callback port to listen on (if 0 then no callbacks will be enabled).</param>
+        public WPWithinService(string host, int port, int callbackPort) : this(new RpcAgentConfiguration
         {
-            InitClient(host, port);
-            if (callbackPort > 0)
-            {
-                _listener = new CallbackServerManager(callbackPort);
-                _listener.Start();
-            } else
-            {
-                Log.Info("Callbacks disabled as port specified as 0");
-            }
+            ServiceHost = host,
+            ServicePort = port,
+            CallbackPort = callbackPort
+        })
+        {
         }
 
         public void Dispose()
@@ -141,18 +168,17 @@ namespace Worldpay.Innovation.WPWithin
             _client.setup(deviceName, deviceDescription);
         }
 
-        private void InitClient(string host, int port)
+        private void InitClient(RpcAgentConfiguration config)
         {
-            Log.InfoFormat("Opening TSocket to {0}:{1}", host, port);
-            TTransport transport = new TSocket(host, port);
+            TTransport transport = config.GetThriftTransport();
             transport.Open();
-
-            TProtocol protocol = new TBinaryProtocol(transport);
+            TProtocol protocol = config.GetThriftProtcol(transport);
             ThriftWPWithinService.Client client = new ThriftWPWithinService.Client(protocol);
 
             _transport = transport;
             _client = client;
-            Log.InfoFormat("Client connected to Thrift endpoint at {0}:{1}", host, port);
+            Log.InfoFormat("Client connected to Thrift RPC Agent endpoint at {0}:{1} using {2}", config.ServiceHost,
+                config.ServicePort, config.Protocol);
         }
 
         protected virtual void Dispose(bool disposing)

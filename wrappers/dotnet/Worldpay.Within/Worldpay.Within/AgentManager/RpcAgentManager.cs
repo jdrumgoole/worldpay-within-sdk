@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Configuration;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
 using Common.Logging;
 
@@ -37,14 +35,14 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
     ///         </item>
     ///         <item>
     ///             <description>
-    ///                 Monitor the exit code of the RPC Agent. 0 = success, not 0 = error ( will be updating this app
+    ///                 Monitor the exit code of the RPC Agent. 0 = success, non-0 = error ( will be updating this app
     ///                 to return the appropriate exit codes)
     ///             </description>
     ///         </item>
     ///         <item>
     ///             <description>
     ///                 Ability to support multiple operating systems. Most of the wrappers will be able to run on
-    ///                 multiple OS’s we should aim to support { Linux, Windows, Mac OS }
+    ///                 multiple OSes we should aim to support { Linux, Windows, Mac OS }
     ///             </description>
     ///         </item>
     ///         <item>
@@ -65,8 +63,7 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
     public class RpcAgentManager
     {
         /// <summary>
-        ///     Delegate used for <see cref="RpcAgentManager.OnMessage" /> and <see cref="RpcAgentManager.OnError" />
-        ///     .
+        ///     Delegate used for <see cref="RpcAgentManager.OnMessage" /> and <see cref="RpcAgentManager.OnError" />.
         /// </summary>
         /// <param name="process">The process that the RPC Agent process is running under.</param>
         /// <param name="message">The message received from the RPC Agent process.</param>
@@ -75,144 +72,8 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
         private static readonly ILog Log = LogManager.GetLogger<RpcAgentManager>();
         private static readonly ILog ThriftRpcLog = LogManager.GetLogger("ThriftRpcAgent");
 
-        /// <summary>
-        ///     The application config property name for the full file path to the Thrift RPC Agent.
-        /// </summary>
-        public static readonly string PathPropertyName = "ThriftRpcAgent.Path";
-
-        /// <summary>
-        ///     The application config property name for the host name to bind the Thrift RPC Agent to.
-        /// </summary>
-        public static readonly string HostProperty = "ThriftRpcAgent.Host";
-
-        /// <summary>
-        ///     The default value for the full file path to the Thrift RPC Agent.
-        /// </summary>
-        public static readonly string HostPropertyDefault = "127.0.0.1";
-
-        /// <summary>
-        ///     The application config property name for the port to launch the Thrift RPC Agent on.
-        /// </summary>
-        public static readonly string PortProperty = "ThriftRpcAgent.Port";
-
-        /// <summary>
-        ///     The default value for the port to launch the Thrift RPC Agent on.
-        /// </summary>
-        public static readonly int PortPropertyDefault = 9091;
-
-        /// <summary>
-        ///     The application config property name for the Thrift protocol to use to connect to the Thrift RPC Agent.
-        /// </summary>
-        public static readonly string ProtocolProperty = "ThriftRpcAgent.Protocol";
-
-        /// <summary>
-        ///     The application config property name for specifying the port to listen to callback on (if not set or 0 then
-        ///     callbacks are disabled).
-        /// </summary>
-        public static readonly string CallbackPortProperty = "ThriftRpcAgent.CallbackPort";
-
-        /// <summary>
-        ///     The default value for the protocol to use to connect to the Thrift RPC Agent.
-        /// </summary>
-        public static readonly string ProtocolPropertyDefault = "binary";
-
-        /// <summary>
-        ///     The default value for the callback port to use by the Thrift RPC Agent.  Default value of 0 indicates that
-        ///     callbacks are disabled.
-        /// </summary>
-        public static readonly int CallbackPortPropertyDefault = 0;
-
-        private string _rpcAgentPath;
-
         private Process _thriftRpcProcess;
-
-        /// <summary>
-        ///     Retrieves the RPC Agent host property from application config or provides default value.
-        /// </summary>
-        public static string ServiceHost
-            => ConfigurationManager.AppSettings[HostProperty] ?? HostPropertyDefault;
-
-        /// <summary>
-        ///     Retrieves the RPC Agent protocol property from application config or provides default value.
-        /// </summary>
-        public static string Protocol
-            => ConfigurationManager.AppSettings[ProtocolProperty] ?? ProtocolPropertyDefault;
-
-        /// <summary>
-        ///     Retrieves the RPC Agent port property from application config or provides default value.
-        /// </summary>
-        public int ServicePort
-        {
-            get
-            {
-                string portString = ConfigurationManager.AppSettings[PortProperty];
-                int port;
-                if (portString == null || !int.TryParse(portString, out port))
-                {
-                    port = PortPropertyDefault;
-                }
-                return port;
-            }
-        }
-
-        /// <summary>
-        ///     Specifying the port to listen to callback on (if null/not set then callbacks are disabled).  0 indicates no
-        ///     callbacks required.
-        /// </summary>
-        public int CallbackPort
-        {
-            get
-            {
-                string portString = ConfigurationManager.AppSettings[CallbackPortProperty];
-                int port;
-                if (portString == null || !int.TryParse(portString, out port))
-                {
-                    return CallbackPortPropertyDefault;
-                }
-                return port;
-            }
-        }
-
-
-        /// <summary>
-        ///     Retrieves the property RPC Agent Path (<see cref="PathPropertyName" />) from the application configuration,
-        ///     or attempts to work it out by searching up from the current directory, looking for
-        ///     <code>applications/rpc-agent/rpc-agent.exe</code>.
-        /// </summary>
-        public string Path
-        {
-            get
-            {
-                if (_rpcAgentPath != null)
-                {
-                    return _rpcAgentPath;
-                }
-                string agentPath = ConfigurationManager.AppSettings[PathPropertyName];
-                if (agentPath == null)
-                {
-                    DirectoryInfo parent = new DirectoryInfo(".");
-                    Log.InfoFormat(
-                        "No {0} property found in application configuration, searching for it relative to {1}",
-                        PathPropertyName, parent.FullName);
-                    const string sdkDir = "worldpay-within-sdk";
-                    while (parent != null && !parent.Name.Equals(sdkDir))
-                    {
-                        parent = parent.Parent;
-                    }
-                    if (parent == null)
-                    {
-                        throw new Exception(
-                            $"Unable to locate {sdkDir} override with property {PathPropertyName} property in App.config");
-                    }
-                    _rpcAgentPath =
-                        new FileInfo(string.Join(System.IO.Path.DirectorySeparatorChar.ToString(), parent.FullName,
-                            "applications",
-                            "rpc-agent",
-                            "rpc-agent.exe")).FullName;
-                }
-                return _rpcAgentPath;
-            }
-        }
+        private RpcAgentConfiguration _config;
 
         /// <summary>
         ///     Invoked whenever a message is sent to the RPC Agent process's standard output stream.
@@ -234,8 +95,13 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
         /// </summary>
         public event EventHandler OnExited;
 
+        public RpcAgentManager(RpcAgentConfiguration config)
+        {
+            _config = config;
+        }
+        
         /// <summary>
-        ///     Starts the Thrift RPC Agent Process.
+        ///     Starts the Thrift RPC Agent Process with the configuration passed in the constructor.
         /// </summary>
         /// <remarks>
         ///     <para>
@@ -248,25 +114,12 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
         /// </remarks>
         public void StartThriftRpcAgentProcess()
         {
-            Log.InfoFormat("Attempting to launch Thrift RPC Agent {0}", Path);
+            string arguments = _config.ToCommandLineArguments();
+            Log.InfoFormat("Attempting to start Thift RPC Agent process using following command line: {0} {1}", _config.Path, arguments);
 
-            string arguments = string.Join(" ",
-                FormatArgument(ArgNameBuffer, null), // TODO Implement this
-                FormatArgument(ArgNameBuffered, null), // TODO Implement this
-                FormatArgument(ArgNameCallbackPort, CallbackPort),
-                FormatArgument(ArgNameConfigFile, null), // TODO Implement this
-                FormatArgument(ArgNameFramed, null), // TODO Implement this
-                FormatArgument(ArgNameLogLevel, null), // TODO Implement this
-                FormatArgument(ArgNameLogfile, null), // TODO Implement this
-                FormatArgument(ArgNameSecure, null), // TODO Implement this
-                FormatArgument(ArgNameHost, ServiceHost),
-                FormatArgument(ArgNamePort, ServicePort),
-                FormatArgument(ArgNameProtocol, Protocol)
-                );
-            Log.InfoFormat("Attempting to start Thift RPC Agent: {0} {1}", Path, arguments);
             Process thriftRpcProcess = new Process
             {
-                StartInfo = new ProcessStartInfo(Path, arguments)
+                StartInfo = new ProcessStartInfo(_config.Path, arguments)
                 {
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -281,17 +134,6 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
             thriftRpcProcess.BeginOutputReadLine();
             thriftRpcProcess.BeginErrorReadLine();
             _thriftRpcProcess = thriftRpcProcess;
-        }
-
-        private string FormatArgument(string argumentName, object argumentValue)
-        {
-            if (argumentValue == null) return null;
-            string argVal = argumentValue.ToString();
-            if (argVal.Contains(" "))
-            {
-                argVal = $@"""{argVal}""";
-            }
-            return $"-{argumentName} {argVal}";
         }
 
         private void ThriftRpcProcess_Exited(object sender, EventArgs e)
@@ -337,12 +179,14 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
             }
         }
 
+
         private void ThriftRpcProcess_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             Process process = (Process) sender;
             ThriftRpcLog.Error($"RpcAgent({process.Id}): {e.Data}");
             OnError?.Invoke(process, e.Data);
         }
+
 
         private void ThriftRpcProcess_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
@@ -357,22 +201,6 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
                 OnStarted?.Invoke(this, EventArgs.Empty);
             }
         }
-
-        #region RPC Agent command line arguments
-
-        private static readonly string ArgNameConfigFile = "configfile";
-        private static readonly string ArgNameLogLevel = "loglevel";
-        private static readonly string ArgNameLogfile = "logfile";
-        private static readonly string ArgNameProtocol = "protocol";
-        private static readonly string ArgNameFramed = "framed";
-        private static readonly string ArgNameBuffered = "buffered";
-        private static readonly string ArgNameHost = "host";
-        private static readonly string ArgNamePort = "port";
-        private static readonly string ArgNameSecure = "secure";
-        private static readonly string ArgNameBuffer = "buffer";
-        private static readonly string ArgNameCallbackPort = "callbackport";
-
-        #endregion
 
         #region Managing Process shutdown gracefully (Ctrl+C instead of kill)
 

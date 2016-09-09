@@ -54,6 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AgentManager\RpcAgentConfiguration.cs" />
     <Compile Include="AgentManager\RpcAgentManager.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="EventListener\CallbackServerManager.cs" />

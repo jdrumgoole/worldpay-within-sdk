@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 
 namespace Worldpay.Innovation.WPWithin.Sample.Commands
@@ -16,28 +17,26 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
             _error = error;
         }
 
-        public CommandResult MakePurchase(int port)
+        public CommandResult MakePurchase(WPWithinService service)
         {
-            WPWithinService wpw = new WPWithinService("127.0.0.1", port);
+            service.SetupDevice("my-device", "an example consumer device");
 
-            wpw.SetupDevice("my-device", "an example consumer device");
-
-            ServiceMessage firstDevice = DiscoverDevices(wpw)?.FirstOrDefault();
+            ServiceMessage firstDevice = DiscoverDevices(service)?.FirstOrDefault();
             if (firstDevice == null) return CommandResult.NonCriticalError;
 
-            connectToDevice(wpw, firstDevice);
+            connectToDevice(service, firstDevice);
 
-            ServiceDetails firstService = GetAvailableServices(wpw)?.FirstOrDefault();
+            ServiceDetails firstService = GetAvailableServices(service)?.FirstOrDefault();
             if (firstService == null) return CommandResult.NonCriticalError;
 
-            Price firstPrice = GetServicePrices(wpw, firstService.ServiceId.Value)?.FirstOrDefault();
+            Price firstPrice = GetServicePrices(service, firstService.ServiceId.Value)?.FirstOrDefault();
             if (firstPrice == null) return CommandResult.NonCriticalError;
 
-            TotalPriceResponse priceResponse = GetServicePriceQuote(wpw, firstService.ServiceId.Value, 1,
+            TotalPriceResponse priceResponse = GetServicePriceQuote(service, firstService.ServiceId.Value, 1,
                 firstPrice.Id.Value);
             if (priceResponse == null) return CommandResult.CriticalError;
 
-            PurchaseService(wpw, firstService.ServiceId.Value, priceResponse);
+            PurchaseService(service, firstService.ServiceId.Value, priceResponse);
 
             return CommandResult.Success;
         }
@@ -142,7 +141,7 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
                 _output.WriteLine("ServiceDeliveryToken.issued: {0}", pResp.ServiceDeliveryToken.Issued);
                 _output.WriteLine("ServiceDeliveryToken.expiry: {0}", pResp.ServiceDeliveryToken.Expiry);
                 _output.WriteLine("ServiceDeliveryToken.key: {0}", pResp.ServiceDeliveryToken.Key);
-                _output.WriteLine("ServiceDeliveryToken.signature: {0}", pResp.ServiceDeliveryToken.Signature);
+                _output.WriteLine("ServiceDeliveryToken.signature: [{0}]", ToReadableString(pResp.ServiceDeliveryToken.Signature));
                 _output.WriteLine("ServiceDeliveryToken.refundOnExpiry: {0}", pResp.ServiceDeliveryToken.RefundOnExpiry);
 
                 BeginServiceDelivery(service, serviceId, pResp.ServiceDeliveryToken, 1);
@@ -153,6 +152,21 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
             }
 
             return pResp;
+        }
+
+        private string ToReadableString(byte[] ba)
+        {
+            StringBuilder hex = new StringBuilder();
+            for (int index = 0; index < ba.Length; index++)
+            {
+                if (index > 0)
+                {
+                    hex.Append(" ");
+                }
+                byte b = ba[index];
+                hex.AppendFormat("{0:x2}", b);
+            }
+            return hex.ToString();
         }
 
         private void BeginServiceDelivery(WPWithinService service, int serviceId, ServiceDeliveryToken token,

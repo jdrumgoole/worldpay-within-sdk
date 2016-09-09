@@ -11,7 +11,7 @@ namespace Worldpay.Within.Tests
         [TestMethod]
         public void StartAndStopViaEvent()
         {
-            RpcAgentManager mgr = new RpcAgentManager();
+            RpcAgentManager mgr = new RpcAgentManager(new RpcAgentConfiguration());
 
             bool started = false;
             mgr.OnStarted += (s,e) =>

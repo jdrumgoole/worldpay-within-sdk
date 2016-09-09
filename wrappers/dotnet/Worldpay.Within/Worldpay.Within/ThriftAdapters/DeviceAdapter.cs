@@ -21,14 +21,13 @@ namespace Worldpay.Innovation.WPWithin.ThriftAdapters
 
         public static Device Create(ThriftDevice thriftDevice)
         {
-            return new Device
+            return new Device(thriftDevice.Uid)
             {
                 CurrencyCode = thriftDevice.CurrencyCode,
                 Description = thriftDevice.Description,
                 Ipv4Address = IPAddress.Parse(thriftDevice.Ipv4Address),
                 Name = thriftDevice.Name,
-                Services = ServiceAdapter.Create(thriftDevice.Services),
-                Uid = thriftDevice.Uid,
+                Services = ServiceAdapter.Create(thriftDevice.Services)
             };
         }
     }

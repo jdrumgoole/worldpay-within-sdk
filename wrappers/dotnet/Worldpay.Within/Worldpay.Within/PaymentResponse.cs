@@ -8,7 +8,6 @@ namespace Worldpay.Innovation.WPWithin
 {
     public class PaymentResponse
     {
-
         public string ServerId { get; set; }
 
         public string ClientId { get; set; }

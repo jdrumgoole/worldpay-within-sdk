@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Thrift.Server;
 using Thrift.Transport;
+using Worldpay.Innovation.WPWithin.AgentManager;
 using Worldpay.Innovation.WPWithin.Rpc;
 using Worldpay.Innovation.WPWithin.ThriftAdapters;
 
@@ -26,14 +27,14 @@ namespace Worldpay.Innovation.WPWithin.EventListener
     /// </remarks>
     internal class CallbackServerManager : WPWithinCallback.Iface
     {
+        private readonly RpcAgentConfiguration _config;
         private static readonly ILog Log = LogManager.GetLogger<CallbackServerManager>();
-        private readonly int _callbackListenerPort;
-        private TThreadPoolServer _server;
+        private TServer _server;
         private Task _serverTask;
 
-        public CallbackServerManager(int callbackListenerPort)
+        public CallbackServerManager(RpcAgentConfiguration config)
         {
-            _callbackListenerPort = callbackListenerPort;
+            _config = config;
         }
 
         public void beginServiceDelivery(int serviceId, Rpc.Types.ServiceDeliveryToken serviceDeliveryToken,
@@ -66,10 +67,10 @@ namespace Worldpay.Innovation.WPWithin.EventListener
                 throw new InvalidOperationException("Cannot start server that has already been started");
             }
             WPWithinCallback.Processor processor = new WPWithinCallback.Processor(this);
-            TServerSocket serverTransport = new TServerSocket(_callbackListenerPort);
-            TThreadPoolServer server = new TThreadPoolServer(processor, serverTransport);
+            TServerTransport serverTransport = _config.GetThriftServerTransport();
+            TServer server = new TThreadPoolServer(processor, serverTransport);
 
-            Log.InfoFormat("Starting callback server on {0}", _callbackListenerPort);
+            Log.InfoFormat("Starting callback server on {0}", _config.ServiceHost);
             _serverTask = Task.Run(() => server.Serve());
             _server = server;
         }
