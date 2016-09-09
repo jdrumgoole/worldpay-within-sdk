@@ -13,6 +13,7 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
+// EventSenderImpl implementation of event.Handler. Used to send events over Thrift RPC
 type EventSenderImpl struct {
 	client          wpthrift.WPWithinCallback
 	connected       bool
@@ -20,6 +21,7 @@ type EventSenderImpl struct {
 	transport       thrift.TTransport
 }
 
+// BeginServiceDelivery event
 func (cb *EventSenderImpl) BeginServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) {
 
 	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "unitsToSupply": unitsToSupply}).Debug("begin EventSenderImpl.BeginServiceDelivery()")
@@ -46,6 +48,7 @@ func (cb *EventSenderImpl) BeginServiceDelivery(serviceID int, serviceDeliveryTo
 	}
 }
 
+// EndServiceDelivery event
 func (cb *EventSenderImpl) EndServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) {
 
 	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "unitsReceived": unitsReceived}).Debug("begin EventSenderImpl.EndServiceDelivery()")
@@ -72,6 +75,7 @@ func (cb *EventSenderImpl) EndServiceDelivery(serviceID int, serviceDeliveryToke
 	}
 }
 
+// NewEventSender creates new instance of event sender
 func NewEventSender(cfg Configuration) (event.Handler, error) {
 
 	log.WithField("config", fmt.Sprintf("%+v", cfg)).Debug("begin rpc.EventSenderImpl.NewEventSender()")
@@ -117,6 +121,7 @@ func NewEventSender(cfg Configuration) (event.Handler, error) {
 	return result, nil
 }
 
+// connectCallbackIfNotConnected connect the callback client to the server if not already connected
 func (cb *EventSenderImpl) connectCallbackIfNotConnected() error {
 
 	log.Debug("begin EventSenderImpl.connectCallbackIfNotConnected()")

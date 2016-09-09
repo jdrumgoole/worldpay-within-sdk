@@ -9,13 +9,13 @@ import (
 
 // TODO CH : This is largely linked to UDP I/O at the moment - should generalise further
 
-// Abstracted means of communication ..  Should allow for I/O over UDP/TCP/NFC/Bluetooth etc
+// Communicator Abstracted means of communication ..  Should allow for I/O over UDP/TCP/NFC/Bluetooth etc
 type Communicator interface {
 	Listen() (Connection, error)
 	Connect(host string, port int) (Connection, error)
 }
 
-// Abstracted connection
+// Connection Abstracted connection
 type Connection interface {
 	Read([]byte) (int, string, error)
 	Write([]byte) (int, error)
@@ -47,6 +47,7 @@ func NewUDPComm(port int, protocol string) (Communicator, error) {
 	return result, nil
 }
 
+// Listen for a connection
 func (pc *UDPComm) Listen() (Connection, error) {
 
 	srvAddr := &net.UDPAddr{
@@ -68,6 +69,7 @@ func (pc *UDPComm) Listen() (Connection, error) {
 	return pc.udpConn, err
 }
 
+// Connect to a host on a specified port
 func (pc *UDPComm) Connect(host string, port int) (Connection, error) {
 
 	_udpConn, err := net.DialUDP(pc.protocol, nil, &net.UDPAddr{
@@ -96,11 +98,13 @@ func (conn *UDPConn) Write(b []byte) (int, error) {
 	return conn.conn.Write(b)
 }
 
+// Close a connection
 func (conn *UDPConn) Close() error {
 
 	return conn.conn.Close()
 }
 
+// SetProperty of a connection
 func (conn *UDPConn) SetProperty(key string, value interface{}) error {
 
 	if strings.EqualFold(key, "ReadDeadLine") {

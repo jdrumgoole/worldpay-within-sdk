@@ -1703,6 +1703,7 @@ func (p *ServiceDetails) String() string {
 //  - TotalPrice
 //  - PaymentReferenceId
 //  - MerchantClientKey
+//  - CurrencyCode
 type TotalPriceResponse struct {
 	ServerId           string `thrift:"serverId,1" json:"serverId"`
 	ClientId           string `thrift:"clientId,2" json:"clientId"`
@@ -1711,6 +1712,7 @@ type TotalPriceResponse struct {
 	TotalPrice         int32  `thrift:"totalPrice,5" json:"totalPrice"`
 	PaymentReferenceId string `thrift:"paymentReferenceId,6" json:"paymentReferenceId"`
 	MerchantClientKey  string `thrift:"merchantClientKey,7" json:"merchantClientKey"`
+	CurrencyCode       string `thrift:"currencyCode,8" json:"currencyCode"`
 }
 
 func NewTotalPriceResponse() *TotalPriceResponse {
@@ -1743,6 +1745,10 @@ func (p *TotalPriceResponse) GetPaymentReferenceId() string {
 
 func (p *TotalPriceResponse) GetMerchantClientKey() string {
 	return p.MerchantClientKey
+}
+
+func (p *TotalPriceResponse) GetCurrencyCode() string {
+	return p.CurrencyCode
 }
 func (p *TotalPriceResponse) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
@@ -1784,6 +1790,10 @@ func (p *TotalPriceResponse) Read(iprot thrift.TProtocol) error {
 			}
 		case 7:
 			if err := p.readField7(iprot); err != nil {
+				return err
+			}
+		case 8:
+			if err := p.readField8(iprot); err != nil {
 				return err
 			}
 		default:
@@ -1864,6 +1874,15 @@ func (p *TotalPriceResponse) readField7(iprot thrift.TProtocol) error {
 	return nil
 }
 
+func (p *TotalPriceResponse) readField8(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return thrift.PrependError("error reading field 8: ", err)
+	} else {
+		p.CurrencyCode = v
+	}
+	return nil
+}
+
 func (p *TotalPriceResponse) Write(oprot thrift.TProtocol) error {
 	if err := oprot.WriteStructBegin("TotalPriceResponse"); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
@@ -1887,6 +1906,9 @@ func (p *TotalPriceResponse) Write(oprot thrift.TProtocol) error {
 		return err
 	}
 	if err := p.writeField7(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField8(oprot); err != nil {
 		return err
 	}
 	if err := oprot.WriteFieldStop(); err != nil {
@@ -1985,6 +2007,19 @@ func (p *TotalPriceResponse) writeField7(oprot thrift.TProtocol) (err error) {
 	}
 	if err := oprot.WriteFieldEnd(); err != nil {
 		return thrift.PrependError(fmt.Sprintf("%T write field end error 7:merchantClientKey: ", p), err)
+	}
+	return err
+}
+
+func (p *TotalPriceResponse) writeField8(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("currencyCode", thrift.STRING, 8); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field begin error 8:currencyCode: ", p), err)
+	}
+	if err := oprot.WriteString(string(p.CurrencyCode)); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T.currencyCode (8) field write error: ", p), err)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return thrift.PrependError(fmt.Sprintf("%T write field end error 8:currencyCode: ", p), err)
 	}
 	return err
 }

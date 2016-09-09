@@ -16,7 +16,7 @@ type scannerImpl struct {
 	comm      Communicator
 }
 
-func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.ServiceMessage, error) {
+func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.BroadcastMessage, error) {
 
 	/*
 		This function works by setting up a connection broadcast listener, returning a result object which includes a channel
@@ -27,7 +27,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 
 	log.Debugf("Begin ScanForServices(timeout = %d)", timeout)
 
-	result := make(map[string]types.ServiceMessage, 0)
+	result := make(map[string]types.BroadcastMessage, 0)
 	// Enable the scanner to run
 	scanner.run = true
 	// Calculate when the operation will expire based on the timeout duration
@@ -66,7 +66,7 @@ func (scanner *scannerImpl) ScanForServices(timeout int) (map[string]types.Servi
 
 			log.Debugf("Did receive message from %s: %s", addrRecv, string(buf[0:nRecv]))
 
-			var msg types.ServiceMessage
+			var msg types.BroadcastMessage
 
 			// Try to deserialize the message into a broadcast message
 			// NB: Anybody can send a message here so not all messages are expected to be valid

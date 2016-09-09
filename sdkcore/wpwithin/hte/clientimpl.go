@@ -19,11 +19,11 @@ type clientImpl struct {
 	urlPrefix  string
 	clientID   string
 	baseURL    string
-	httpClient HTEClientHTTP
+	httpClient ClientHTTP
 }
 
 // NewClient Initialise a new HTE Client
-func NewClient(scheme, host string, port int, urlPrefix string, clientID string, httpClient HTEClientHTTP) (Client, error) {
+func NewClient(scheme, host string, port int, urlPrefix string, clientID string, httpClient ClientHTTP) (Client, error) {
 
 	if host == "" {
 

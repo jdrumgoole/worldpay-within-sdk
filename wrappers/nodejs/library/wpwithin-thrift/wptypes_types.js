@@ -883,6 +883,7 @@ wpthrift_types.TotalPriceResponse = module.exports.TotalPriceResponse = function
   this.totalPrice = null;
   this.paymentReferenceId = null;
   this.merchantClientKey = null;
+  this.currencyCode = null;
   if (args) {
     if (args.serverId !== undefined && args.serverId !== null) {
       this.serverId = args.serverId;
@@ -904,6 +905,9 @@ wpthrift_types.TotalPriceResponse = module.exports.TotalPriceResponse = function
     }
     if (args.merchantClientKey !== undefined && args.merchantClientKey !== null) {
       this.merchantClientKey = args.merchantClientKey;
+    }
+    if (args.currencyCode !== undefined && args.currencyCode !== null) {
+      this.currencyCode = args.currencyCode;
     }
   }
 };
@@ -970,6 +974,13 @@ wpthrift_types.TotalPriceResponse.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 8:
+      if (ftype == Thrift.Type.STRING) {
+        this.currencyCode = input.readString();
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1014,6 +1025,11 @@ wpthrift_types.TotalPriceResponse.prototype.write = function(output) {
   if (this.merchantClientKey !== null && this.merchantClientKey !== undefined) {
     output.writeFieldBegin('merchantClientKey', Thrift.Type.STRING, 7);
     output.writeString(this.merchantClientKey);
+    output.writeFieldEnd();
+  }
+  if (this.currencyCode !== null && this.currencyCode !== undefined) {
+    output.writeFieldBegin('currencyCode', Thrift.Type.STRING, 8);
+    output.writeString(this.currencyCode);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

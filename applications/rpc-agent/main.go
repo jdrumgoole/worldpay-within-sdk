@@ -57,15 +57,15 @@ var sdk wpwithin.WPWithin
 var rpcConfig rpc.Configuration
 
 const (
-	keyBufferSize string = "BufferSize"
-	keyBuffered   string = "Buffered"
-	keyFramed     string = "Framed"
-	keyHost       string = "Host"
-	keyLogfile    string = "Logfile"
-	keyLoglevel   string = "Loglevel"
-	keyPort       string = "Port"
-	keyProtocol   string = "Protocol"
-	keySecure     string = "Secure"
+	keyBufferSize   string = "BufferSize"
+	keyBuffered     string = "Buffered"
+	keyFramed       string = "Framed"
+	keyHost         string = "Host"
+	keyLogfile      string = "Logfile"
+	keyLoglevel     string = "Loglevel"
+	keyPort         string = "Port"
+	keyProtocol     string = "Protocol"
+	keySecure       string = "Secure"
 	keyCallbackPort string = "CallbackPort"
 )
 
@@ -74,6 +74,7 @@ func main() {
 	// Start off by setting logging to a high level
 	// This way we can catch output during initial setup of args and logging via arguments.
 	log.SetLevel(log.DebugLevel)
+	log.SetOutput(os.Stdout)
 
 	log.Debug("Begin main()")
 

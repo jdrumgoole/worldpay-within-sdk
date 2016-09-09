@@ -1,5 +1,6 @@
 package types
 
+// TokenResponse HTTP Response Message
 type TokenResponse struct {
 	Reusable bool `json:"reusable"`
 

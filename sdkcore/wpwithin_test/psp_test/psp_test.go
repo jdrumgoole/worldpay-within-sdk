@@ -1,9 +1,8 @@
 package psp_tests
 
 import (
-
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestGetToken(t *testing.T) {
@@ -13,5 +12,4 @@ func TestGetToken(t *testing.T) {
 
 func TestMakePayment(t *testing.T) {
 
-	
 }

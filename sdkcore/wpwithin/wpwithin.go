@@ -12,8 +12,8 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
-
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -30,7 +30,7 @@ type WPWithin interface {
 	GetDevice() *types.Device
 	StartServiceBroadcast(timeoutMillis int) error
 	StopServiceBroadcast()
-	DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error)
+	DeviceDiscovery(timeoutMillis int) ([]types.BroadcastMessage, error)
 	RequestServices() ([]types.ServiceDetails, error)
 	GetServicePrices(serviceID int) ([]types.Price, error)
 	SelectService(serviceID, numberOfUnits, priceID int) (types.TotalPriceResponse, error)
@@ -156,12 +156,12 @@ func (wp *wpWithinImpl) AddService(service *types.Service) error {
 		wp.core.Device.Services = make(map[int]*types.Service, 0)
 	}
 
-	if _, exists := wp.core.Device.Services[service.Id]; exists {
+	if _, exists := wp.core.Device.Services[service.ID]; exists {
 
 		return errors.New("Service with that id already exists")
 	}
 
-	wp.core.Device.Services[service.Id] = service
+	wp.core.Device.Services[service.ID] = service
 
 	return nil
 }
@@ -178,7 +178,7 @@ func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 
 	if wp.core.Device.Services != nil {
 
-		delete(wp.core.Device.Services, service.Id)
+		delete(wp.core.Device.Services, service.ID)
 	}
 
 	return nil
@@ -330,12 +330,12 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 	}()
 
 	// Setup message that is broadcast over network
-	msg := types.ServiceMessage{
+	msg := types.BroadcastMessage{
 
 		DeviceDescription: wp.core.Device.Description,
 		Hostname:          wp.core.HTE.IPAddr(),
 		ServerID:          wp.core.Device.UID,
-		UrlPrefix:         wp.core.HTE.UrlPrefix(),
+		URLPrefix:         wp.core.HTE.URLPrefix(),
 		PortNumber:        wp.core.HTE.Port(),
 		Scheme:            wp.core.HTE.Scheme(),
 	}
@@ -378,7 +378,7 @@ func (wp *wpWithinImpl) StopServiceBroadcast() {
 	wp.core.SvcBroadcaster.StopBroadcast()
 }
 
-func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error) {
+func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.BroadcastMessage, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -390,7 +390,7 @@ func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessa
 		}
 	}()
 
-	var svcResults []types.ServiceMessage
+	var svcResults []types.BroadcastMessage
 
 	if scanResult, err := wp.core.SvcScanner.ScanForServices(timeoutMillis); err != nil {
 
@@ -619,12 +619,22 @@ func doWebSocketLogSetup(cfg configuration.WPWithin) {
 				levels = append(levels, log.DebugLevel)
 			}
 		}
+		ip, err := utils.ExternalIPv4()
+		strIP := ""
 
-		err := wslog.Initialise("", cfg.WSLogPort, levels)
+		if err == nil {
+
+			strIP = ip.String()
+		} else {
+
+			fmt.Printf("Error getting ExternalIPv4: %s\n", err.Error())
+		}
+
+		err = wslog.Initialise(strIP, cfg.WSLogPort, levels)
 
 		if err != nil {
 
-			fmt.Println(err.Error())
+			fmt.Printf("Error initialising WebSocket logger: %s\n", err.Error())
 		}
 	}
 }

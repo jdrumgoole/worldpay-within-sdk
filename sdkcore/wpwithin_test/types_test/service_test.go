@@ -1,10 +1,11 @@
 package types_test
+
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"os"
 	"flag"
-"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/stretchr/testify/assert"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"os"
+	"testing"
 )
 
 func TestMain(m *testing.M) {
@@ -51,7 +52,7 @@ func TestRemovePrice(t *testing.T) {
 
 	ok(t, err)
 
-	prices := srv.Prices()
+	prices := srv.Prices
 
 	assert.Equal(t, 0, len(prices), "Should be 0 prices")
 }
@@ -70,7 +71,7 @@ func TestPrices(t *testing.T) {
 
 	ok(t, err)
 
-	prices := srv.Prices()
+	prices := srv.Prices
 
 	assert.Equal(t, 1, len(prices), "Should be only 1 price")
 }

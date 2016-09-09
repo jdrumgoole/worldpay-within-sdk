@@ -1,7 +1,17 @@
 # worldpay-within-sdk
 Worldpay Within SDK to allow payments within IoT.
 
-The core of this SDK is written in Go with a native Go interface. Along with the native Go interface is an RPC layer (Apache Thrift) to allow communication through other languages. It is intended that we will develop a number of complementary wrapper libraries for other languages which should include C#.NET, Java, Python, Node.JS at a minimum.
+The core of this SDK is written in Go with a native Go interface. Along with the native Go interface is an RPC layer (Apache Thrift) to allow communication through other languages.
+
+Currently, there are wrappers available for the following technologies:
+* Node.js
+* .NET
+* Java
+* Python (in development)
+
+**Note 1**: Please note that if you intend to work with one of the wrapper frameworks, it is not required that you build the Go source code directly. With each release we will bundle pre-built binaries of the RPC-Agent application. The RPC-Agent is an application that starts the Thrift RPC interface into the Go SDK Core. Once this application is up and running the wrapper can communicate with the SDK Core. In the latest release of the SDK, the RPC-Agent is started automatically by the wrapper.
+
+**Note 2**: To enable payments for your instance of the SDK and applications, you will need to create an account at [Worldpay Online Payments](online.worldpay.com). Once the account is created, please navigate to *settings* -> *API Keys* and keep note of the *service key* and *client key* for later. You will need to add these keys into your sample apps when "intialising a producer".
 
 ### Top level directories
 
@@ -13,7 +23,7 @@ The core of this SDK is written in Go with a native Go interface. Along with the
 ## Further documentation
 
 * [Please see our documentation pages for more details on what Worldpay Within is](http://wptechInnovation.github.io/worldpay-within-sdk)
-* [Also for a detailed architecture guide for Worldpay Within please see our full documentation](http://wptechInnovation.github.io/worldpay-within-sdk)
+* [Also for a detailed architecture guide for Worldpay Within please see our full documentation](http://wptechinnovation.github.io/worldpay-within-sdk/architecture.html)
 
 ## The SDK binaries - if you don't don't want to compile from sources
 

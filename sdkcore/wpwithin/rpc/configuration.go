@@ -1,5 +1,6 @@
 package rpc
 
+// Configuration RPC configuration
 type Configuration struct {
 	Protocol     string
 	Framed       bool

@@ -6,20 +6,23 @@ import (
 	"net/http"
 )
 
-type HTEClientHTTP interface {
+// ClientHTTP an interface for HTTP requests
+type ClientHTTP interface {
 	Get(url string) ([]byte, error)
 	PostJSON(url string, postBody []byte) ([]byte, int, error)
 }
 
-type HTEClientHTTPImpl struct{}
+// ClientHTTPImpl implementation of HTEClientHTTP
+type ClientHTTPImpl struct{}
 
-func NewHTEClientHTTP() (HTEClientHTTP, error) {
+// NewHTEClientHTTP create a new instance of ClientHTTPImpl
+func NewHTEClientHTTP() (ClientHTTP, error) {
 
-	return &HTEClientHTTPImpl{}, nil
+	return &ClientHTTPImpl{}, nil
 }
 
 // Get Helper function to make a HTTP GET request
-func (client *HTEClientHTTPImpl) Get(url string) ([]byte, error) {
+func (client *ClientHTTPImpl) Get(url string) ([]byte, error) {
 
 	response, err := http.Get(url)
 
@@ -39,7 +42,7 @@ func (client *HTEClientHTTPImpl) Get(url string) ([]byte, error) {
 }
 
 // PostJSON Helper function to make a http POST request
-func (client *HTEClientHTTPImpl) PostJSON(url string, postBody []byte) ([]byte, int, error) {
+func (client *ClientHTTPImpl) PostJSON(url string, postBody []byte) ([]byte, int, error) {
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(postBody))
 

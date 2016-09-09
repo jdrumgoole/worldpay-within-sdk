@@ -17,6 +17,7 @@ public class TotalPriceResponseAdapter {
         wwTotalPriceResponse.setPriceId(totalPriceResponse.getPriceId());
         wwTotalPriceResponse.setServerId(totalPriceResponse.getServerId());
         wwTotalPriceResponse.setUnitsToSupply(totalPriceResponse.getUnitsToSupply());
+        wwTotalPriceResponse.setCurrencyCode(totalPriceResponse.getCurrencyCode());
 
         return wwTotalPriceResponse;
 
@@ -31,6 +32,7 @@ public class TotalPriceResponseAdapter {
         totalPriceResponse.setPriceId(wwTotalPriceResponse.getPriceId());
         totalPriceResponse.setServerId(wwTotalPriceResponse.getServerId());
         totalPriceResponse.setUnitsToSupply(wwTotalPriceResponse.getUnitsToSupply());
+        totalPriceResponse.setCurrencyCode(wwTotalPriceResponse.getCurrencyCode());
 
         return totalPriceResponse;
 

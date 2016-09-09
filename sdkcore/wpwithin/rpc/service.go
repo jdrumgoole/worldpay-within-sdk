@@ -2,7 +2,6 @@ package rpc
 
 import (
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
+// ServiceImpl impementation of RPC service
 type ServiceImpl struct {
 	wpWithin         wpwithin.WPWithin
 	transportFactory thrift.TTransportFactory
@@ -23,6 +23,7 @@ type ServiceImpl struct {
 	callbackClient   event.Handler
 }
 
+// NewService create a new instance of Service
 func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, error) {
 
 	log.WithField("Config", fmt.Sprintf("%+v", config)).Debug("begin rpc.ServiceImpl.NewService()")
@@ -47,7 +48,7 @@ func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, erro
 	case "binary", "":
 		protocolFactory = thrift.NewTBinaryProtocolFactoryDefault()
 	default:
-		return nil, errors.New(fmt.Sprintf("Invalid protocol specified: %s\n", config.Protocol))
+		return nil, fmt.Errorf("Invalid protocol specified: %s\n", config.Protocol)
 	}
 
 	var transportFactory thrift.TTransportFactory
@@ -74,19 +75,21 @@ func NewService(config Configuration, wpWithin wpwithin.WPWithin) (Service, erro
 		log.Debug("CallbackPort > 0, Setting up RPC Callback")
 		log.Debug("Will attempt to create new EventSender")
 
-		if cb, err := NewEventSender(config); err != nil {
+		cb, err := NewEventSender(config)
+
+		if err != nil {
 
 			return nil, err
-		} else {
-
-			log.Debug("Did create new EventSender.")
-			result.callbackClient = cb
 		}
+
+		log.Debug("Did create new EventSender.")
+		result.callbackClient = cb
 	}
 
 	return result, nil
 }
 
+// Start the RPC service
 func (svc *ServiceImpl) Start() error {
 
 	log.Debug("begin rpc.ServiceImpl.start()")
@@ -99,10 +102,10 @@ func (svc *ServiceImpl) Start() error {
 	var err error
 	if svc.secure {
 		cfg := new(tls.Config)
-		if cert, err := tls.LoadX509KeyPair("server.crt", "server.key"); err == nil {
+		if cert, _err := tls.LoadX509KeyPair("server.crt", "server.key"); _err == nil {
 			cfg.Certificates = append(cfg.Certificates, cert)
 		} else {
-			return err
+			return _err
 		}
 		transport, err = thrift.NewTSSLServerSocket(strAddr, cfg)
 	} else {

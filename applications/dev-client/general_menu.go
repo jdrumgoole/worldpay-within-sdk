@@ -27,10 +27,10 @@ func mGetDeviceInfo() error {
 	fmt.Printf("Services: \n")
 
 	for i, service := range sdk.GetDevice().Services {
-		fmt.Printf("   %d: Id:%d Name:%s Description:%s\n", i, service.Id, service.Name, service.Description)
+		fmt.Printf("   %d: Id:%d Name:%s Description:%s\n", i, service.ID, service.Name, service.Description)
 		fmt.Printf("   Prices: \n")
-		for j, price := range service.Prices() {
-			fmt.Printf("      %d: ServiceID: %d ID:%d Description:%s PricePerUnit:%d UnitID:%d UnitDescription:%s\n", j, service.Id, price.ID, price.Description, price.PricePerUnit, price.UnitID, price.UnitDescription)
+		for j, price := range service.Prices {
+			fmt.Printf("      %d: ServiceID: %d ID:%d Description:%s PricePerUnit.Amount:%d PricePerUnit.CurrencyCode:%s UnitID:%d UnitDescription:%s\n", j, service.ID, price.ID, price.Description, price.PricePerUnit.Amount, price.PricePerUnit.CurrencyCode, price.UnitID, price.UnitDescription)
 		}
 	}
 
@@ -180,7 +180,7 @@ func addServicesAndPrices(services []*devclienttypes.ServiceProfile) error {
 	for _, service := range services {
 
 		newService, _ := types.NewService()
-		newService.Id = service.Id
+		newService.ID = service.Id
 		newService.Name = service.Name
 		newService.Description = service.Description
 

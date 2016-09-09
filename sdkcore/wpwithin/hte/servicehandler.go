@@ -18,17 +18,17 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
-// Coordinate requests between RPC interface and internal SDK interface
+// ServiceHandler Coordinate requests between RPC interface and internal SDK interface
 type ServiceHandler struct {
 	device       *types.Device
-	psp          psp.Psp
+	psp          psp.PSP
 	credential   *Credential
 	orderManager OrderManager
 	eventHandler event.Handler
 }
 
-// Create a new Service Handler
-func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential, orderManager OrderManager, eventHandler event.Handler) *ServiceHandler {
+// NewServiceHandler Create a new Service Handler
+func NewServiceHandler(device *types.Device, psp psp.PSP, credential *Credential, orderManager OrderManager, eventHandler event.Handler) *ServiceHandler {
 
 	result := &ServiceHandler{
 		device:       device,
@@ -41,7 +41,7 @@ func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential
 	return result
 }
 
-// List all the services available on the current device
+// ServiceDiscovery List all the services available on the current device
 func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Request) {
 
 	// GET
@@ -58,8 +58,9 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 	for _, srv := range srv.device.Services {
 
 		responseServices = append(responseServices, types.ServiceDetails{
-			ServiceID:          srv.Id,
+			ServiceID:          srv.ID,
 			ServiceDescription: srv.Description,
+			ServiceName:        srv.Name,
 		})
 	}
 
@@ -71,7 +72,7 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 	returnMessage(w, http.StatusOK, response)
 }
 
-// List all the price variants for a specified service
+// ServicePrices List all the price variants for a specified service
 func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request) {
 
 	// GET
@@ -102,7 +103,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 		response := types.ServicePriceResponse{}
 		response.ServerID = srv.device.UID
 
-		for _, price := range svc.Prices() {
+		for _, price := range svc.Prices {
 
 			response.Prices = append(response.Prices, price)
 		}
@@ -119,7 +120,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// Get the total price for a current service selection
+// ServiceTotalPrice Get the total price for a current service selection
 func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Request) {
 
 	// POST
@@ -181,7 +182,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 	if svc, ok := srv.device.Services[svcID]; ok {
 
-		if price, ok := svc.Prices()[totalPriceRequest.SelectedPriceID]; ok {
+		if price, ok := svc.Prices[totalPriceRequest.SelectedPriceID]; ok {
 
 			response := types.TotalPriceResponse{}
 			response.ServerID = srv.device.UID
@@ -246,7 +247,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// Make a payment for a service
+// Payment Make a payment for a service
 func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 	// POST
@@ -294,7 +295,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 	_order, err := srv.orderManager.GetOrder(paymentRequest.PaymentReferenceID)
 
-	orderCurrency := srv.device.Services[_order.Service.Id].Prices()[_order.SelectedPriceID].PricePerUnit.CurrencyCode
+	orderCurrency := srv.device.Services[_order.Service.ID].Prices[_order.SelectedPriceID].PricePerUnit.CurrencyCode
 
 	if err != nil {
 
@@ -315,8 +316,8 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 			returnMessage(w, http.StatusBadRequest, errorResponse)
 		} else {
 
-			totalPrice := _order.Service.Prices()[_order.SelectedPriceID].PricePerUnit.Amount * _order.SelectedNumberOfUnits
-			orderPPU := _order.Service.Prices()[_order.SelectedPriceID].PricePerUnit
+			totalPrice := _order.Service.Prices[_order.SelectedPriceID].PricePerUnit.Amount * _order.SelectedNumberOfUnits
+			orderPPU := _order.Service.Prices[_order.SelectedPriceID].PricePerUnit
 
 			// Convert order price per unit from minor units (e.g. Pence) to major units (e.g. Pounds) (e.g. 100p -> £1.00)
 			strUnitPrice := utils.DoUnitConvertFormat(orderPPU.Amount, 2, fmt.Sprintf("%s <amount>", orderPPU.CurrencyCode))
@@ -368,7 +369,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Begin delivery of a purchased service
+// ServiceDeliveryBegin Begin delivery of a purchased service
 func (srv *ServiceHandler) ServiceDeliveryBegin(w http.ResponseWriter, r *http.Request) {
 
 	// POST
@@ -468,7 +469,7 @@ func (srv *ServiceHandler) ServiceDeliveryBegin(w http.ResponseWriter, r *http.R
 	// Order has been found for delivery token - ensure the service id matches the service id passed in URL.
 	_order, err := srv.orderManager.GetOrder(deliveryRequest.ServiceDeliveryToken.Key)
 
-	if svcID != _order.Service.Id {
+	if svcID != _order.Service.ID {
 
 		log.Info("Requested service does not match the service id presented in request ServiceDeliveryToken")
 
@@ -510,7 +511,7 @@ func (srv *ServiceHandler) ServiceDeliveryBegin(w http.ResponseWriter, r *http.R
 	}
 }
 
-// End delivery of a purchased service
+// ServiceDeliveryEnd End delivery of a purchased service
 func (srv *ServiceHandler) ServiceDeliveryEnd(w http.ResponseWriter, r *http.Request) {
 
 	// POST
