@@ -8,7 +8,7 @@ using Thrift.Transport;
 namespace Worldpay.Innovation.WPWithin.AgentManager
 {
     /// <summary>
-    ///     Manages the configuration of an Thrift RPC Agent.
+    ///     Manages the configuration of an Thrift RPC Agent (passed to <code>rpc-client.exe</code>) or the <see cref="WPWithinService"/> instance that will connect to it.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -341,6 +341,11 @@ namespace Worldpay.Innovation.WPWithin.AgentManager
             return protocol;
         }
 
+        /// <summary>
+        /// Creates an instance of a <see cref="TServerTransport"/> based on the <see cref="Transport"/> property of this instance.
+        /// </summary>
+        /// <remarks>Currently only supports <code>namedpipe</code> and <code>socket</code>.  Any other value will be interpreted as <code>socket</code></remarks>
+        /// <returns>Never returns null.</returns>
         public TServerTransport GetThriftServerTransport()
         {
             TServerTransport transport;

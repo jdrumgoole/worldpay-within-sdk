@@ -6,6 +6,10 @@ using Worldpay.Innovation.WPWithin.AgentManager;
 
 namespace Worldpay.Innovation.WPWithin.Sample.Commands
 {
+
+    /// <summary>
+    /// The main logic of the sample application.  Contains the menu items and the functions that are executed when a menu item is selected.
+    /// </summary>
     internal class CommandMenu
     {
         private readonly TextWriter _error;
@@ -24,7 +28,7 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
             {
                 new Command("Exit", "Exits the application.", (a) =>
                 {
-                    _output.WriteLine("Exiting...");
+                    _output.WriteLine("Exiting");
                     return CommandResult.Exit;
                 }),
                 new Command("StartRPCClient", "Starts a default Thrift RPC agent", StartRpcClient),
@@ -111,9 +115,10 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
                 _error.WriteLine("Thrift RPC Agent already active.  Stop it before trying to start a new one");
                 return CommandResult.NonCriticalError;
             }
-            _rpcManager = new RpcAgentManager(_defaultAgentConfig);
+            _rpcManager = new RpcAgentManager(new RpcAgentConfiguration());
             _rpcManager.StartThriftRpcAgentProcess();
             _service = new WPWithinService(_defaultAgentConfig);
+            _rpcManager.StopThriftRpcAgentProcess();
             return CommandResult.Success;
         }
 
@@ -141,13 +146,14 @@ namespace Worldpay.Innovation.WPWithin.Sample.Commands
                 args = readLine.Split();
             }
 
-            // If no arguments, then don't error, just return success;
+            // If no command was entered, then simply return a no-op response.
             if (args == null || args.Length == 0 || string.IsNullOrEmpty(args[0]))
             {
                 return CommandResult.NoOp;
             }
 
             int optionNumber;
+            // We accept either specifying a command by number or by name.
             Command selectedItem = int.TryParse(args[0], out optionNumber) ? _menuItems[optionNumber] : _menuItems.FirstOrDefault(m => m.Name.Equals(args[0]));
 
             if (selectedItem != null)
