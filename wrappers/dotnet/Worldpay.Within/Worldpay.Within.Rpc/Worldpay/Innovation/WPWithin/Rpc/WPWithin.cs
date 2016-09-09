@@ -87,15 +87,15 @@ namespace Worldpay.Innovation.WPWithin.Rpc
       IAsyncResult Begin_makePayment(AsyncCallback callback, object state, Worldpay.Innovation.WPWithin.Rpc.Types.TotalPriceResponse request);
       Worldpay.Innovation.WPWithin.Rpc.Types.PaymentResponse End_makePayment(IAsyncResult asyncResult);
       #endif
-      void beginServiceDelivery(string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply);
+      Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken beginServiceDelivery(int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply);
       #if SILVERLIGHT
-      IAsyncResult Begin_beginServiceDelivery(AsyncCallback callback, object state, string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply);
-      void End_beginServiceDelivery(IAsyncResult asyncResult);
+      IAsyncResult Begin_beginServiceDelivery(AsyncCallback callback, object state, int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply);
+      Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken End_beginServiceDelivery(IAsyncResult asyncResult);
       #endif
-      void endServiceDelivery(string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived);
+      Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken endServiceDelivery(int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived);
       #if SILVERLIGHT
-      IAsyncResult Begin_endServiceDelivery(AsyncCallback callback, object state, string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived);
-      void End_endServiceDelivery(IAsyncResult asyncResult);
+      IAsyncResult Begin_endServiceDelivery(AsyncCallback callback, object state, int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived);
+      Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken End_endServiceDelivery(IAsyncResult asyncResult);
       #endif
     }
 
@@ -987,40 +987,40 @@ namespace Worldpay.Innovation.WPWithin.Rpc
 
       
       #if SILVERLIGHT
-      public IAsyncResult Begin_beginServiceDelivery(AsyncCallback callback, object state, string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
+      public IAsyncResult Begin_beginServiceDelivery(AsyncCallback callback, object state, int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
       {
-        return send_beginServiceDelivery(callback, state, clientId, serviceDeliveryToken, unitsToSupply);
+        return send_beginServiceDelivery(callback, state, serviceID, serviceDeliveryToken, unitsToSupply);
       }
 
-      public void End_beginServiceDelivery(IAsyncResult asyncResult)
+      public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken End_beginServiceDelivery(IAsyncResult asyncResult)
       {
         oprot_.Transport.EndFlush(asyncResult);
-        recv_beginServiceDelivery();
+        return recv_beginServiceDelivery();
       }
 
       #endif
 
-      public void beginServiceDelivery(string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
+      public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken beginServiceDelivery(int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
       {
         #if !SILVERLIGHT
-        send_beginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply);
-        recv_beginServiceDelivery();
+        send_beginServiceDelivery(serviceID, serviceDeliveryToken, unitsToSupply);
+        return recv_beginServiceDelivery();
 
         #else
-        var asyncResult = Begin_beginServiceDelivery(null, null, clientId, serviceDeliveryToken, unitsToSupply);
-        End_beginServiceDelivery(asyncResult);
+        var asyncResult = Begin_beginServiceDelivery(null, null, serviceID, serviceDeliveryToken, unitsToSupply);
+        return End_beginServiceDelivery(asyncResult);
 
         #endif
       }
       #if SILVERLIGHT
-      public IAsyncResult send_beginServiceDelivery(AsyncCallback callback, object state, string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
+      public IAsyncResult send_beginServiceDelivery(AsyncCallback callback, object state, int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
       #else
-      public void send_beginServiceDelivery(string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
+      public void send_beginServiceDelivery(int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsToSupply)
       #endif
       {
         oprot_.WriteMessageBegin(new TMessage("beginServiceDelivery", TMessageType.Call, seqid_));
         beginServiceDelivery_args args = new beginServiceDelivery_args();
-        args.ClientId = clientId;
+        args.ServiceID = serviceID;
         args.ServiceDeliveryToken = serviceDeliveryToken;
         args.UnitsToSupply = unitsToSupply;
         args.Write(oprot_);
@@ -1032,7 +1032,7 @@ namespace Worldpay.Innovation.WPWithin.Rpc
         #endif
       }
 
-      public void recv_beginServiceDelivery()
+      public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken recv_beginServiceDelivery()
       {
         TMessage msg = iprot_.ReadMessageBegin();
         if (msg.Type == TMessageType.Exception) {
@@ -1043,48 +1043,51 @@ namespace Worldpay.Innovation.WPWithin.Rpc
         beginServiceDelivery_result result = new beginServiceDelivery_result();
         result.Read(iprot_);
         iprot_.ReadMessageEnd();
+        if (result.Success != null) {
+          return result.Success;
+        }
         if (result.Err != null) {
           throw result.Err;
         }
-        return;
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "beginServiceDelivery failed: unknown result");
       }
 
       
       #if SILVERLIGHT
-      public IAsyncResult Begin_endServiceDelivery(AsyncCallback callback, object state, string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
+      public IAsyncResult Begin_endServiceDelivery(AsyncCallback callback, object state, int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
       {
-        return send_endServiceDelivery(callback, state, clientId, serviceDeliveryToken, unitsReceived);
+        return send_endServiceDelivery(callback, state, serviceID, serviceDeliveryToken, unitsReceived);
       }
 
-      public void End_endServiceDelivery(IAsyncResult asyncResult)
+      public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken End_endServiceDelivery(IAsyncResult asyncResult)
       {
         oprot_.Transport.EndFlush(asyncResult);
-        recv_endServiceDelivery();
+        return recv_endServiceDelivery();
       }
 
       #endif
 
-      public void endServiceDelivery(string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
+      public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken endServiceDelivery(int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
       {
         #if !SILVERLIGHT
-        send_endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived);
-        recv_endServiceDelivery();
+        send_endServiceDelivery(serviceID, serviceDeliveryToken, unitsReceived);
+        return recv_endServiceDelivery();
 
         #else
-        var asyncResult = Begin_endServiceDelivery(null, null, clientId, serviceDeliveryToken, unitsReceived);
-        End_endServiceDelivery(asyncResult);
+        var asyncResult = Begin_endServiceDelivery(null, null, serviceID, serviceDeliveryToken, unitsReceived);
+        return End_endServiceDelivery(asyncResult);
 
         #endif
       }
       #if SILVERLIGHT
-      public IAsyncResult send_endServiceDelivery(AsyncCallback callback, object state, string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
+      public IAsyncResult send_endServiceDelivery(AsyncCallback callback, object state, int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
       #else
-      public void send_endServiceDelivery(string clientId, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
+      public void send_endServiceDelivery(int serviceID, Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken serviceDeliveryToken, int unitsReceived)
       #endif
       {
         oprot_.WriteMessageBegin(new TMessage("endServiceDelivery", TMessageType.Call, seqid_));
         endServiceDelivery_args args = new endServiceDelivery_args();
-        args.ClientId = clientId;
+        args.ServiceID = serviceID;
         args.ServiceDeliveryToken = serviceDeliveryToken;
         args.UnitsReceived = unitsReceived;
         args.Write(oprot_);
@@ -1096,7 +1099,7 @@ namespace Worldpay.Innovation.WPWithin.Rpc
         #endif
       }
 
-      public void recv_endServiceDelivery()
+      public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken recv_endServiceDelivery()
       {
         TMessage msg = iprot_.ReadMessageBegin();
         if (msg.Type == TMessageType.Exception) {
@@ -1107,10 +1110,13 @@ namespace Worldpay.Innovation.WPWithin.Rpc
         endServiceDelivery_result result = new endServiceDelivery_result();
         result.Read(iprot_);
         iprot_.ReadMessageEnd();
+        if (result.Success != null) {
+          return result.Success;
+        }
         if (result.Err != null) {
           throw result.Err;
         }
-        return;
+        throw new TApplicationException(TApplicationException.ExceptionType.MissingResult, "endServiceDelivery failed: unknown result");
       }
 
     }
@@ -1389,7 +1395,7 @@ namespace Worldpay.Innovation.WPWithin.Rpc
         iprot.ReadMessageEnd();
         beginServiceDelivery_result result = new beginServiceDelivery_result();
         try {
-          iface_.beginServiceDelivery(args.ClientId, args.ServiceDeliveryToken, args.UnitsToSupply.Value);
+          result.Success = iface_.beginServiceDelivery(args.ServiceID.Value, args.ServiceDeliveryToken, args.UnitsToSupply.Value);
         } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
@@ -1406,7 +1412,7 @@ namespace Worldpay.Innovation.WPWithin.Rpc
         iprot.ReadMessageEnd();
         endServiceDelivery_result result = new endServiceDelivery_result();
         try {
-          iface_.endServiceDelivery(args.ClientId, args.ServiceDeliveryToken, args.UnitsReceived.Value);
+          result.Success = iface_.endServiceDelivery(args.ServiceID.Value, args.ServiceDeliveryToken, args.UnitsReceived.Value);
         } catch (Worldpay.Innovation.WPWithin.Rpc.Types.Error err) {
           result.Err = err;
         }
@@ -4015,7 +4021,7 @@ namespace Worldpay.Innovation.WPWithin.Rpc
     public partial class beginServiceDelivery_args : TBase
     {
 
-      public string ClientId { get; set; }
+      public int? ServiceID { get; set; }
 
       public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken ServiceDeliveryToken { get; set; }
 
@@ -4040,8 +4046,8 @@ namespace Worldpay.Innovation.WPWithin.Rpc
             switch (field.ID)
             {
               case 1:
-                if (field.Type == TType.String) {
-                  ClientId = iprot.ReadString();
+                if (field.Type == TType.I32) {
+                  ServiceID = iprot.ReadI32();
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
                 }
@@ -4082,12 +4088,12 @@ namespace Worldpay.Innovation.WPWithin.Rpc
           TStruct struc = new TStruct("beginServiceDelivery_args");
           oprot.WriteStructBegin(struc);
           TField field = new TField();
-          if (ClientId != null) {
-            field.Name = "clientId";
-            field.Type = TType.String;
+          if (ServiceID != null) {
+            field.Name = "serviceID";
+            field.Type = TType.I32;
             field.ID = 1;
             oprot.WriteFieldBegin(field);
-            oprot.WriteString(ClientId);
+            oprot.WriteI32(ServiceID.Value);
             oprot.WriteFieldEnd();
           }
           if (ServiceDeliveryToken != null) {
@@ -4118,11 +4124,11 @@ namespace Worldpay.Innovation.WPWithin.Rpc
       public override string ToString() {
         StringBuilder __sb = new StringBuilder("beginServiceDelivery_args(");
         bool __first = true;
-        if (ClientId != null) {
+        if (ServiceID != null) {
           if(!__first) { __sb.Append(", "); }
           __first = false;
-          __sb.Append("ClientId: ");
-          __sb.Append(ClientId);
+          __sb.Append("ServiceID: ");
+          __sb.Append(ServiceID);
         }
         if (ServiceDeliveryToken != null) {
           if(!__first) { __sb.Append(", "); }
@@ -4149,6 +4155,8 @@ namespace Worldpay.Innovation.WPWithin.Rpc
     public partial class beginServiceDelivery_result : TBase
     {
 
+      public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken Success { get; set; }
+
       public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public beginServiceDelivery_result() {
@@ -4169,6 +4177,14 @@ namespace Worldpay.Innovation.WPWithin.Rpc
             }
             switch (field.ID)
             {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
               case 1:
                 if (field.Type == TType.Struct) {
                   Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
@@ -4199,7 +4215,14 @@ namespace Worldpay.Innovation.WPWithin.Rpc
           oprot.WriteStructBegin(struc);
           TField field = new TField();
 
-          if (this.Err != null) {
+          if (this.Success != null) {
+            field.Name = "Success";
+            field.Type = TType.Struct;
+            field.ID = 0;
+            oprot.WriteFieldBegin(field);
+            Success.Write(oprot);
+            oprot.WriteFieldEnd();
+          } else if (this.Err != null) {
             field.Name = "Err";
             field.Type = TType.Struct;
             field.ID = 1;
@@ -4219,6 +4242,12 @@ namespace Worldpay.Innovation.WPWithin.Rpc
       public override string ToString() {
         StringBuilder __sb = new StringBuilder("beginServiceDelivery_result(");
         bool __first = true;
+        if (Success != null) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
         if (Err != null) {
           if(!__first) { __sb.Append(", "); }
           __first = false;
@@ -4238,7 +4267,7 @@ namespace Worldpay.Innovation.WPWithin.Rpc
     public partial class endServiceDelivery_args : TBase
     {
 
-      public string ClientId { get; set; }
+      public int? ServiceID { get; set; }
 
       public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken ServiceDeliveryToken { get; set; }
 
@@ -4263,8 +4292,8 @@ namespace Worldpay.Innovation.WPWithin.Rpc
             switch (field.ID)
             {
               case 1:
-                if (field.Type == TType.String) {
-                  ClientId = iprot.ReadString();
+                if (field.Type == TType.I32) {
+                  ServiceID = iprot.ReadI32();
                 } else { 
                   TProtocolUtil.Skip(iprot, field.Type);
                 }
@@ -4305,12 +4334,12 @@ namespace Worldpay.Innovation.WPWithin.Rpc
           TStruct struc = new TStruct("endServiceDelivery_args");
           oprot.WriteStructBegin(struc);
           TField field = new TField();
-          if (ClientId != null) {
-            field.Name = "clientId";
-            field.Type = TType.String;
+          if (ServiceID != null) {
+            field.Name = "serviceID";
+            field.Type = TType.I32;
             field.ID = 1;
             oprot.WriteFieldBegin(field);
-            oprot.WriteString(ClientId);
+            oprot.WriteI32(ServiceID.Value);
             oprot.WriteFieldEnd();
           }
           if (ServiceDeliveryToken != null) {
@@ -4341,11 +4370,11 @@ namespace Worldpay.Innovation.WPWithin.Rpc
       public override string ToString() {
         StringBuilder __sb = new StringBuilder("endServiceDelivery_args(");
         bool __first = true;
-        if (ClientId != null) {
+        if (ServiceID != null) {
           if(!__first) { __sb.Append(", "); }
           __first = false;
-          __sb.Append("ClientId: ");
-          __sb.Append(ClientId);
+          __sb.Append("ServiceID: ");
+          __sb.Append(ServiceID);
         }
         if (ServiceDeliveryToken != null) {
           if(!__first) { __sb.Append(", "); }
@@ -4372,6 +4401,8 @@ namespace Worldpay.Innovation.WPWithin.Rpc
     public partial class endServiceDelivery_result : TBase
     {
 
+      public Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken Success { get; set; }
+
       public Worldpay.Innovation.WPWithin.Rpc.Types.Error Err { get; set; }
 
       public endServiceDelivery_result() {
@@ -4392,6 +4423,14 @@ namespace Worldpay.Innovation.WPWithin.Rpc
             }
             switch (field.ID)
             {
+              case 0:
+                if (field.Type == TType.Struct) {
+                  Success = new Worldpay.Innovation.WPWithin.Rpc.Types.ServiceDeliveryToken();
+                  Success.Read(iprot);
+                } else { 
+                  TProtocolUtil.Skip(iprot, field.Type);
+                }
+                break;
               case 1:
                 if (field.Type == TType.Struct) {
                   Err = new Worldpay.Innovation.WPWithin.Rpc.Types.Error();
@@ -4422,7 +4461,14 @@ namespace Worldpay.Innovation.WPWithin.Rpc
           oprot.WriteStructBegin(struc);
           TField field = new TField();
 
-          if (this.Err != null) {
+          if (this.Success != null) {
+            field.Name = "Success";
+            field.Type = TType.Struct;
+            field.ID = 0;
+            oprot.WriteFieldBegin(field);
+            Success.Write(oprot);
+            oprot.WriteFieldEnd();
+          } else if (this.Err != null) {
             field.Name = "Err";
             field.Type = TType.Struct;
             field.ID = 1;
@@ -4442,6 +4488,12 @@ namespace Worldpay.Innovation.WPWithin.Rpc
       public override string ToString() {
         StringBuilder __sb = new StringBuilder("endServiceDelivery_result(");
         bool __first = true;
+        if (Success != null) {
+          if(!__first) { __sb.Append(", "); }
+          __first = false;
+          __sb.Append("Success: ");
+          __sb.Append(Success== null ? "<null>" : Success.ToString());
+        }
         if (Err != null) {
           if(!__first) { __sb.Append(", "); }
           __first = false;

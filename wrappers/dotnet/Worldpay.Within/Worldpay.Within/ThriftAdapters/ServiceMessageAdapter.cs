@@ -5,7 +5,7 @@ using ThriftServiceMessage = Worldpay.Innovation.WPWithin.Rpc.Types.ServiceMessa
 
 namespace Worldpay.Innovation.WPWithin.ThriftAdapters
 {
-    public class ServiceMessageAdapter
+    internal class ServiceMessageAdapter
     {
         public static IEnumerable<ServiceMessage> Create(THashSet<Rpc.Types.ServiceMessage> deviceDiscovery)
         {

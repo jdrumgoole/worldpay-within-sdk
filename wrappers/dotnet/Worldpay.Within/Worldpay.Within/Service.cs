@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Worldpay.Innovation.WPWithin;
+﻿using System.Collections.Generic;
 
 namespace Worldpay.Innovation.WPWithin
 {
@@ -42,7 +37,5 @@ namespace Worldpay.Innovation.WPWithin
                 .Append(m => m.Description)
                 .ToString();
         }
-
-
     }
 }
