@@ -31,17 +31,13 @@ Currently, there are wrappers available for the following technologies:
 
 Please see the releases section of GitHub for access to pre-built binaries of the RPC Agent and Dev Client apps.
 
-Both of the apps have been built for 32bit and 64bit architectures on Windows, MacOS, Linux and Linux (ARM).
+Both of the apps have been built for 32bit and 64bit architectures on Windows, MacOS, Linux and Linux ARM.
 
-While the RPC Agent can be run from anywhere it makes sense to add it to the directory of the application which will call it. The reason for this is that each application needs it own running instance of the RPC Agent and it can easily get confusing when there are multiple applications and agents deployed.
+To enable the example wrapper applications, please use put the prebuilt binaries in a folder `rpc-agent` at the root level of the sample application. Alternative, you can put the binaries in a directory that the environment variable `WPWBIN` points to.
 
-Please see the examples in both the Java and Node.JS wrappers. these examples currently hold binaries for MacOS x64. I suggest replacing that binary with an alternate build, if required.
+### Example Usage
 
-The dev client can really be run from anywhere as it is not coupled with anything else.
-
-### Usage
-
-* RPC Agent `./rpc-agent -configfile <filename>`. Please see explanation of rpc-agent config file for further info.
+* RPC Agent `./rpc-agent -port 9099 -logfile=wpwithin.log -loglevel=debug,warn,info,error,fatal -callbackport=9098`.
 
 * Dev Client `./dev-client`
 
@@ -51,27 +47,24 @@ If you intend to develop a Go application then you need not concern yourself wit
 
 To develop using Go you must use the package `wpwithin` in the `sdkcore` directory.
 
-If you wish to develop using a wrapper library then please navigate to your chosen language from the `wrappers` directory. Please see the included sample code on how to consume the SDK.
+If you wish to develop using a wrapper library then please navigate to your chosen language from the `wrappers` directory and see the included sample source code and readme files.
 
 ### Go development
-
-* Install Go command line tool
-* This is pretty simple to find on windows and Mac OS (OS X), note that Linux can be slightly trickier, but shouldn't be a problem either
-* Set up the environmental variables correctly; you only need to set $GOPATH, and that should be set as `<home>/<required_path>/<cloned_repo_structure>`, where `<home>` is wherever you want the code, `<required_path>` is `/src/github.com/wptechinnovation/`. For clarification the `$GOPATH` variable is where the source code for the Worldpay Within SDK will be, or you applicaiton code will reside, and is not the location of the actual golang binaries (for compiling and running go).
-* clone the repo to `$GOPATH/src/github.com/wptechinnovation/`
-* Get the dependencies; `go get ./...`
+* Prerequisite: correctly installed and configured environment
+* `go get github.com/wptechinnovation/worldpay-within-sdk` will download the SDK to your $GOPATH
+* Install Go dependencies: `cd applications/rpc-agent` then run: `go get ./...`
 
 ### Install the RPC agent
 * Change directory to `cd $GOPATH/src/github.com/wptechninnovation/worldpay-within-sdk/applications/rpc-agent`
 * Type `go install`
-* This should build, package up, and install the binaries for the rpc-agent into your bin directory `$GOPATH/bin`
+* This should build, package up, and install the binary for the rpc-agent into your bin directory `$GOPATH/bin`
 * If there are any errors around missing packages do additional `go get <package-repo-path>`
 * If there are any compile errors, it is likely you are running a version of go that is too old (we have seen this most commonly on Ubuntu Linux)
 
 ### Install the example client app
 * Change directory to `$GOPATH/src/github.com/wptechninnovation/worldpay-within-sdk/applications/dev-client/`
 * Type `go install`
-* This should build, package up, and install the binaries for the rpc-agent into your bin directory `$GOPATH/bin`
+* This should build, package up, and install the binary for the rpc-agent into your bin directory `$GOPATH/bin`
 * If there are any errors around missing packages do additional `go get <package-repo-path>`
 * If there are any compile errors, it is likely you are running a version of go that is too old (we have seen this most commonly on Ubuntu Linux)
 
