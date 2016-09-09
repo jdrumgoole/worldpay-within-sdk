@@ -74,6 +74,7 @@ func main() {
 	// Start off by setting logging to a high level
 	// This way we can catch output during initial setup of args and logging via arguments.
 	log.SetLevel(log.DebugLevel)
+	log.SetOutput(os.Stdout)
 
 	log.Debug("Begin main()")
 
