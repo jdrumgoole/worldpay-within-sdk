@@ -1,25 +1,29 @@
 package core
 
 import (
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configuration"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 )
 
-// SDK Core - This acts as a container for dependencies of the SDK
+// Core This acts as a container for dependencies of the SDK
 type Core struct {
 	Device         *types.Device
-	Psp            psp.Psp
+	Psp            psp.PSP
 	SvcBroadcaster servicediscovery.Broadcaster
 	SvcScanner     servicediscovery.Scanner
 	HTE            hte.Service
 	HCECard        *types.HCECard
 	OrderManager   hte.OrderManager
 	HTEClient      hte.Client
+	EventHandler   event.Handler
+	Configuration  configuration.WPWithin
 }
 
-// Create a new Core
+// NewCore Create a new Core
 func NewCore() (*Core, error) {
 
 	result := &Core{}
@@ -27,49 +31,49 @@ func NewCore() (*Core, error) {
 	return result, nil
 }
 
-// Device setter
+// SetDevice set the device
 func (core *Core) SetDevice(device *types.Device) {
 
 	core.Device = device
 }
 
-// PSP setter
-func (core *Core) SetPsp(psp psp.Psp) {
+// SetPsp set the PSP
+func (core *Core) SetPsp(psp psp.PSP) {
 
 	core.Psp = psp
 }
 
-// Service Broadcaster setter
+// SetSvcBroadcaster set the service broadcaster
 func (core *Core) SetSvcBroadcaster(svcBroadcaster servicediscovery.Broadcaster) {
 
 	core.SvcBroadcaster = svcBroadcaster
 }
 
-// Service Scanner setter
+// SetSvcScanner set the service scanner
 func (core *Core) SetSvcScanner(serviceScanner servicediscovery.Scanner) {
 
 	core.SvcScanner = serviceScanner
 }
 
-// HTE Service setter
+// SetHTE set the HTE Service
 func (core *Core) SetHTE(hteService hte.Service) {
 
 	core.HTE = hteService
 }
 
-// HCE Card setter
+// SetHCECard set the HCE card
 func (core *Core) SetHCECard(hceCard *types.HCECard) {
 
 	core.HCECard = hceCard
 }
 
-// Order Manager setter
+// SetOrderManager set the order manager
 func (core *Core) SetOrderManager(orderManager hte.OrderManager) {
 
 	core.OrderManager = orderManager
 }
 
-// HTE Client setter
+// SetHTEClient set the HTE client
 func (core *Core) SetHTEClient(hteClient hte.Client) {
 
 	core.HTEClient = hteClient

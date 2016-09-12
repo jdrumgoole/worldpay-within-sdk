@@ -12,5 +12,7 @@ type Service interface {
 	// Listening port
 	Port() int
 	// Url prefix of route URLs
-	UrlPrefix() string
+	URLPrefix() string
+	// Scheme e.g. HTTP/HTTPS
+	Scheme() string
 }

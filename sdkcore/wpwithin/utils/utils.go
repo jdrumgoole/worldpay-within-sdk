@@ -2,7 +2,9 @@ package utils
 
 import (
 	"bufio"
+	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/nu7hatch/gouuid"
@@ -103,4 +105,33 @@ func WriteString(path, input string, truncate bool) error {
 func TimeFormatISO(input time.Time) string {
 
 	return input.Format("2006-01-02T15:04:05Z")
+}
+
+// ParseISOTime parse an ISO8601 time string into a time object
+func ParseISOTime(input string) (time.Time, error) {
+
+	return time.Parse("2006-01-02T15:04:05Z", input)
+}
+
+// DoUnitConvertFormat similar to DoUnitConvert but a format string can be provided using "<amount>"
+// to represent the actual amount. Also note that an empty format string can be provided
+func DoUnitConvertFormat(amount, exponent int, format string) string {
+
+	var strAmount string
+
+	strAmount = fmt.Sprintf("%.2f", float32(amount)/100)
+
+	if !strings.EqualFold(format, "") {
+
+		return strings.Replace(format, "<amount>", strAmount, -1)
+	}
+
+	return strAmount
+}
+
+// DoUnitConvert convert an integer amount that represents minor currency units into a String formatted to represent
+// major units
+func DoUnitConvert(amount, exponent int) string {
+
+	return DoUnitConvertFormat(amount, exponent, "")
 }

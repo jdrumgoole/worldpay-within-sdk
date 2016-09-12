@@ -1,21 +1,23 @@
 package servicediscovery
+
 import (
-	log "github.com/Sirupsen/logrus"
-	"time"
 	"encoding/json"
+	"time"
+
+	log "github.com/Sirupsen/logrus"
+
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
 type broadcasterImpl struct {
-
-	run bool
+	run       bool
 	stepSleep int
-	host string
-	port int
-	comm Communicator
+	host      string
+	port      int
+	comm      Communicator
 }
 
-func (bcast *broadcasterImpl) StartBroadcast(msg types.ServiceMessage, timeoutMillis int) error {
+func (bcast *broadcasterImpl) StartBroadcast(msg types.BroadcastMessage, timeoutMillis int) error {
 
 	log.Debug("Start svc broadcast")
 
@@ -27,7 +29,6 @@ func (bcast *broadcasterImpl) StartBroadcast(msg types.ServiceMessage, timeoutMi
 	// Determine when the broadcast operation will expire
 	timeoutTime := time.Now().Add(time.Duration(timeoutMillis) * time.Millisecond)
 	timedOut := false
-
 
 	for bcast.run && !timedOut {
 
@@ -66,8 +67,10 @@ func (bcast *broadcasterImpl) StartBroadcast(msg types.ServiceMessage, timeoutMi
 		// Sleep before broadcasting another message - don't want to flood network
 		time.Sleep(time.Duration(bcast.stepSleep) * time.Millisecond)
 
-		// Determine if operation has timed out yet
-		timedOut = timeoutTime.Unix() <= time.Now().Unix()
+		if timeoutMillis > 0 {
+			// Determine if operation has timed out yet
+			timedOut = timeoutTime.Unix() <= time.Now().Unix()
+		}
 	}
 
 	// Clean up connection if still active
@@ -84,7 +87,7 @@ func (bcast *broadcasterImpl) StartBroadcast(msg types.ServiceMessage, timeoutMi
 		}
 	}
 
-	log.WithFields(log.Fields{ "Timed out": timedOut, "Run": bcast.run }).Debug("Finished broadcasting")
+	log.WithFields(log.Fields{"Timed out": timedOut, "Run": bcast.run}).Debug("Finished broadcasting")
 
 	return nil
 }

@@ -13,7 +13,7 @@ public class PricePerUnitAdapter {
         PricePerUnit pricePerUnit = new PricePerUnit();
 
         pricePerUnit.setAmount(wwPricePerUnit.getAmount());
-        pricePerUnit.setCurrencyCode(wwPricePerUnit.getCurrentCode());
+        pricePerUnit.setCurrencyCode(wwPricePerUnit.getCurrencyCode());
 
         return pricePerUnit;
 
@@ -23,7 +23,7 @@ public class PricePerUnitAdapter {
 
         WWPricePerUnit wwPricePerUnit = new WWPricePerUnit();
         wwPricePerUnit.setAmount(pricePerUnit.getAmount());
-        wwPricePerUnit.setCurrentCode(pricePerUnit.getCurrencyCode());
+        wwPricePerUnit.setCurrencyCode(pricePerUnit.getCurrencyCode());
         return wwPricePerUnit;
 
     }

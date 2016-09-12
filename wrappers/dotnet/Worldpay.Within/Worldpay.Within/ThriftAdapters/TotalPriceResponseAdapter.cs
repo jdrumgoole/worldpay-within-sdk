@@ -2,7 +2,7 @@
 
 namespace Worldpay.Innovation.WPWithin.ThriftAdapters
 {
-    public class TotalPriceResponseAdapter
+    internal class TotalPriceResponseAdapter
     {
         public static TotalPriceResponse Create(ThriftTotalPriceResponse resp)
         {

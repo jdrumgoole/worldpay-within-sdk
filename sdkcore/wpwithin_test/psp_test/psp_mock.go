@@ -5,11 +5,9 @@ import (
 )
 
 type owpMock struct {
-
-
 }
 
-func New() (psp.Psp, error) {
+func New() (psp.PSP, error) {
 
 	result := &owpMock{}
 

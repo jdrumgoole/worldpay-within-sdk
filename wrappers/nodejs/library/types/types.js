@@ -68,6 +68,7 @@ function ServiceMessage() {
   var portNumber;
   var serverId;
   var urlPrefix;
+  var scheme;
 };
 
 function ServiceDetails() {
@@ -85,6 +86,7 @@ function TotalPriceResponse() {
   var totalPrice;
   var paymentReferenceId;
   var merchantClientKey;
+  var currencyCode;
 };
 
 function PaymentResponse() {
@@ -93,7 +95,6 @@ function PaymentResponse() {
   var clientId;
   var totalPaid;
   var serviceDeliveryToken;
-  var clientUUID;
 }
 
 function ServiceDeliveryToken() {

@@ -1,3 +1,8 @@
+var util = require('util');
+var thrift = require('thrift');
+var wpwithinThrift = require('./wpwithin-thrift/WPWithin');
+var eventServer = require('./eventlistener/eventserver');
+
 module.exports = {
   createClient: createClient
 };
@@ -8,7 +13,6 @@ function WPWithin(thriftClient) {
 
   this.thriftClient = thriftClient;
 
-  this.startRPC = fnStartRPC;
   this.setup = fnSetup;
   this.addService = fnAddService;
   this.removeService = fnRemoveService;
@@ -139,17 +143,17 @@ var fnMakePayment = function(request, callback) {
   });
 };
 
-var fnBeginServiceDelivery = function(clientId, serviceDeliveryToken, unitsToSupply, callback) {
+var fnBeginServiceDelivery = function(serviceId, serviceDeliveryToken, unitsToSupply, callback) {
 
-  this.thriftClient.beginServiceDelivery(clientId, serviceDeliveryToken, unitsToSupply, function(err, result) {
+  this.thriftClient.beginServiceDelivery(serviceId, serviceDeliveryToken, unitsToSupply, function(err, result) {
 
     callback(err, result);
   });
 };
 
-var fnEndServiceDelivery = function(clientId, serviceDeliveryToken, unitsReceived, callback) {
+var fnEndServiceDelivery = function(serviceId, serviceDeliveryToken, unitsReceived, callback) {
 
-  this.thriftClient.endServiceDelivery(clientId, serviceDeliveryToken, unitsReceived, function(err, result) {
+  this.thriftClient.endServiceDelivery(serviceId, serviceDeliveryToken, unitsReceived, function(err, result) {
 
     callback(err, result);
   });
@@ -157,27 +161,57 @@ var fnEndServiceDelivery = function(clientId, serviceDeliveryToken, unitsReceive
 
 // Factory setup WPWithinClient
 // Should return an instance of WPWithin
-function createClient(host, port, callback) {
+function createClient(host, port, startRPCAgent, callback) {
+
+  createClient(host, port, startRPCAgent, callback, null, 0);
+}
+
+// Factory setup WPWithinClient
+// Should return an instance of WPWithin
+function createClient(host, port, startRPC, callback, eventListener, callbackPort) {
 
   try {
 
-    var thrift = require('thrift');
-    var WPWithinLib = require('./wpwithin-thrift/WPWithin');
+    // First, we validate the callback parameters. There are two and both need to be set
+    // to setup the callback server.
+    if(eventListener != null) {
 
-    transport = thrift.TBufferedTransport;
-    protocol = thrift.TBinaryProtocol;
+      // If eventListener is set, then need to validate the port
+      if(callbackPort <= 0 || callbackPort > 65535) {
 
-    var connection = thrift.createConnection(host, port);
+        callback(util.format("callbackPort (%d) is invalid should be > 0 and <= 65535", callbackPort), null)
 
-    connection.on('error', function(err) {
+        return
+      }
 
-      callback(err, null);
-    });
+      new eventServer.EventServer().start(eventListener, callbackPort);
 
-    tc = thrift.createClient(WPWithinLib, connection);
+    } else {
 
-    return new WPWithin(tc);
+      // So the event listener is not set, meaning the developer doesn't want any feedback of events
+      // in this case there is no need start the callback server. We can do this by setting the port to 0
+      callbackPort = 0
+    }
 
+    if(startRPC) {
+
+      launchRPCAgent(port, callbackPort, function(error, stdout, stderr){
+
+          if(error == null) {
+
+            createThriftClient(host, port, callback)
+          } else {
+
+            var strErr = util.format("%s \n %s", error, stderr)
+
+            callback(strErr, null);
+          }
+      });
+
+    } else {
+
+      createThriftClient(host, port, callback)
+    }
   } catch (err) {
 
     console.log("Caught error: %s", err)
@@ -186,9 +220,65 @@ function createClient(host, port, callback) {
   }
 };
 
-function fnStartRPC(port, callback) {
+function launchRPCAgent(port, callbackPort, callback) {
 
-  var rpc = require('./rpc');
+  var launcher = require('./launcher');
 
-  rpc.startRPC(port, callback);
+  var flagLogFile = "wpwithin.log"
+  var flagLogLevels = "debug,error,info,warn,fatal"
+  var flagCallbackPort = callbackPort > 0 ? "-callbackport="+callbackPort : ""
+  var binBase = process.env.WPWBIN == "" ? "./rpc-agent-bin" : process.env.WPWBIN
+
+  var config = {
+  	"windows": {
+  		"x64": util.format("%s/rpc-agent-win-64 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"ia32": util.format("%s/rpc-agent-win-32 -port=%d -logfile=%s -loglevel=%s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"arm": null
+  	},
+  	"darwin": {
+  		"x64": util.format("%s/rpc-agent-mac-64 -port %d -logfile %s -loglevel %s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"ia32": util.format("%s/rpc-agent-mac-32 -port %d -logfile %s -loglevel %s %s", binBase, port, flagLogFile, flagLogLevels, flagCallbackPort),
+  		"arm": null
+  	},
+  	"linux": {
+  		"x64": util.format("%s/rpc-agent-linux-64 -port %d -logfile %s -loglevel %s %s",binBase, port, flagLogFile, flagLogFile, flagCallbackPort),
+  		"ia32": util.format("%s/rpc-agent-linux-32 -port %d -logfile %s -loglevel %s %s",binBase, port, flagLogFile, flagLogFile, flagCallbackPort),
+  		"arm": util.format("%s/rpc-agent-linux-arm -port %d -logfile %s -loglevel %s %s",binBase, port, flagLogFile, flagLogFile, flagCallbackPort),
+  	}
+  };
+
+  var launchCallback = function(error, stdout, stderr) {
+
+    console.log("-------------Launcher Process Event-------------");
+    console.log("error: " + error);
+    console.log("stdout: " + stdout);
+    console.log("stderr: " + stderr);
+    console.log("------------------------------------------------");
+
+    callback(error, stdout, stderr);
+  };
+
+  launcher.startProcess(config, launchCallback);
+
+  var sleep = require('sleep');
+  sleep.usleep(750);
+  callback(null, null, null);
+};
+
+// Create a WPWithin Thrift client
+function createThriftClient(host, port, callback) {
+
+  transport = thrift.TBufferedTransport;
+  protocol = thrift.TBinaryProtocol;
+
+  var connection = thrift.createConnection(host, port);
+
+  connection.on('error', function(err) {
+
+    callback(err, null);
+  });
+
+  client = thrift.createClient(wpwithinThrift, connection);
+
+  callback(null, new WPWithin(client));
 }

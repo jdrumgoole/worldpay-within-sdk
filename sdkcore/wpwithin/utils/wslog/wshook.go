@@ -1,7 +1,6 @@
 package wslog
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -30,8 +29,6 @@ func Initialise(ip string, port int, levels []log.Level) error {
 	hook.levels = levels
 	hook.upgrader = websocket.Upgrader{} // Default options
 
-	fmt.Println(hook.SocketClosedMsg())
-
 	http.HandleFunc("/", hook.wsHome)
 	http.HandleFunc("/connect", hook.wsConnect)
 	listenAddr := fmt.Sprintf("%s:%d", hook.ip, hook.port)
@@ -42,6 +39,12 @@ func Initialise(ip string, port int, levels []log.Level) error {
 	}()
 
 	log.AddHook(hook)
+
+	fmt.Println("---------------------------------------------------")
+	fmt.Println("WebSocket logger has been initialised")
+	fmt.Println("To view log output in your browser please visit")
+	fmt.Printf("http://%s:%d\n", hook.ip, hook.port)
+	fmt.Println("---------------------------------------------------")
 
 	return nil
 }
@@ -55,17 +58,17 @@ func (hook *WSHook) Levels() []log.Level {
 // Fire fire an event
 func (hook *WSHook) Fire(entry *log.Entry) error {
 
-	var err error
+	//var err error
 
 	if hook.wsConn != nil {
 
-		err = hook.wsConn.WriteMessage(websocket.TextMessage, []byte(entry.Message))
+		hook.wsConn.WriteMessage(websocket.TextMessage, []byte(entry.Message))
 	} else {
 
-		err = errors.New(hook.SocketClosedMsg())
+		//err = errors.New(hook.SocketClosedMsg())
 	}
 
-	return err
+	return nil
 }
 
 func (hook *WSHook) wsHome(w http.ResponseWriter, r *http.Request) {

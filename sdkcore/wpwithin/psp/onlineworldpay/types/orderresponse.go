@@ -1,6 +1,6 @@
 package types
 
-// OrdeResponse details of the response to creating an order
+// OrderResponse details of the response to creating an order
 type OrderResponse struct {
 	OrderCode string `json:"orderCode"`
 

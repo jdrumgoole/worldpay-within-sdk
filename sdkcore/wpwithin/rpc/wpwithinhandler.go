@@ -1,25 +1,28 @@
 package rpc
 
 import (
-	"errors"
-
 	log "github.com/Sirupsen/logrus"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc/wpthrift/wpthrift_types"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
+// WPWithinHandler handle RPC requests
 type WPWithinHandler struct {
 	wpwithin wpwithin.WPWithin
+	callback event.Handler
 }
 
-func NewWPWithinHandler(wpWithin wpwithin.WPWithin) *WPWithinHandler {
+// NewWPWithinHandler create a new instance of WPWithinHandler
+func NewWPWithinHandler(wpWithin wpwithin.WPWithin, callback event.Handler) *WPWithinHandler {
 
 	log.Debug("Begin RPC.WPWithinHandler.NewWPWithinHander()")
 
 	result := &WPWithinHandler{
 		wpwithin: wpWithin,
+		callback: callback,
 	}
 
 	log.Debug("End RPC.WPWithinHandler.NewWPWithinHander()")
@@ -27,24 +30,38 @@ func NewWPWithinHandler(wpWithin wpwithin.WPWithin) *WPWithinHandler {
 	return result
 }
 
+// Setup a device with name and description
 func (wp *WPWithinHandler) Setup(name, description string) (err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.Setup()")
 
+	defer log.Debug("End RPC.WPWithinHandler.Setup()")
+
 	wpw, err := wpwithin.Initialise(name, description)
 
 	if err != nil {
+
+		log.Debug("Error initialising WPWithin. Error = %s", err.Error())
 
 		return err
 	}
 
 	wp.wpwithin = wpw
 
-	log.Debug("End RPC.WPWithinHandler.Setup()")
+	if wp.callback != nil {
+
+		log.Debug("wp.callback is set, setting handler in WPWithin.")
+
+		wp.wpwithin.SetEventHandler(wp.callback)
+	} else {
+
+		log.Debug("wp.callback not set, not setting handler in WPWithin.")
+	}
 
 	return nil
 }
 
+// AddService Add a new service
 func (wp *WPWithinHandler) AddService(svc *wpthrift_types.Service) (err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.AddService()")
@@ -56,6 +73,7 @@ func (wp *WPWithinHandler) AddService(svc *wpthrift_types.Service) (err error) {
 	return wp.wpwithin.AddService(nSvc)
 }
 
+// RemoveService remove a service
 func (wp *WPWithinHandler) RemoveService(svc *wpthrift_types.Service) (err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.RemoveService()")
@@ -67,7 +85,8 @@ func (wp *WPWithinHandler) RemoveService(svc *wpthrift_types.Service) (err error
 	return wp.wpwithin.RemoveService(nSvc)
 }
 
-func (wp *WPWithinHandler) InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serviceId string, hceCard *wpthrift_types.HCECard) (err error) {
+// InitConsumer Initialise a consumer to connect to a producer
+func (wp *WPWithinHandler) InitConsumer(scheme string, hostname string, port int32, urlPrefix string, serviceID string, hceCard *wpthrift_types.HCECard) (err error) {
 
 	log.Debug("RPC.WPWithinHandler.InitConsumer()")
 
@@ -81,9 +100,10 @@ func (wp *WPWithinHandler) InitConsumer(scheme string, hostname string, port int
 		Cvc:        hceCard.Cvc,
 	}
 
-	return wp.wpwithin.InitConsumer(scheme, hostname, int(port), urlPrefix, serviceId, &_hceCard)
+	return wp.wpwithin.InitConsumer(scheme, hostname, int(port), urlPrefix, serviceID, &_hceCard)
 }
 
+// InitProducer initialise a producer
 func (wp *WPWithinHandler) InitProducer(merchantClientKey string, merchantServiceKey string) (err error) {
 
 	log.Debug("RPC.WPWithinHandler.InitProducer()")
@@ -97,6 +117,7 @@ func (wp *WPWithinHandler) InitProducer(merchantClientKey string, merchantServic
 	return nil
 }
 
+// GetDevice returns details of the running device
 func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.GetDevice()")
@@ -122,10 +143,10 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 		for i, svc := range device.Services {
 
 			// Convert the prices to Thrift prices
-			svcPrices := svc.Prices()
+			svcPrices := svc.Prices
 			thriftPrices := make(map[int32]wpthrift_types.Price, 0)
 
-			log.Debugf("Found %d prices for service: %s (%d)", len(svcPrices), svc.Id, svc.Name)
+			log.Debugf("Found %d prices for service: %s (%d)", len(svcPrices), svc.ID, svc.Name)
 
 			if len(svcPrices) > 0 {
 
@@ -151,7 +172,7 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 
 			result.Services[int32(i)] = &wpthrift_types.Service{
 
-				ID:          int32(svc.Id),
+				ID:          int32(svc.ID),
 				Name:        svc.Name,
 				Description: svc.Description,
 				Prices:      thriftPrices,
@@ -166,6 +187,7 @@ func (wp *WPWithinHandler) GetDevice() (r *wpthrift_types.Device, err error) {
 	return result, nil
 }
 
+// StartServiceBroadcast starts broadcasting presence of device on network
 func (wp *WPWithinHandler) StartServiceBroadcast(timeoutMillis int32) (err error) {
 
 	log.Debug("RPC.WPWithinHandler.StartServiceBroadcast()")
@@ -173,6 +195,7 @@ func (wp *WPWithinHandler) StartServiceBroadcast(timeoutMillis int32) (err error
 	return wp.wpwithin.StartServiceBroadcast(int(timeoutMillis))
 }
 
+// StopServiceBroadcast stops broadcasting presence of device on network
 func (wp *WPWithinHandler) StopServiceBroadcast() (err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.StopServiceBroadcast()")
@@ -184,6 +207,7 @@ func (wp *WPWithinHandler) StopServiceBroadcast() (err error) {
 	return nil
 }
 
+// DeviceDiscovery initiate a discover process to detect the presence of producer devices on the network
 func (wp *WPWithinHandler) DeviceDiscovery(timeoutMillis int32) (r map[*wpthrift_types.ServiceMessage]bool, err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.ServiceDiscovery()")
@@ -204,7 +228,8 @@ func (wp *WPWithinHandler) DeviceDiscovery(timeoutMillis int32) (r map[*wpthrift
 			Hostname:          gSvcMsg.Hostname,
 			PortNumber:        int32(gSvcMsg.PortNumber),
 			ServerId:          gSvcMsg.ServerID,
-			UrlPrefix:         gSvcMsg.UrlPrefix,
+			UrlPrefix:         gSvcMsg.URLPrefix,
+			Scheme:            gSvcMsg.Scheme,
 		}
 
 		result[tmp] = true
@@ -215,6 +240,7 @@ func (wp *WPWithinHandler) DeviceDiscovery(timeoutMillis int32) (r map[*wpthrift
 	return result, nil
 }
 
+// RequestServices from a consumers perspective, request the services offered by a consumer
 func (wp *WPWithinHandler) RequestServices() (r map[*wpthrift_types.ServiceDetails]bool, err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.RequestServices()")
@@ -243,11 +269,12 @@ func (wp *WPWithinHandler) RequestServices() (r map[*wpthrift_types.ServiceDetai
 	return result, nil
 }
 
-func (wp *WPWithinHandler) GetServicePrices(serviceId int32) (r map[*wpthrift_types.Price]bool, err error) {
+// GetServicePrices from a consumers perspective, get the prices for a particular service
+func (wp *WPWithinHandler) GetServicePrices(serviceID int32) (r map[*wpthrift_types.Price]bool, err error) {
 
 	log.Debug("RPC.WPWithinHandler.GetServicePrices()")
 
-	gSvcPrices, err := wp.wpwithin.GetServicePrices(int(serviceId))
+	gSvcPrices, err := wp.wpwithin.GetServicePrices(int(serviceID))
 
 	if err != nil {
 
@@ -275,11 +302,13 @@ func (wp *WPWithinHandler) GetServicePrices(serviceId int32) (r map[*wpthrift_ty
 	return result, nil
 }
 
-func (wp *WPWithinHandler) SelectService(serviceId int32, numberOfUnits int32, priceId int32) (r *wpthrift_types.TotalPriceResponse, err error) {
+// SelectService from a consumers perspective, select a service to pay for
+// Also select the desired price and the number of units
+func (wp *WPWithinHandler) SelectService(serviceID int32, numberOfUnits int32, priceID int32) (r *wpthrift_types.TotalPriceResponse, err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.SelectService()")
 
-	gPriceResponse, err := wp.wpwithin.SelectService(int(serviceId), int(numberOfUnits), int(priceId))
+	gPriceResponse, err := wp.wpwithin.SelectService(int(serviceID), int(numberOfUnits), int(priceID))
 
 	if err != nil {
 
@@ -294,6 +323,7 @@ func (wp *WPWithinHandler) SelectService(serviceId int32, numberOfUnits int32, p
 		TotalPrice:         int32(gPriceResponse.TotalPrice),
 		PaymentReferenceId: gPriceResponse.PaymentReferenceID,
 		MerchantClientKey:  gPriceResponse.MerchantClientKey,
+		CurrencyCode:       gPriceResponse.CurrencyCode,
 	}
 
 	log.Debug("End RPC.WPWithinHandler.SelectService()")
@@ -301,6 +331,7 @@ func (wp *WPWithinHandler) SelectService(serviceId int32, numberOfUnits int32, p
 	return result, nil
 }
 
+// MakePayment a consumer calls this to pay for a selected service
 func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceResponse) (r *wpthrift_types.PaymentResponse, err error) {
 
 	log.Debug("Begin RPC.WPWithinHandler.MakePayment()")
@@ -313,6 +344,7 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 		TotalPrice:         int(request.TotalPrice),
 		PaymentReferenceID: request.PaymentReferenceId,
 		MerchantClientKey:  request.MerchantClientKey,
+		CurrencyCode:       request.CurrencyCode,
 	}
 
 	log.Debug("Finised converting thrift.TotalPriceResponse to go.TotalPriceResponse")
@@ -341,7 +373,6 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 		ClientId:             gPaymentResponse.ClientID,
 		TotalPaid:            int32(gPaymentResponse.TotalPaid),
 		ServiceDeliveryToken: deliveryToken,
-		ClientUUID:           gPaymentResponse.ClientUUID,
 	}
 
 	log.Debug("End RPC.WPWithinHandler.MakePayment()")
@@ -349,21 +380,93 @@ func (wp *WPWithinHandler) MakePayment(request *wpthrift_types.TotalPriceRespons
 	return result, nil
 }
 
-func (wp *WPWithinHandler) BeginServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (err error) {
+// BeginServiceDelivery begin the delivery of a purchased service
+func (wp *WPWithinHandler) BeginServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsToSupply int32) (*wpthrift_types.ServiceDeliveryToken, error) {
 
-	return errors.New("Not implemented..")
+	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": serviceDeliveryToken, "unitsToSupply": unitsToSupply}).Debug("begin rpc.WPWithinHandler.BeginServiceDelivery()")
+
+	defer log.Debug("end rpc.WPWithinHandler.BeginServiceDelivery()")
+
+	issueTime, err := utils.ParseISOTime(serviceDeliveryToken.Issued)
+
+	if err != nil {
+
+		log.Debugf("Error parsing serviceDeliveryToken.Issued time into ISOTime. Error = %s", err.Error())
+		return nil, err
+	}
+
+	expiryTime, err := utils.ParseISOTime(serviceDeliveryToken.Expiry)
+
+	if err != nil {
+
+		log.Debugf("Error parsing serviceDeliveryToken.Expiry time into ISOTime. Error = %s", err.Error())
+		return nil, err
+	}
+
+	sdt := types.ServiceDeliveryToken{
+
+		Key:            serviceDeliveryToken.Key,
+		Issued:         issueTime,
+		Expiry:         expiryTime,
+		RefundOnExpiry: serviceDeliveryToken.RefundOnExpiry,
+		Signature:      serviceDeliveryToken.Signature,
+	}
+
+	_sdt, err := wp.wpwithin.BeginServiceDelivery(int(serviceID), sdt, int(unitsToSupply))
+
+	if err != nil {
+
+		return nil, err
+	}
+
+	return convertDeliveryTokenToThrift(_sdt)
 }
 
-func (wp *WPWithinHandler) EndServiceDelivery(clientId string, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (err error) {
+// EndServiceDelivery end deliery of a purchased service
+func (wp *WPWithinHandler) EndServiceDelivery(serviceID int32, serviceDeliveryToken *wpthrift_types.ServiceDeliveryToken, unitsReceived int32) (*wpthrift_types.ServiceDeliveryToken, error) {
 
-	return errors.New("Not implemented..")
+	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": serviceDeliveryToken, "unitsReceived": unitsReceived}).Debug("begin rpc.WPWithinHandler.EndServiceDelivery()")
+
+	defer log.Debug("end rpc.WPWithinHandler.EndServiceDelivery()")
+
+	issueTime, err := utils.ParseISOTime(serviceDeliveryToken.Issued)
+
+	if err != nil {
+
+		return nil, err
+	}
+
+	expiryTime, err := utils.ParseISOTime(serviceDeliveryToken.Expiry)
+
+	if err != nil {
+
+		return nil, err
+	}
+
+	sdt := types.ServiceDeliveryToken{
+
+		Key:            serviceDeliveryToken.Key,
+		Issued:         issueTime,
+		Expiry:         expiryTime,
+		RefundOnExpiry: serviceDeliveryToken.RefundOnExpiry,
+		Signature:      serviceDeliveryToken.Signature,
+	}
+
+	_sdt, err := wp.wpwithin.EndServiceDelivery(int(serviceID), sdt, int(unitsReceived))
+
+	if err != nil {
+
+		return nil, err
+	}
+
+	return convertDeliveryTokenToThrift(_sdt)
 }
 
 func convertThriftServiceToNative(tSvc *wpthrift_types.Service) *types.Service {
 
 	nSvc, _ := types.NewService()
 
-	nSvc.Id = int(tSvc.ID)
+	nSvc.ID = int(tSvc.ID)
 	nSvc.Name = tSvc.Name
 	nSvc.Description = tSvc.Description
 
@@ -387,4 +490,16 @@ func convertThriftServiceToNative(tSvc *wpthrift_types.Service) *types.Service {
 	}
 
 	return nSvc
+}
+
+func convertDeliveryTokenToThrift(sdt types.ServiceDeliveryToken) (*wpthrift_types.ServiceDeliveryToken, error) {
+
+	tSDT := wpthrift_types.NewServiceDeliveryToken()
+	tSDT.Issued = utils.TimeFormatISO(sdt.Issued)
+	tSDT.Expiry = utils.TimeFormatISO(sdt.Expiry)
+	tSDT.Key = sdt.Key
+	tSDT.RefundOnExpiry = sdt.RefundOnExpiry
+	tSDT.Signature = sdt.Signature
+
+	return tSDT, nil
 }

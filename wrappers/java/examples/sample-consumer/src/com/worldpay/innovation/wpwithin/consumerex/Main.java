@@ -3,9 +3,6 @@ package com.worldpay.innovation.wpwithin.consumerex;
 import com.worldpay.innovation.wpwithin.WPWithinGeneralException;
 import com.worldpay.innovation.wpwithin.WPWithinWrapper;
 import com.worldpay.innovation.wpwithin.WPWithinWrapperImpl;
-import com.worldpay.innovation.wpwithin.rpc.types.HCECard;
-import com.worldpay.innovation.wpwithin.rpc.types.ServiceMessage;
-import com.worldpay.innovation.wpwithin.thriftadapter.HCECardAdapter;
 import com.worldpay.innovation.wpwithin.types.*;
 
 import java.util.Iterator;
@@ -14,15 +11,18 @@ import java.util.Set;
 public class Main {
 
     private static WPWithinWrapper wpw;
+    private static WWDevice wpwDevice;
 
     public static void main(String[] args) {
 
         System.out.println("Starting Consumer Example Written in Java.");
-        wpw = new WPWithinWrapperImpl("127.0.0.1", 9090);
+
+        wpw = new WPWithinWrapperImpl("127.0.0.1", 8778, true);
 
         try {
 
             wpw.setup("my-device", "an example consumer device");
+            wpwDevice = wpw.getDevice();
 
             Set<WWServiceMessage> devices = discoverDevices();
 
@@ -47,12 +47,17 @@ public class Main {
                         // Select the first price in the list
                         WWPrice svcPrice = svcPrices.iterator().next();
 
-                        WWTotalPriceResponse tpr = getServicePriceQuote(svcDetail.getServiceId(), 1, svcPrice.getId());
+                        WWTotalPriceResponse tpr = getServicePriceQuote(svcDetail.getServiceId(), 5, svcPrice.getId());
 
-                        WWPaymentResponse paymentResponse = purchaseService(tpr);
+                        System.out.printf("Client ID: %s\n", tpr.getClientId());
+                        System.out.printf("Server ID: %s\n", tpr.getServerId());
+
+                        WWPaymentResponse paymentResponse = purchaseService(svcDetail.getServiceId(), tpr);
                     }
                 }
             }
+
+            wpw.stopRPCAgent();
 
         } catch(WPWithinGeneralException wpge) {
 
@@ -62,7 +67,7 @@ public class Main {
 
     private static Set<WWServiceMessage> discoverDevices() throws WPWithinGeneralException {
 
-        Set<WWServiceMessage> devices = wpw.deviceDiscovery(20000);
+        Set<WWServiceMessage> devices = wpw.deviceDiscovery(15000);
 
         if(devices.size() > 0) {
 
@@ -77,6 +82,7 @@ public class Main {
                 System.out.printf("Port: %d\n", svcMsg.getPortNumber());
                 System.out.printf("URL Prefix: %s\n", svcMsg.getUrlPrefix());
                 System.out.printf("ServerId: %s\n", svcMsg.getServerId());
+                System.out.printf("Scheme: %s\n", svcMsg.getScheme());
 
                 System.out.println("--------");
             }
@@ -101,7 +107,7 @@ public class Main {
         card.setType("Card");
         card.setCvc("113");
 
-        wpw.initConsumer("http://", svcMsg.getHostname(), svcMsg.getPortNumber(), svcMsg.getUrlPrefix(), svcMsg.getServerId(), card);
+        wpw.initConsumer(svcMsg.getScheme(), svcMsg.getHostname(), svcMsg.getPortNumber(), svcMsg.getUrlPrefix(), wpwDevice.getUid(), card);
     }
 
     private static Set<WWServiceDetails> getAvailableServices() throws WPWithinGeneralException {
@@ -148,7 +154,7 @@ public class Main {
                 System.out.printf("UnitId: %d\n", price.getUnitId());
                 System.out.printf("UnitDescription: %s\n", price.getUnitDescription());
                 System.out.printf("Unit Price Amount: %d\n", price.getPricePerUnit().getAmount());
-                System.out.printf("Unit Price CurrencyCode: %s\n", price.getPricePerUnit().getCurrentCode());
+                System.out.printf("Unit Price CurrencyCode: %s\n", price.getPricePerUnit().getCurrencyCode());
                 System.out.println("------");
 
             }
@@ -167,6 +173,7 @@ public class Main {
             System.out.printf("Merchant client key: %s\n", tpr.getMerchantClientKey());
             System.out.printf("Payment reference id: %s\n", tpr.getPaymentReferenceId());
             System.out.printf("Units to supply: %d\n", tpr.getUnitsToSupply());
+            System.out.printf("Currency code: %s\n", tpr.getCurrencyCode());
             System.out.printf("Total price: %d\n", tpr.getTotalPrice());
 
         } else {
@@ -177,15 +184,13 @@ public class Main {
         return tpr;
     }
 
-    private static WWPaymentResponse purchaseService(WWTotalPriceResponse pReq) throws WPWithinGeneralException {
+    private static WWPaymentResponse purchaseService(int serviceID, WWTotalPriceResponse pReq) throws WPWithinGeneralException {
 
         WWPaymentResponse pResp = wpw.makePayment(pReq);
 
         if(pResp != null) {
 
             System.out.printf("Payment response: ");
-            System.out.printf("Client UUID: %s\n", pResp.getClientUuid());
-            System.out.printf("Client ServiceId: %s\n", pResp.getServerId());
             System.out.printf("Total paid: %d\n", pResp.getTotalPaid());
             System.out.printf("ServiceDeliveryToken.issued: %s\n", pResp.getServiceDeliveryToken().getIssued());
             System.out.printf("ServiceDeliveryToken.expiry: %s\n", pResp.getServiceDeliveryToken().getExpiry());
@@ -193,11 +198,36 @@ public class Main {
             System.out.printf("ServiceDeliveryToken.signature: %s\n", pResp.getServiceDeliveryToken().getSignature());
             System.out.printf("ServiceDeliveryToken.refundOnExpiry: %b\n", pResp.getServiceDeliveryToken().isRefundOnExpiry());
 
+            beginServiceDelivery(serviceID, pResp.getServiceDeliveryToken(), 5);
+
         } else {
 
             System.out.println("Result of make payment is null..");
         }
 
         return pResp;
+    }
+
+    private static void beginServiceDelivery(int serviceID, WWServiceDeliveryToken token, int unitsToSupply) throws WPWithinGeneralException {
+
+        System.out.println("Calling beginServiceDelivery()");
+
+        wpw.beginServiceDelivery(serviceID, token, unitsToSupply);
+
+        try {
+            System.out.println("Sleeping 10 seconds..");
+            Thread.sleep(10000);
+            endServiceDelivery(serviceID, token, unitsToSupply);
+        } catch (InterruptedException e) {
+
+            e.printStackTrace();
+        }
+    }
+
+    private static void endServiceDelivery(int serviceID, WWServiceDeliveryToken token, int unitsReceived) throws WPWithinGeneralException {
+
+        System.out.println("Calling endServiceDelivery()");
+
+        wpw.endServiceDelivery(serviceID, token, unitsReceived);
     }
 }

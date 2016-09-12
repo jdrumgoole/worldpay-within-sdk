@@ -1,37 +1,42 @@
 package types
 
-type Service struct {
+import "fmt"
 
-	Id int `json:"serviceID"`
-	Name string `json:"name"`
-	Description string `json:"description`
-	prices map[int]Price `json:"prices"`
+// Service is a service offered by a producer
+type Service struct {
+	ID          int           `json:"serviceID"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Prices      map[int]Price `json:"prices"`
 }
 
+// NewService creates a new instance of Service
 func NewService() (*Service, error) {
 
 	result := &Service{}
 
-	result.prices = make(map[int]Price, 0)
+	result.Prices = make(map[int]Price, 0)
 
 	return result, nil
 }
 
+// AddPrice add a price to a service
 func (service *Service) AddPrice(price Price) error {
 
-	service.prices[price.ID] = price
+	if _, exists := service.Prices[price.ID]; exists {
+
+		return fmt.Errorf("A price with that ID (%d) already exists for that service.", price.ID)
+	}
+
+	service.Prices[price.ID] = price
 
 	return nil
 }
 
+// RemovePrice removes a price from a service
 func (service *Service) RemovePrice(price Price) error {
 
-	delete(service.prices, price.ID)
+	delete(service.Prices, price.ID)
 
 	return nil
-}
-
-func (service *Service) Prices() map[int]Price {
-
-	return service.prices
 }

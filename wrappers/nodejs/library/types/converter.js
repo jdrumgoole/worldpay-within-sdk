@@ -91,6 +91,7 @@ function constructFromThrift() {
     result.portNumber = serviceMessage.portNumber;
     result.serverId = serviceMessage.serverId;
     result.urlPrefix = serviceMessage.urlPrefix;
+    result.scheme = serviceMessage.scheme;
 
     return result;
   };
@@ -114,6 +115,7 @@ function constructFromThrift() {
     result.totalPrice = totalPriceResponse.totalPrice;
     result.paymentReferenceId = totalPriceResponse.paymentReferenceId;
     result.merchantClientKey = totalPriceResponse.merchantClientKey;
+    result.currencyCode = totalPriceResponse.currencyCode;
 
     return result;
   };
@@ -228,6 +230,7 @@ function constructToThrift() {
     result.portNumber = serviceMessage.portNumber;
     result.serverId = serviceMessage.serverId;
     result.urlPrefix = serviceMessage.urlPrefix;
+    result.scheme = serviceMessage.scheme;
 
     return result;
   };
@@ -251,6 +254,7 @@ function constructToThrift() {
     result.totalPrice = totalPriceResponse.totalPrice;
     result.paymentReferenceId = totalPriceResponse.paymentReferenceId;
     result.merchantClientKey = totalPriceResponse.merchantClientKey;
+    result.currencyCode = totalPriceResponse.currencyCode;
 
     return result;
   };

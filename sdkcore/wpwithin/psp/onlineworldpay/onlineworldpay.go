@@ -16,13 +16,15 @@ import (
 	wpwithin_types "github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
+// OnlineWorldpay implementation of PSP
 type OnlineWorldpay struct {
 	MerchantClientKey  string
 	MerchantServiceKey string
 	apiEndpoint        string
 }
 
-func NewMerchant(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp.Psp, error) {
+// NewMerchant create a new clint with a merchant context
+func NewMerchant(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp.PSP, error) {
 
 	result := &OnlineWorldpay{
 		MerchantClientKey:  merchantClientKey,
@@ -33,7 +35,8 @@ func NewMerchant(merchantClientKey, merchantServiceKey, apiEndpoint string) (psp
 	return result, nil
 }
 
-func NewClient(apiEndpoint string) (psp.Psp, error) {
+// NewClient create a new client - no merchant information is required
+func NewClient(apiEndpoint string) (psp.PSP, error) {
 
 	result := &OnlineWorldpay{
 		apiEndpoint: apiEndpoint,
@@ -42,6 +45,8 @@ func NewClient(apiEndpoint string) (psp.Psp, error) {
 	return result, nil
 }
 
+// GetToken by passing a card credentials and a clientKey, Worldpay returns a token representing
+// those payment credentials
 func (owp *OnlineWorldpay) GetToken(hceCredentials *wpwithin_types.HCECard, clientKey string, reusableToken bool) (string, error) {
 
 	if reusableToken {
@@ -87,6 +92,7 @@ func (owp *OnlineWorldpay) GetToken(hceCredentials *wpwithin_types.HCECard, clie
 	return tokenResponse.Token, err
 }
 
+// MakePayment make a payment
 func (owp *OnlineWorldpay) MakePayment(amount int, currencyCode, clientToken, orderDescription, customerOrderCode string) (string, error) {
 
 	log.WithFields(log.Fields{"Amount": strconv.Itoa(amount), "CurrencyCode": currencyCode, "ClientToken": clientToken,
@@ -185,21 +191,20 @@ func post(url string, requestBody []byte, headers map[string]string, v interface
 		return err
 	}
 
-	if resp.StatusCode == HTTP_OK {
+	if resp.StatusCode == HTTPOK {
 
 		log.Debug(fmt.Sprintf("Response body: %s", string(respBody)))
 
 		return json.Unmarshal(respBody, &v)
-	} else {
+	}
 
-		wpErr := types.ErrorResponse{}
+	wpErr := types.ErrorResponse{}
 
-		if err := json.Unmarshal(respBody, &wpErr); err == nil {
+	if err := json.Unmarshal(respBody, &wpErr); err == nil {
 
-			log.WithFields(log.Fields{"Message": wpErr.Message, "Description": wpErr.Description, "CustomCode": wpErr.CustomCode, "HTTP Status Code": wpErr.HTTPStatusCode, "HelpUrl": wpErr.ErrorHelpURL}).Debug("** POST Response")
+		log.WithFields(log.Fields{"Message": wpErr.Message, "Description": wpErr.Description, "CustomCode": wpErr.CustomCode, "HTTP Status Code": wpErr.HTTPStatusCode, "HelpUrl": wpErr.ErrorHelpURL}).Debug("** POST Response")
 
-			return fmt.Errorf("HTTP Status: %d - CustomCode: %s - Message: %s", wpErr.HTTPStatusCode, wpErr.CustomCode, wpErr.Message)
-		}
+		return fmt.Errorf("HTTP Status: %d - CustomCode: %s - Message: %s", wpErr.HTTPStatusCode, wpErr.CustomCode, wpErr.Message)
 	}
 
 	return nil

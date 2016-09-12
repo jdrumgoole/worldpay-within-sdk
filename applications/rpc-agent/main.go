@@ -7,7 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
-	conf "github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configLoad"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configuration"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/rpc"
 )
 
@@ -16,50 +16,65 @@ import (
 	The intention is that this program is called by language wrappers in order to gain RPC access to the core.
 */
 
-// Application exit codes
-const EXIT_OK = 0
-const EXIT_GENERAL_ERR = 1
+const exitOK = 0
+const exitGeneralErr = 1
 
 // Log level selectors passed in as argument
-const LEVEL_PANIC = "panic"
-const LEVEL_FATAL = "fatal"
-const LEVEL_ERROR = "error"
-const LEVEL_WARN = "warn"
-const LEVEL_INFO = "info"
-const LEVEL_DEBUG = "debug"
+const levelPanic = "panic"
+const levelFatal = "fatal"
+const levelError = "error"
+const levelWarn = "warn"
+const levelInfo = "info"
+const levelDebug = "debug"
 
 // General constants
-const LOGFILE_PERMS = 0755
-const RPC_MIN_PORT = 1
-const DEFAULT_ARG_CONFIGFILE = ""
-const DEFAULT_ARG_PORT = 0 // Defaulting to this should cause error (desired) (force port specifer// )
-const DEFAULT_ARG_TRANSPORT_BUFFER = 8192
-const DEFAULT_ARG_FRAMED = false
-const DEFAULT_ARG_BUFFERED = false
-const DEFAULT_ARG_SECURE = false
-const DEFAULT_ARG_HOST = "127.0.0.1"
-const DEFAULT_ARG_PROTOCOL = "binary"
+const logfilePerms = 0755
+const rpcMinPort = 1
+const defaultArgConfigFile = ""
+const defaultArgPort = 0 // Defaulting to this should cause error (desired) (force port specifer// )
+const defaultArgTransportBuffer = 8192
+const defaultArgFramed = false
+const defaultArgBuffered = false
+const defaultArgSecure = false
+const defaultArgHost = "127.0.0.1"
+const defaultArgProtocol = "binary"
+const defaultArgCallbackPort = 0 // Default 0 means callback feature not to be used
 
-const ARG_NAME_CONFIGFILE = "configfile"
-const ARG_NAME_LOG_LEVEL = "loglevel"
-const ARG_NAME_LOGFILE = "logfile"
-const ARG_NAME_PROTOCOL = "protocol"
-const ARG_NAME_FRAMED = "framed"
-const ARG_NAME_BUFFERED = "buffered"
-const ARG_NAME_HOST = "host"
-const ARG_NAME_PORT = "port"
-const ARG_NAME_SECURE = "secure"
-const ARG_NAME_BUFFER = "buffer"
+const argNameConfigFile = "configfile"
+const argNameLogLevel = "loglevel"
+const argNameLogfile = "logfile"
+const argNameProtocol = "protocol"
+const argNameFramed = "framed"
+const argNameBuffered = "buffered"
+const argNameHost = "host"
+const argNamePort = "port"
+const argNameSecure = "secure"
+const argNameBuffer = "buffer"
+const argNameCallbackPort = "callbackport"
 
 // Globally scoped vars
 var sdk wpwithin.WPWithin
 var rpcConfig rpc.Configuration
+
+const (
+	keyBufferSize   string = "BufferSize"
+	keyBuffered     string = "Buffered"
+	keyFramed       string = "Framed"
+	keyHost         string = "Host"
+	keyLogfile      string = "Logfile"
+	keyLoglevel     string = "Loglevel"
+	keyPort         string = "Port"
+	keyProtocol     string = "Protocol"
+	keySecure       string = "Secure"
+	keyCallbackPort string = "CallbackPort"
+)
 
 func main() {
 
 	// Start off by setting logging to a high level
 	// This way we can catch output during initial setup of args and logging via arguments.
 	log.SetLevel(log.DebugLevel)
+	log.SetOutput(os.Stdout)
 
 	log.Debug("Begin main()")
 
@@ -73,7 +88,8 @@ func main() {
 
 	fmt.Println("Program end...")
 	log.Debug("Application end - End main()")
-	os.Exit(EXIT_OK)
+
+	os.Exit(exitOK)
 }
 
 func initArgs() {
@@ -81,20 +97,21 @@ func initArgs() {
 	log.Debug("Begin initArgs()")
 
 	// Determine whether to use config file
-	configFilePtr := flag.String(ARG_NAME_CONFIGFILE, DEFAULT_ARG_CONFIGFILE, "Config file name - string.")
+	configFilePtr := flag.String(argNameConfigFile, defaultArgConfigFile, "Config file name - string.")
 
 	// Log config args
-	logLevelPtr := flag.String(ARG_NAME_LOG_LEVEL, LEVEL_WARN, "Log level")
-	logFilePtr := flag.String(ARG_NAME_LOGFILE, "", "Log file, if set, outputs to file, if not, not logfile.")
+	logLevelPtr := flag.String(argNameLogLevel, levelWarn, "Log level")
+	logFilePtr := flag.String(argNameLogfile, "", "Log file, if set, outputs to file, if not, not logfile.")
 
 	// Program specific arguments
-	protocolPtr := flag.String(ARG_NAME_PROTOCOL, DEFAULT_ARG_PROTOCOL, "Transport protocol.")
-	framedPtr := flag.Bool(ARG_NAME_FRAMED, DEFAULT_ARG_FRAMED, "Framed transmission - bool.")
-	bufferedPtr := flag.Bool(ARG_NAME_BUFFERED, DEFAULT_ARG_BUFFERED, "Buffered transmission - bool.")
-	hostPtr := flag.String(ARG_NAME_HOST, DEFAULT_ARG_HOST, "Listening host.")
-	portPtr := flag.Int(ARG_NAME_PORT, DEFAULT_ARG_PORT, "Port to listen on. Required.")
-	securePtr := flag.Bool(ARG_NAME_SECURE, DEFAULT_ARG_SECURE, "Secured transport - bool.")
-	bufferPtr := flag.Int(ARG_NAME_BUFFER, DEFAULT_ARG_TRANSPORT_BUFFER, "Buffer size.")
+	protocolPtr := flag.String(argNameProtocol, defaultArgProtocol, "Transport protocol.")
+	framedPtr := flag.Bool(argNameFramed, defaultArgFramed, "Framed transmission - bool.")
+	bufferedPtr := flag.Bool(argNameBuffered, defaultArgBuffered, "Buffered transmission - bool.")
+	hostPtr := flag.String(argNameHost, defaultArgHost, "Listening host.")
+	portPtr := flag.Int(argNamePort, defaultArgPort, "Port to listen on. Required.")
+	securePtr := flag.Bool(argNameSecure, defaultArgSecure, "Secured transport - bool.")
+	bufferPtr := flag.Int(argNameBuffer, defaultArgTransportBuffer, "Buffer size.")
+	callbackPortPtr := flag.Int(argNameCallbackPort, defaultArgCallbackPort, "Callback Port")
 
 	log.Debug("Before flag.parse()")
 	flag.Parse()
@@ -107,6 +124,7 @@ func initArgs() {
 	portValue := *portPtr
 	secureValue := *securePtr
 	bufferValue := *bufferPtr
+	callbackPortValue := *callbackPortPtr
 
 	log.Debug("After flag.parse()")
 
@@ -117,23 +135,36 @@ func initArgs() {
 		log.Debug("Begin PopulateConfiguration() from config file")
 
 		// Pull from config file - command line overwrites
-		rpcConfig = rpc.Configuration{}
-		rpcConfig = conf.PopulateConfiguration(configFileValue, rpcConfig)
+		// rpcConfig := conf.PopulateConfiguration(configFileValue)
+		config, err := configuration.Load(configFileValue)
+
+		if err != nil {
+
+			fmt.Println(err.Error())
+			os.Exit(2)
+		}
 
 		log.Debug("End PopulateConfiguration() from config file")
 
 		// Use config file
-		logLevelValue = rpcConfig.Loglevel
-		logFileValue = rpcConfig.Logfile
+		logLevelValue = config.GetValue(keyLoglevel).Value
+		logFileValue = config.GetValue(keyLogfile).Value
 
 		// Program specific arguments
-		protocolValue = rpcConfig.Protocol
-		framedValue = rpcConfig.Framed
-		bufferedValue = rpcConfig.Buffered
-		hostValue = rpcConfig.Host
-		portValue = rpcConfig.Port
-		secureValue = rpcConfig.Secure
-		bufferValue = rpcConfig.BufferSize
+		protocolValue = config.GetValue(keyProtocol).Value
+		framed, err := config.GetValue(keyFramed).ReadBool()
+		framedValue = framed
+		buffered, err := config.GetValue(keyBuffered).ReadBool()
+		bufferedValue = buffered
+		hostValue = config.GetValue(keyHost).Value
+		port, err := config.GetValue(keyPort).ReadInt()
+		portValue = port
+		secure, err := config.GetValue(keySecure).ReadBool()
+		secureValue = secure
+		bufferSize, err := config.GetValue(keyBufferSize).ReadInt()
+		bufferValue = bufferSize
+		callbackPort, err := config.GetValue(keyCallbackPort).ReadInt()
+		callbackPortValue = callbackPort
 
 		log.Debug("Before parsing the config file")
 		// TODO write parser for config file
@@ -147,18 +178,18 @@ func initArgs() {
 
 	switch logLevelValue {
 
-	case LEVEL_PANIC:
+	case levelPanic:
 		log.SetLevel(log.PanicLevel)
-	case LEVEL_FATAL:
+	case levelFatal:
 		log.SetLevel(log.FatalLevel)
-	case LEVEL_ERROR:
+	case levelError:
 		log.SetLevel(log.ErrorLevel)
 	default:
-	case LEVEL_WARN:
+	case levelWarn:
 		log.SetLevel(log.WarnLevel)
-	case LEVEL_INFO:
+	case levelInfo:
 		log.SetLevel(log.InfoLevel)
-	case LEVEL_DEBUG:
+	case levelDebug:
 		log.SetLevel(log.DebugLevel)
 	}
 
@@ -169,11 +200,11 @@ func initArgs() {
 
 		log.WithField("File", logFileValue).Debug("Will logs to file.")
 
-		logFile, err := os.OpenFile(logFileValue, os.O_WRONLY|os.O_CREATE, LOGFILE_PERMS)
+		logFile, err := os.OpenFile(logFileValue, os.O_WRONLY|os.O_CREATE, logfilePerms)
 
 		if err != nil {
 
-			log.Warn(fmt.Sprintf("Could not create log file", err.Error()))
+			log.Warn(fmt.Sprintf("Could not create log file: %s", err.Error()))
 		} else {
 
 			log.Debug("Setting up log text formatter")
@@ -203,6 +234,7 @@ func initArgs() {
 	rpcConfig.Port = portValue
 	rpcConfig.Secure = secureValue
 	rpcConfig.BufferSize = bufferValue
+	rpcConfig.CallbackPort = callbackPortValue
 	log.Debug("After assign RPC config.")
 
 	log.Debug("End initArgs()")
@@ -213,13 +245,13 @@ func startRPC() {
 	log.Debug("Before startRPC()")
 
 	// Validate required (with no defaults)
-	if rpcConfig.Port < RPC_MIN_PORT {
+	if rpcConfig.Port < rpcMinPort {
 
 		log.WithFields(log.Fields{"Port": rpcConfig}).Fatal("Invalid listening port provided")
 
 		fmt.Println("Port value must be greater than zero")
 
-		os.Exit(EXIT_GENERAL_ERR)
+		os.Exit(exitGeneralErr)
 	}
 
 	log.WithField("Configuration: ", fmt.Sprintf("%+v", rpcConfig)).Debug("Before rpc.NewService")
@@ -232,7 +264,7 @@ func startRPC() {
 
 		log.WithFields(log.Fields{"Error": err.Error()}).Fatal("Error creating new RPC service")
 
-		os.Exit(EXIT_GENERAL_ERR)
+		os.Exit(exitGeneralErr)
 	}
 
 	log.WithFields(log.Fields{"port": rpcConfig.Port}).Debug("Attempting to start RPC interface on port")
@@ -242,7 +274,7 @@ func startRPC() {
 
 		fmt.Printf("Error starting RPC service: %q\n", err.Error())
 
-		os.Exit(EXIT_GENERAL_ERR)
+		os.Exit(exitGeneralErr)
 	}
 
 	log.Debug("End startRPC()")

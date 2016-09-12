@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+
 	log "github.com/Sirupsen/logrus"
 	devclienttypes "github.com/wptechinnovation/worldpay-within-sdk/applications/dev-client/types"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
@@ -112,7 +113,7 @@ func mScanService() error {
 	}
 
 	for _, svc := range services {
-		log.Debug("(%s:%d/%s) - %s", svc.Hostname, svc.PortNumber, svc.UrlPrefix, svc.DeviceDescription)
+		log.Debug("(%s:%d/%s) - %s", svc.Hostname, svc.PortNumber, svc.URLPrefix, svc.DeviceDescription)
 	}
 	return nil
 }
@@ -144,10 +145,10 @@ func mAutoConsume() error {
 			fmt.Println("Could not find service - is the device id in the autoconsume section correct?")
 		} else {
 
-			fmt.Printf("Found Service:: (%s:%d/%s) - %s\n", services[foundServiceIdx].Hostname, services[foundServiceIdx].PortNumber, services[foundServiceIdx].UrlPrefix, services[foundServiceIdx].DeviceDescription)
+			fmt.Printf("Found Service:: (%s:%d/%s) - %s\n", services[foundServiceIdx].Hostname, services[foundServiceIdx].PortNumber, services[foundServiceIdx].URLPrefix, services[foundServiceIdx].DeviceDescription)
 
 			log.Debug("Init consumer")
-			err := sdk.InitConsumer("http://", services[foundServiceIdx].Hostname, services[foundServiceIdx].PortNumber, services[foundServiceIdx].UrlPrefix, services[foundServiceIdx].ServerID, deviceProfile.DeviceEntity.Consumer.HCECard)
+			err := sdk.InitConsumer("http://", services[foundServiceIdx].Hostname, services[foundServiceIdx].PortNumber, services[foundServiceIdx].URLPrefix, services[foundServiceIdx].ServerID, deviceProfile.DeviceEntity.Consumer.HCECard)
 			if err != nil {
 
 				return err

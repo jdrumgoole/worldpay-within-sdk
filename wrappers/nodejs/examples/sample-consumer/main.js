@@ -1,22 +1,47 @@
 var wpwithin = require('../../library/wpwithin');
 var types = require('../../library/types/types');
 var typesConverter = require('../../library/types/converter');
+var client;
+var device;
 
-client = wpwithin.createClient("127.0.0.1", 9090, function(err, response){
+wpwithin.createClient("127.0.0.1", 9088, true, function(err, response){
 
   console.log("createClient.callback")
   console.log("createClient.callback.err: " + err)
   console.log("createClient.callback.response: %j", response);
+
+  if(err == null) {
+
+      client = response;
+
+      setup();
+  }
 });
 
-client.setup("NodeJS-Device", "Sample NodeJS consumer device", function(err, response){
+function setup() {
 
-  console.log("setup.callback.err: " + err);
-  console.log("setup.callback.response: %j", response);
+  client.setup("NodeJS-Device", "Sample NodeJS consumer device", function(err, response){
 
-  console.log("Calling discover devices..");
-  discoverDevices();
-});
+    console.log("setup.callback.err: " + err);
+    console.log("setup.callback.response: %j", response);
+
+    console.log("Calling discover devices..");
+
+    device = client.getDevice(function(err, response){
+
+      console.log("getDevice.callback")
+      console.log("getDevice.callback.err: " + err)
+      console.log("getDevice.callback.response: %j", response);
+
+      if(err == null) {
+
+        device = response;
+      }
+    });
+
+    discoverDevices();
+  })
+};
 
 function discoverDevices() {
 
@@ -65,8 +90,8 @@ function connectToDevice(serviceMessage) {
   hceCard.type = "Card";
   hceCard.cvc = "123";
 
-  client.initConsumer("http://", serviceMessage.hostname, serviceMessage.portNumber,
-  serviceMessage.urlPrefix, serviceMessage.serverId, hceCard, function(err, response){
+  client.initConsumer(serviceMessage.scheme, serviceMessage.hostname, serviceMessage.portNumber,
+  serviceMessage.urlPrefix, device.uid, hceCard, function(err, response){
 
     console.log("initConsumer.callback.err: %s" + err);
     console.log("initConsumer.callback.response: %j", response);
@@ -122,7 +147,7 @@ function getServicePrices(serviceId) {
         console.log("\tCurrency Code: %s", price.pricePerUnit.currencyCode);
         console.log("----------");
 
-        getServicePriceQuote(serviceId, 1, price.id);
+        getServicePriceQuote(serviceId, 10, price.id);
     } else {
 
       console.log("Did not receive any service prices :/");
@@ -147,9 +172,10 @@ function getServicePriceQuote(serviceId, numberOfUnits, priceId) {
       console.log("TotalPrice: %d", response.totalPrice);
       console.log("PaymentReferenceId: %s", response.paymentReferenceId);
       console.log("MerchantClientKey: %s", response.merchantClientKey);
+      console.log("CurrencyCode: %s", response.currencyCode);
       console.log("------");
 
-      purchaseService(response);
+      purchaseService(serviceId, response);
 
     } else {
 
@@ -158,7 +184,7 @@ function getServicePriceQuote(serviceId, numberOfUnits, priceId) {
   });
 }
 
-function purchaseService(totalPriceResponse) {
+function purchaseService(serviceId, totalPriceResponse) {
 
   client.makePayment(totalPriceResponse, function(err, response) {
 
@@ -177,12 +203,39 @@ function purchaseService(totalPriceResponse) {
       console.log("\tExpiry: %s", response.serviceDeliveryToken.expiry);
       console.log("\tRefundOnExpiry: %b", response.serviceDeliveryToken.refundOnExpiry);
       console.log("\tSignature: %s", response.serviceDeliveryToken.signature);
-      console.log("ClientUUID: %s", response.clientUUID);
       console.log("----------");
+
+      beginServiceDelivery(serviceId, response.serviceDeliveryToken, 8);
 
     } else {
 
       console.log("Did not receive correct response to make payment..");
     }
+  });
+}
+
+function beginServiceDelivery(serviceId, serviceDeliveryToken, unitsToSupply) {
+
+  client.beginServiceDelivery(serviceId, serviceDeliveryToken, unitsToSupply, function(err, response) {
+
+    console.log("beginServiceDelivery.callback.err: %s" + err);
+    console.log("beginServiceDelivery.callback.response: %j", response);
+
+    var sleep = require('sleep');
+
+    console.log("Will sleep for 10 seconds..");
+    sleep.sleep(10)
+
+    endServiceDelivery(serviceId, serviceDeliveryToken, 8)
+  });
+}
+
+function endServiceDelivery(serviceId, serviceDeliveryToken, unitsReceived) {
+
+  client.endServiceDelivery(serviceId, serviceDeliveryToken, unitsReceived, function(err, response) {
+
+    console.log("endServiceDelivery.callback.err: %s" + err);
+    console.log("endServiceDelivery.callback.response: %j", response);
+
   });
 }

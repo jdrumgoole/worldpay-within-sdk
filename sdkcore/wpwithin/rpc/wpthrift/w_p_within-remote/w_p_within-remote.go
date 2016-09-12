@@ -6,6 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"git.apache.org/thrift.git/lib/go/thrift"
 	"math"
 	"net"
 	"net/url"
@@ -13,8 +14,6 @@ import (
 	"strconv"
 	"strings"
 	"wpthrift"
-
-	"git.apache.org/thrift.git/lib/go/thrift"
 )
 
 func Usage() {
@@ -24,7 +23,7 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "  void setup(string name, string description)")
 	fmt.Fprintln(os.Stderr, "  void addService(Service svc)")
 	fmt.Fprintln(os.Stderr, "  void removeService(Service svc)")
-	fmt.Fprintln(os.Stderr, "  void initConsumer(string scheme, string hostname, i32 port, string urlPrefix, string serverId, HCECard hceCard)")
+	fmt.Fprintln(os.Stderr, "  void initConsumer(string scheme, string hostname, i32 port, string urlPrefix, string clientID, HCECard hceCard)")
 	fmt.Fprintln(os.Stderr, "  void initProducer(string merchantClientKey, string merchantServiceKey)")
 	fmt.Fprintln(os.Stderr, "  Device getDevice()")
 	fmt.Fprintln(os.Stderr, "  void startServiceBroadcast(i32 timeoutMillis)")
@@ -34,8 +33,8 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "   getServicePrices(i32 serviceId)")
 	fmt.Fprintln(os.Stderr, "  TotalPriceResponse selectService(i32 serviceId, i32 numberOfUnits, i32 priceId)")
 	fmt.Fprintln(os.Stderr, "  PaymentResponse makePayment(TotalPriceResponse request)")
-	fmt.Fprintln(os.Stderr, "  void beginServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, i32 unitsToSupply)")
-	fmt.Fprintln(os.Stderr, "  void endServiceDelivery(string clientId, ServiceDeliveryToken serviceDeliveryToken, i32 unitsReceived)")
+	fmt.Fprintln(os.Stderr, "  ServiceDeliveryToken beginServiceDelivery(i32 serviceID, ServiceDeliveryToken serviceDeliveryToken, i32 unitsToSupply)")
+	fmt.Fprintln(os.Stderr, "  ServiceDeliveryToken endServiceDelivery(i32 serviceID, ServiceDeliveryToken serviceDeliveryToken, i32 unitsReceived)")
 	fmt.Fprintln(os.Stderr)
 	os.Exit(0)
 }
@@ -372,7 +371,12 @@ func main() {
 			fmt.Fprintln(os.Stderr, "BeginServiceDelivery requires 3 args")
 			flag.Usage()
 		}
-		argvalue0 := flag.Arg(1)
+		tmp0, err74 := (strconv.Atoi(flag.Arg(1)))
+		if err74 != nil {
+			Usage()
+			return
+		}
+		argvalue0 := int32(tmp0)
 		value0 := argvalue0
 		arg75 := flag.Arg(2)
 		mbTrans76 := thrift.NewTMemoryBufferLen(len(arg75))
@@ -406,7 +410,12 @@ func main() {
 			fmt.Fprintln(os.Stderr, "EndServiceDelivery requires 3 args")
 			flag.Usage()
 		}
-		argvalue0 := flag.Arg(1)
+		tmp0, err82 := (strconv.Atoi(flag.Arg(1)))
+		if err82 != nil {
+			Usage()
+			return
+		}
+		argvalue0 := int32(tmp0)
 		value0 := argvalue0
 		arg83 := flag.Arg(2)
 		mbTrans84 := thrift.NewTMemoryBufferLen(len(arg83))

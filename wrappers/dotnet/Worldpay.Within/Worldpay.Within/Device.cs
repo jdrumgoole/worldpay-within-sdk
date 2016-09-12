@@ -1,11 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 
 namespace Worldpay.Innovation.WPWithin
 {
     public class Device
     {
+        public Device(string uid)
+        {
+            Uid = uid;
+        }
 
-        public string Uid { get; set; }
+        public string Uid { get; }
 
         public string Name { get; set; }
 
@@ -13,7 +18,7 @@ namespace Worldpay.Innovation.WPWithin
 
         public Dictionary<int, Service> Services { get; set; }
 
-        public System.Net.IPAddress Ipv4Address { get; set; }
+        public IPAddress Ipv4Address { get; set; }
 
         public string CurrencyCode { get; set; }
 
@@ -31,14 +36,7 @@ namespace Worldpay.Innovation.WPWithin
 
         public override int GetHashCode()
         {
-            return new HashCodeBuilder<Device>(this)
-                .With(m => m.Uid)
-                .With(m => m.Name)
-                .With(m => m.Description)
-                .With(m => m.Services)
-                .With(m => m.Ipv4Address)
-                .With(m => m.CurrencyCode)
-                .HashCode;
+            return Uid.GetHashCode();
         }
 
         public override string ToString()

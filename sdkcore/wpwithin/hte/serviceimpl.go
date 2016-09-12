@@ -9,18 +9,20 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 )
 
-// Concrete Implementation of HTE service
+// ServiceImpl Concrete Implementation of HTE service
 type ServiceImpl struct {
 	router        *mux.Router
 	_IPv4Address  string
 	_Port         int
-	_UrlPrefix    string
+	_URLPrefix    string
+	_Scheme       string
 	routes        []Route
 	handler       *ServiceHandler
 	HTECredential *Credential
 	orderManager  OrderManager
 }
 
+// Route a route to a function
 type Route struct {
 	Name        string
 	Method      string
@@ -28,15 +30,17 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, hteCredential *Credential, orderManager OrderManager, svcHandler *ServiceHandler) (Service, error) {
+// NewService crate a new instance of Service
+func NewService(device *types.Device, psp psp.PSP, ip, prefix, scheme string, port int, hteCredential *Credential, orderManager OrderManager, svcHandler *ServiceHandler) (Service, error) {
 
 	service := &ServiceImpl{}
 
 	service.handler = svcHandler
 
-	service._UrlPrefix = prefix
+	service._URLPrefix = prefix
 	service._Port = port
 	service._IPv4Address = ip
+	service._Scheme = scheme
 	service.orderManager = orderManager
 
 	service.setupRoutes()
@@ -55,64 +59,75 @@ func NewService(device *types.Device, psp psp.Psp, ip, prefix string, port int, 
 	return service, nil
 }
 
+// Start the service
 func (service *ServiceImpl) Start() error {
 
 	return http.ListenAndServe(fmt.Sprintf(":%d", service.Port()), service.router)
 }
 
-func (srv *ServiceImpl) setupRoutes() {
+// setupRoutes configures the services routes
+func (service *ServiceImpl) setupRoutes() {
 
-	srv.routes = []Route{
+	service.routes = []Route{
 		Route{
 			"Service Discovery",
 			"GET",
-			fmt.Sprintf("%s/service/discover", srv.UrlPrefix()),
-			srv.handler.ServiceDiscovery,
+			fmt.Sprintf("%s/service/discover", service.URLPrefix()),
+			service.handler.ServiceDiscovery,
 		},
 		Route{
 			"Service Price Request",
 			"GET",
-			fmt.Sprintf("%s/service/{service_id}/prices", srv.UrlPrefix()),
-			srv.handler.ServicePrices,
+			fmt.Sprintf("%s/service/{service_id}/prices", service.URLPrefix()),
+			service.handler.ServicePrices,
 		},
 		Route{
 			"Service Total Price Request",
 			"POST",
-			fmt.Sprintf("%s/service/{service_id}/requestTotal", srv.UrlPrefix()),
-			srv.handler.ServiceTotalPrice,
+			fmt.Sprintf("%s/service/{service_id}/requestTotal", service.URLPrefix()),
+			service.handler.ServiceTotalPrice,
 		},
 		Route{
 			"Payment",
 			"POST",
-			fmt.Sprintf("%s/payment", srv.UrlPrefix()),
-			srv.handler.Payment,
+			fmt.Sprintf("%s/payment", service.URLPrefix()),
+			service.handler.Payment,
 		},
 		Route{
 			"Service Delivery Begin",
 			"POST",
-			fmt.Sprintf("%s/service/{service_id}/delivery/begin", srv.UrlPrefix()),
-			srv.handler.ServiceDeliveryBegin,
+			fmt.Sprintf("%s/service/{service_id}/delivery/begin", service.URLPrefix()),
+			service.handler.ServiceDeliveryBegin,
 		},
 		Route{
 			"Service Delivery End",
 			"POST",
-			fmt.Sprintf("%s/service/{service_id}/delivery/end", srv.UrlPrefix()),
-			srv.handler.ServiceDeliveryEnd,
+			fmt.Sprintf("%s/service/{service_id}/delivery/end", service.URLPrefix()),
+			service.handler.ServiceDeliveryEnd,
 		},
 	}
 }
 
-func (srv *ServiceImpl) IPAddr() string {
+// IPAddr get the service IP Address
+func (service *ServiceImpl) IPAddr() string {
 
-	return srv._IPv4Address
+	return service._IPv4Address
 }
 
-func (srv *ServiceImpl) Port() int {
+// Port get the service port
+func (service *ServiceImpl) Port() int {
 
-	return srv._Port
+	return service._Port
 }
 
-func (srv *ServiceImpl) UrlPrefix() string {
+// URLPrefix get the service URL prefix
+func (service *ServiceImpl) URLPrefix() string {
 
-	return srv._UrlPrefix
+	return service._URLPrefix
+}
+
+// Scheme get the service scheme
+func (service *ServiceImpl) Scheme() string {
+
+	return service._Scheme
 }

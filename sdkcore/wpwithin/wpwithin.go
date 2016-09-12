@@ -4,11 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"runtime/debug"
+	"strings"
 	"time"
 
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/configuration"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/core"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/hte"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils/wslog"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -20,18 +25,19 @@ var Factory core.SDKFactory
 type WPWithin interface {
 	AddService(service *types.Service) error
 	RemoveService(service *types.Service) error
-	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string, hceCard *types.HCECard) error
+	InitConsumer(scheme, hostname string, portNumber int, urlPrefix, clientID string, hceCard *types.HCECard) error
 	InitProducer(merchantClientKey, merchantServiceKey string) error
 	GetDevice() *types.Device
 	StartServiceBroadcast(timeoutMillis int) error
 	StopServiceBroadcast()
-	DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error)
+	DeviceDiscovery(timeoutMillis int) ([]types.BroadcastMessage, error)
 	RequestServices() ([]types.ServiceDetails, error)
 	GetServicePrices(serviceID int) ([]types.Price, error)
 	SelectService(serviceID, numberOfUnits, priceID int) (types.TotalPriceResponse, error)
 	MakePayment(payRequest types.TotalPriceResponse) (types.PaymentResponse, error)
-	BeginServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) error
-	EndServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error
+	BeginServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) (types.ServiceDeliveryToken, error)
+	EndServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) (types.ServiceDeliveryToken, error)
+	SetEventHandler(handler event.Handler) error
 }
 
 // Initialise Initialise the SDK - Returns an implementation of WPWithin
@@ -80,6 +86,14 @@ func Initialise(name, description string) (WPWithin, error) {
 	}
 
 	result.core = core
+
+	// Parse configuration
+	rawCfg, err := configuration.Load("wpwconfig.json")
+	wpwConfig := configuration.WPWithin{}
+	wpwConfig.ParseConfig(rawCfg)
+	core.Configuration = wpwConfig
+
+	doWebSocketLogSetup(core.Configuration)
 
 	dev, err := Factory.GetDevice(name, description)
 
@@ -142,12 +156,12 @@ func (wp *wpWithinImpl) AddService(service *types.Service) error {
 		wp.core.Device.Services = make(map[int]*types.Service, 0)
 	}
 
-	if _, exists := wp.core.Device.Services[service.Id]; exists {
+	if _, exists := wp.core.Device.Services[service.ID]; exists {
 
 		return errors.New("Service with that id already exists")
 	}
 
-	wp.core.Device.Services[service.Id] = service
+	wp.core.Device.Services[service.ID] = service
 
 	return nil
 }
@@ -164,19 +178,19 @@ func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 
 	if wp.core.Device.Services != nil {
 
-		delete(wp.core.Device.Services, service.Id)
+		delete(wp.core.Device.Services, service.ID)
 	}
 
 	return nil
 }
 
-func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, serverID string, hceCard *types.HCECard) error {
+func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, urlPrefix, clientID string, hceCard *types.HCECard) error {
 
 	defer func() {
 		if r := recover(); r != nil {
 
 			log.WithFields(log.Fields{"panic_message": r, "scheme": scheme, "hostname": hostname, "port": portNumber,
-				"urlPrefix": urlPrefix, "serverID": serverID, "hceCard": fmt.Sprintf("%+v", hceCard), "stack": fmt.Sprintf("%s", debug.Stack())}).
+				"urlPrefix": urlPrefix, "clientID": clientID, "hceCard": fmt.Sprintf("%+v", hceCard), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.InitConsumer()")
 		}
 	}()
@@ -205,7 +219,7 @@ func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, ur
 		return err
 	}
 
-	client, err := hte.NewClient(scheme, hostname, portNumber, urlPrefix, serverID, httpHTE)
+	client, err := hte.NewClient(scheme, hostname, portNumber, urlPrefix, clientID, httpHTE)
 
 	if err != nil {
 
@@ -255,9 +269,9 @@ func (wp *wpWithinImpl) InitProducer(merchantClientKey, merchantServiceKey strin
 		return err
 	}
 
-	hteSvcHandler := Factory.GetHTEServiceHandler(wp.core.Device, wp.core.Psp, hteCredential, wp.core.OrderManager)
+	hteSvcHandler := Factory.GetHTEServiceHandler(wp.core.Device, wp.core.Psp, hteCredential, wp.core.OrderManager, wp.core.EventHandler)
 
-	svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, hteCredential, wp.core.OrderManager, hteSvcHandler)
+	svc, err := Factory.GetHTE(wp.core.Device, wp.core.Psp, wp.core.Device.IPv4Address, "http://", hteCredential, wp.core.OrderManager, hteSvcHandler)
 
 	if err != nil {
 
@@ -316,13 +330,14 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 	}()
 
 	// Setup message that is broadcast over network
-	msg := types.ServiceMessage{
+	msg := types.BroadcastMessage{
 
 		DeviceDescription: wp.core.Device.Description,
 		Hostname:          wp.core.HTE.IPAddr(),
 		ServerID:          wp.core.Device.UID,
-		UrlPrefix:         wp.core.HTE.UrlPrefix(),
+		URLPrefix:         wp.core.HTE.URLPrefix(),
 		PortNumber:        wp.core.HTE.Port(),
+		Scheme:            wp.core.HTE.Scheme(),
 	}
 
 	// Set up a channel to get the error out of the go routine
@@ -363,7 +378,7 @@ func (wp *wpWithinImpl) StopServiceBroadcast() {
 	wp.core.SvcBroadcaster.StopBroadcast()
 }
 
-func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessage, error) {
+func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.BroadcastMessage, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -375,7 +390,7 @@ func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.ServiceMessa
 		}
 	}()
 
-	var svcResults []types.ServiceMessage
+	var svcResults []types.BroadcastMessage
 
 	if scanResult, err := wp.core.SvcScanner.ScanForServices(timeoutMillis); err != nil {
 
@@ -505,34 +520,121 @@ func (wp *wpWithinImpl) Core() (*core.Core, error) {
 	return wp.core, nil
 }
 
-func (wp *wpWithinImpl) BeginServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) error {
+func (wp *wpWithinImpl) BeginServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsToSupply int) (types.ServiceDeliveryToken, error) {
+
+	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "unitsToSupply": unitsToSupply}).Debug("begin wpwithin.wpwithinimpl.BeginServiceDelivery()")
+
+	defer log.Debug("end wpwithin.wpwithinimpl.BeginServiceDelivery()")
 
 	defer func() {
 		if r := recover(); r != nil {
 
 			fmt.Printf("%s", debug.Stack())
 
-			log.WithFields(log.Fields{"panic_message": r, "clientID": clientID, "unitsToSupply": unitsToSupply,
+			log.WithFields(log.Fields{"panic_message": r, "serviceID": serviceID, "unitsToSupply": unitsToSupply,
 				"serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.BeginServiceDelivery()")
 		}
 	}()
 
-	return errors.New("BeginServiceDelivery() not yet implemented..")
+	deliveryResponse, err := wp.core.HTEClient.StartDelivery(serviceID, serviceDeliveryToken, unitsToSupply)
+
+	if err != nil {
+
+		log.Errorf("Error calling beginServiceDelivery. Error: %s", err.Error())
+		return types.ServiceDeliveryToken{}, err
+	}
+
+	log.WithFields(log.Fields{"UnitsToSupply": deliveryResponse.UnitsToSupply}).Info("EndDeliveryResponse")
+
+	return deliveryResponse.ServiceDeliveryToken, nil
 }
 
-func (wp *wpWithinImpl) EndServiceDelivery(clientID string, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) error {
+func (wp *wpWithinImpl) EndServiceDelivery(serviceID int, serviceDeliveryToken types.ServiceDeliveryToken, unitsReceived int) (types.ServiceDeliveryToken, error) {
+
+	log.WithFields(log.Fields{"serviceID": serviceID, "serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "unitsReceived": unitsReceived}).Debug("begin wpwithin.wpwithinimpl.EndServiceDelivery()")
+
+	defer log.Debug("end wpwithin.wpwithinimpl.EndServiceDelivery()")
 
 	defer func() {
 		if r := recover(); r != nil {
 
 			fmt.Printf("%s", debug.Stack())
 
-			log.WithFields(log.Fields{"panic_message": r, "clientID": clientID, "unitsReceived": unitsReceived,
+			log.WithFields(log.Fields{"panic_message": r, "serviceID": serviceID, "unitsReceived": unitsReceived,
 				"serviceDeliveryToken": fmt.Sprintf("%+v", serviceDeliveryToken), "stack": fmt.Sprintf("%s", debug.Stack())}).
 				Errorf("Recover: WPWithin.EndServiceDelivery()")
 		}
 	}()
 
-	return errors.New("EndServiceDelivery() not yet implemented..")
+	deliveryResponse, err := wp.core.HTEClient.EndDelivery(serviceID, serviceDeliveryToken, unitsReceived)
+
+	if err != nil {
+
+		log.Errorf("Error calling endServiceDelivery. Error: %s", err.Error())
+
+		return types.ServiceDeliveryToken{}, err
+	}
+
+	log.WithFields(log.Fields{"UnitsJustSupplied": deliveryResponse.UnitsJustSupplied, "UnitsRemaining": deliveryResponse.UnitsRemaining}).Info("EndDeliveryResponse")
+
+	return deliveryResponse.ServiceDeliveryToken, nil
+}
+
+func (wp *wpWithinImpl) SetEventHandler(handler event.Handler) error {
+
+	log.Debug("wpwithin.wpwithinimpl setting core event handler")
+
+	wp.core.EventHandler = handler
+
+	return nil
+}
+
+func doWebSocketLogSetup(cfg configuration.WPWithin) {
+
+	if cfg.WSLogEnable {
+
+		// Clean up the levels config value - just in case.
+		strLevels := strings.Replace(cfg.WSLogLevel, " ", "", -1)
+		logLevels := strings.Split(strLevels, ",")
+
+		// Support all levels
+		var levels []log.Level
+
+		for _, level := range logLevels {
+
+			switch strings.ToLower(level) {
+
+			case "panic":
+				levels = append(levels, log.PanicLevel)
+			case "fatal":
+				levels = append(levels, log.FatalLevel)
+			case "error":
+				levels = append(levels, log.ErrorLevel)
+			case "warn":
+				levels = append(levels, log.WarnLevel)
+			case "info":
+				levels = append(levels, log.InfoLevel)
+			case "debug":
+				levels = append(levels, log.DebugLevel)
+			}
+		}
+		ip, err := utils.ExternalIPv4()
+		strIP := ""
+
+		if err == nil {
+
+			strIP = ip.String()
+		} else {
+
+			fmt.Printf("Error getting ExternalIPv4: %s\n", err.Error())
+		}
+
+		err = wslog.Initialise(strIP, cfg.WSLogPort, levels)
+
+		if err != nil {
+
+			fmt.Printf("Error initialising WebSocket logger: %s\n", err.Error())
+		}
+	}
 }

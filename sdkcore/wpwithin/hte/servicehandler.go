@@ -10,34 +10,38 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/psp"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/utils"
 )
 
-// Coordinate requests between RPC interface and internal SDK interface
+// ServiceHandler Coordinate requests between RPC interface and internal SDK interface
 type ServiceHandler struct {
 	device       *types.Device
-	psp          psp.Psp
+	psp          psp.PSP
 	credential   *Credential
 	orderManager OrderManager
+	eventHandler event.Handler
 }
 
-// Create a new Service Handler
-func NewServiceHandler(device *types.Device, psp psp.Psp, credential *Credential, orderManager OrderManager) *ServiceHandler {
+// NewServiceHandler Create a new Service Handler
+func NewServiceHandler(device *types.Device, psp psp.PSP, credential *Credential, orderManager OrderManager, eventHandler event.Handler) *ServiceHandler {
 
 	result := &ServiceHandler{
 		device:       device,
 		psp:          psp,
 		credential:   credential,
 		orderManager: orderManager,
+		eventHandler: eventHandler,
 	}
 
 	return result
 }
 
-// List all the services available on the current device
+// ServiceDiscovery List all the services available on the current device
 func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Request) {
 
 	// GET
@@ -54,8 +58,9 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 	for _, srv := range srv.device.Services {
 
 		responseServices = append(responseServices, types.ServiceDetails{
-			ServiceID:          srv.Id,
+			ServiceID:          srv.ID,
 			ServiceDescription: srv.Description,
+			ServiceName:        srv.Name,
 		})
 	}
 
@@ -67,7 +72,7 @@ func (srv *ServiceHandler) ServiceDiscovery(w http.ResponseWriter, r *http.Reque
 	returnMessage(w, http.StatusOK, response)
 }
 
-// List all the price variants for a specified service
+// ServicePrices List all the price variants for a specified service
 func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request) {
 
 	// GET
@@ -98,7 +103,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 		response := types.ServicePriceResponse{}
 		response.ServerID = srv.device.UID
 
-		for _, price := range svc.Prices() {
+		for _, price := range svc.Prices {
 
 			response.Prices = append(response.Prices, price)
 		}
@@ -115,7 +120,7 @@ func (srv *ServiceHandler) ServicePrices(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-// Get the total price for a current service selection
+// ServiceTotalPrice Get the total price for a current service selection
 func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Request) {
 
 	// POST
@@ -177,7 +182,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 
 	if svc, ok := srv.device.Services[svcID]; ok {
 
-		if price, ok := svc.Prices()[totalPriceRequest.SelectedPriceID]; ok {
+		if price, ok := svc.Prices[totalPriceRequest.SelectedPriceID]; ok {
 
 			response := types.TotalPriceResponse{}
 			response.ServerID = srv.device.UID
@@ -188,25 +193,24 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 			response.CurrencyCode = price.PricePerUnit.CurrencyCode
 			response.MerchantClientKey = srv.credential.MerchantClientKey
 
-			payRef, err := utils.NewUUID()
+			orderUUID, err := utils.NewUUID()
+
 			if err != nil {
 
 				errorResponse := types.ErrorResponse{
-					Message: "Internal error [payment-ref]",
+					Message: "Internal error [generate order UUID]",
 				}
 
 				returnMessage(w, http.StatusInternalServerError, errorResponse)
 			}
-			response.PaymentReferenceID = payRef
+			response.PaymentReferenceID = orderUUID
 
 			order := types.Order{
-				PaymentReference:      payRef,
-				TotalPrice:            response.TotalPrice,
+				UUID:                  orderUUID,
 				ClientID:              response.ClientID,
 				SelectedNumberOfUnits: response.UnitsToSupply,
-				SelectedPriceId:       response.PriceID,
-				ServiceID:             svcID,
-				ClientUUID:            totalPriceRequest.ClientUUID,
+				SelectedPriceID:       response.PriceID,
+				Service:               *svc,
 			}
 
 			err = srv.orderManager.AddOrder(order)
@@ -243,7 +247,7 @@ func (srv *ServiceHandler) ServiceTotalPrice(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// Make a payment for a service
+// Payment Make a payment for a service
 func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 	// POST
@@ -289,9 +293,9 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	order, err := srv.orderManager.GetOrder(paymentRequest.PaymentReferenceID)
+	_order, err := srv.orderManager.GetOrder(paymentRequest.PaymentReferenceID)
 
-	orderCurrency := srv.device.Services[order.ServiceID].Prices()[order.SelectedPriceId].PricePerUnit.CurrencyCode
+	orderCurrency := srv.device.Services[_order.Service.ID].Prices[_order.SelectedPriceID].PricePerUnit.CurrencyCode
 
 	if err != nil {
 
@@ -303,7 +307,7 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		// Some quick checks to compare validity of incoming request
-		if strings.Compare(order.ClientID, paymentRequest.ClientID) != 0 {
+		if strings.Compare(_order.ClientID, paymentRequest.ClientID) != 0 {
 
 			errorResponse := types.ErrorResponse{
 				Message: "Client ID does not match Order Client ID",
@@ -312,8 +316,14 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 			returnMessage(w, http.StatusBadRequest, errorResponse)
 		} else {
 
-			// TODO CH - Fix order description
-			paymentOrderCode, err := srv.psp.MakePayment(order.TotalPrice, orderCurrency, paymentRequest.ClientToken, "fixme", order.PaymentReference)
+			totalPrice := _order.Service.Prices[_order.SelectedPriceID].PricePerUnit.Amount * _order.SelectedNumberOfUnits
+			orderPPU := _order.Service.Prices[_order.SelectedPriceID].PricePerUnit
+
+			// Convert order price per unit from minor units (e.g. Pence) to major units (e.g. Pounds) (e.g. 100p -> £1.00)
+			strUnitPrice := utils.DoUnitConvertFormat(orderPPU.Amount, 2, fmt.Sprintf("%s <amount>", orderPPU.CurrencyCode))
+
+			orderDescription := fmt.Sprintf("%s - %d units @ %s per unit.", _order.Service.Name, _order.SelectedNumberOfUnits, strUnitPrice)
+			pspReference, err := srv.psp.MakePayment(totalPrice, orderCurrency, paymentRequest.ClientToken, orderDescription, _order.UUID)
 
 			if err != nil {
 
@@ -325,25 +335,33 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 
 			} else {
 
-				// TODO currently creating delivery token manually and assign to paymentresponse - this should be automapped.
 				deliveryToken := &types.ServiceDeliveryToken{
-
-					Key:            paymentOrderCode, // TODO cryptographically secure, random key generation.
+					Key:            _order.UUID, /* UUID is a hack, allows us to find order later :/ */ // TODO cryptographically secure, random key generation.
 					Issued:         time.Now(),
-					Expiry:         time.Now().Add(time.Duration(24 * time.Hour)), // TODO add a value DeliveryToken lifetime (MINS) into the Service struct. 0 should be unlimited.
-					RefundOnExpiry: false,                                         // TODO Map this into the Service Struct
-					Signature:      nil,                                           // TODO implement HMAC generation scheme.
+					Expiry:         time.Now().Add(time.Duration(168 * time.Hour)),
+					RefundOnExpiry: false, // TODO Map this into the Service Struct
+					Signature:      nil,   // TODO implement HMAC generation scheme.
 				}
 
 				paymentResponse := types.PaymentResponse{
-					ClientID:             order.ClientID,
+					ClientID:             _order.ClientID,
 					ServerID:             srv.device.UID,
-					TotalPaid:            order.TotalPrice,
+					TotalPaid:            totalPrice,
 					ServiceDeliveryToken: deliveryToken,
-					ClientUUID:           order.ClientUUID,
 				}
 
-				// TODO CH - Save paymentOrderCode to the order
+				_order.PSPReference = pspReference
+				_order.DeliveryToken = *deliveryToken
+
+				if err := srv.orderManager.UpdateOrder(*_order); err != nil {
+
+					errorResponse := types.ErrorResponse{
+						Message: "Unable to update order internally",
+					}
+
+					returnMessage(w, http.StatusInternalServerError, errorResponse)
+					return
+				}
 
 				returnMessage(w, http.StatusOK, paymentResponse)
 			}
@@ -351,20 +369,268 @@ func (srv *ServiceHandler) Payment(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Begin delivery of a purchased service
+// ServiceDeliveryBegin Begin delivery of a purchased service
 func (srv *ServiceHandler) ServiceDeliveryBegin(w http.ResponseWriter, r *http.Request) {
 
 	// POST
 
-	returnMessage(w, 200, "Service delivery begin")
+	log.Debug("begin hte.ServiceHandlerImpl.ServiceDeliveryBegin()")
+
+	defer log.Debug("end hte.ServiceHandlerImpl.ServiceDeliveryBegin()")
+
+	defer func() {
+		if err := recover(); err != nil {
+
+			returnMessage(w, http.StatusInternalServerError, err)
+		}
+	}()
+
+	// Parse variables from request
+	reqVars := mux.Vars(r)
+	svcID, err := strconv.Atoi(reqVars["service_id"])
+
+	if err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to parse input service id",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	// Parse message body (POST)
+	var deliveryRequest types.BeginServiceDeliveryRequest
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+
+	if err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to read POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := r.Body.Close(); err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to close POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := json.Unmarshal(body, &deliveryRequest); err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to parse POST body",
+		}
+
+		returnMessage(w, 422 /*Unprocessable Entity*/, errorResponse)
+		return
+	}
+
+	// Validate the delivery request units against what is currenly available
+	strValidation, err := validateDeliveryToken(deliveryRequest, srv.orderManager)
+
+	if err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Error validating ServiceDeliveryToken",
+		}
+
+		returnMessage(w, 500, errorResponse)
+		return
+	} else if !strings.EqualFold(strValidation, "") {
+
+		errorResponse := types.ErrorResponse{
+			Message: strValidation,
+		}
+
+		returnMessage(w, 400, errorResponse)
+		return
+	}
+
+	if err != nil {
+
+		log.Errorf("Error retrieving order for delivery token: %s", err.Error())
+
+		errorResponse := types.ErrorResponse{
+			Message: fmt.Sprintf("Error retrieving order using delivery token.."),
+		}
+
+		returnMessage(w, 400, errorResponse)
+		return
+	}
+
+	// Order has been found for delivery token - ensure the service id matches the service id passed in URL.
+	_order, err := srv.orderManager.GetOrder(deliveryRequest.ServiceDeliveryToken.Key)
+
+	if svcID != _order.Service.ID {
+
+		log.Info("Requested service does not match the service id presented in request ServiceDeliveryToken")
+
+		errorResponse := types.ErrorResponse{
+			Message: fmt.Sprintf("Could not deliver service. Please contact service provider."),
+		}
+
+		returnMessage(w, 404, errorResponse)
+		return
+	}
+
+	// Need to validate that the number of units requested is legal
+	// i.e. It does not exceed the number of units in the order or the number already consumed by consumer
+
+	if _, ok := srv.device.Services[svcID]; ok {
+
+		response := types.BeginServiceDeliveryResponse{}
+		response.ClientID = deliveryRequest.ClientID
+		response.ServiceDeliveryToken = deliveryRequest.ServiceDeliveryToken
+		response.ServerID = srv.device.UID
+		response.UnitsToSupply = deliveryRequest.UnitsToSupply
+
+		if srv.eventHandler != nil {
+
+			log.Debug("Core event handler is set, calling event in core EventHandler")
+
+			go srv.eventHandler.BeginServiceDelivery(svcID, deliveryRequest.ServiceDeliveryToken, deliveryRequest.UnitsToSupply)
+		}
+
+		returnMessage(w, http.StatusOK, response)
+
+	} else {
+
+		errorResponse := types.ErrorResponse{
+			Message: fmt.Sprintf("Service not found for id %d", svcID),
+		}
+
+		returnMessage(w, http.StatusNotFound, errorResponse)
+	}
 }
 
-// End delivery of a purchased service
+// ServiceDeliveryEnd End delivery of a purchased service
 func (srv *ServiceHandler) ServiceDeliveryEnd(w http.ResponseWriter, r *http.Request) {
 
 	// POST
 
-	returnMessage(w, 200, "Service delivery end")
+	log.Debug("begin hte.ServiceHandlerImpl.ServiceDeliveryEnd()")
+
+	defer log.Debug("end hte.ServiceHandlerImpl.ServiceDeliveryEnd()")
+
+	defer func() {
+		if err := recover(); err != nil {
+
+			returnMessage(w, http.StatusInternalServerError, err)
+		}
+	}()
+
+	// Parse variables from request
+	reqVars := mux.Vars(r)
+	svcID, err := strconv.Atoi(reqVars["service_id"])
+
+	if err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to parse input service id",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	// Parse message body (POST)
+	var deliveryRequest types.EndServiceDeliveryRequest
+	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))
+
+	if err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to read POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := r.Body.Close(); err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to close POST body",
+		}
+
+		returnMessage(w, http.StatusBadRequest, errorResponse)
+		return
+	}
+
+	if err := json.Unmarshal(body, &deliveryRequest); err != nil {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to parse POST body",
+		}
+
+		returnMessage(w, 422 /*Unprocessable Entity*/, errorResponse)
+		return
+	}
+
+	var _order types.Order
+	if srv.orderManager.OrderExists(deliveryRequest.ServiceDeliveryToken.Key) {
+
+		tmp, err := srv.orderManager.GetOrder(deliveryRequest.ServiceDeliveryToken.Key)
+
+		if err != nil {
+
+			errorResponse := types.ErrorResponse{
+				Message: "Unable to retrieve order internally",
+			}
+
+			returnMessage(w, 500, errorResponse)
+			return
+		}
+		_order = *tmp
+
+	} else {
+
+		errorResponse := types.ErrorResponse{
+			Message: "Unable to find order for ServiceDeliveryToken",
+		}
+
+		returnMessage(w, 404, errorResponse)
+		return
+	}
+
+	if _, ok := srv.device.Services[svcID]; ok {
+
+		response := types.EndServiceDeliveryResponse{}
+		response.ClientID = deliveryRequest.ClientID
+		response.ServiceDeliveryToken = deliveryRequest.ServiceDeliveryToken
+		response.ServerID = srv.device.UID
+		response.UnitsJustSupplied = deliveryRequest.UnitsReceived
+
+		// TODO NASTY!! - We trust what clients are telling us, need to validate with producer application!
+		_order.ConsumedUnits = deliveryRequest.UnitsReceived + _order.ConsumedUnits
+		remain := _order.SelectedNumberOfUnits - _order.ConsumedUnits
+		response.UnitsRemaining = remain
+
+		if srv.eventHandler != nil {
+
+			log.Debug("Core event handler is set, calling event in core EventHandler")
+
+			go srv.eventHandler.EndServiceDelivery(svcID, deliveryRequest.ServiceDeliveryToken, deliveryRequest.UnitsReceived)
+		}
+
+		returnMessage(w, http.StatusOK, response)
+
+	} else {
+
+		errorResponse := types.ErrorResponse{
+			Message: fmt.Sprintf("Service not found for id %d", svcID),
+		}
+
+		returnMessage(w, http.StatusNotFound, errorResponse)
+	}
 }
 
 // Helper function for returning HTTP responses
@@ -377,4 +643,50 @@ func returnMessage(w http.ResponseWriter, statusCode int, message interface{}) {
 
 		panic(err)
 	}
+}
+
+// validateDeliveryToken will validate the various parameters of a ServiceDeliveryToken
+// If the returned string is empty then validation passed, if not then the contents of the string
+// is the reason for validation failure
+func validateDeliveryToken(request types.BeginServiceDeliveryRequest, orderManager OrderManager) (string, error) {
+
+	sdt := request.ServiceDeliveryToken
+
+	if !orderManager.OrderExists(sdt.Key) {
+
+		return "Order not found for ServiceDeliveryToken", nil
+	}
+
+	_order, err := orderManager.GetOrder(sdt.Key)
+
+	if err != nil {
+
+		return "", err
+	}
+
+	if strings.EqualFold("", sdt.Key) {
+
+		return "ServiceDeliveryToken key is empty", nil
+	}
+
+	if !sdt.Expiry.After(time.Now()) {
+
+		return "ServiceDeliveryToken has expired", nil
+	}
+
+	log.Debugf("ORDER:: %+v", _order)
+	log.Debugf("REQ SDT Key: %s", sdt.Key)
+
+	if !strings.EqualFold(_order.DeliveryToken.Key, sdt.Key) {
+
+		return "Invalid ServiceDeliveryToken key", nil
+	}
+
+	unitsAvailable := _order.SelectedNumberOfUnits - _order.ConsumedUnits
+	if request.UnitsToSupply > unitsAvailable {
+
+		return fmt.Sprintf("Requested units (%d) not available for selected order. Units available = %d", request.UnitsToSupply, unitsAvailable), nil
+	}
+
+	return "", nil
 }

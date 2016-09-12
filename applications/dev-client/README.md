@@ -103,8 +103,8 @@ Starting Consumer Example Written in Java.
 1 services found:
 Device Description: Car services offered by robot
 Hostname: <removed-for-illustration>
-Port: 8080
-URL Prefix: 
+Port: 64521
+URL Prefix:
 ServerId: <removed-for-illustration>
 --------
 2 services found

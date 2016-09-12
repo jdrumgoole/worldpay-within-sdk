@@ -32,7 +32,7 @@ public class WorldpayWithinWrapperTester {
         // ######### SETUP RPC SERVICES ############
         String host = "127.0.0.1";
         Integer port = 9091;
-        WPWithinWrapper sdk = new WPWithinWrapperImpl(host, port);
+        WPWithinWrapper sdk = new WPWithinWrapperImpl(host, port, false);
 
         try {
             //        sdk.setupDefaultDevice();
@@ -75,7 +75,7 @@ public class WorldpayWithinWrapperTester {
 //        priceTarriffe1.setUnitId(47);
 //        WWPricePerUnit pricePerUnit1 = new WWPricePerUnit();
 //        pricePerUnit1.setAmount(2);
-//        pricePerUnit1.setCurrentCode("GDP");
+//        pricePerUnit1.setCurrencyCode("GDP");
 //        priceTarriffe1.setPricePerUnit(pricePerUnit1);
 //        
 //        WWPrice priceTarriffe2 = new WWPrice();
@@ -85,7 +85,7 @@ public class WorldpayWithinWrapperTester {
 //        priceTarriffe2.setUnitId(47);
 //        WWPricePerUnit pricePerUnit2 = new WWPricePerUnit();
 //        pricePerUnit2.setAmount(1);
-//        pricePerUnit2.setCurrentCode("GDP");
+//        pricePerUnit2.setCurrencyCode("GDP");
 //        priceTarriffe2.setPricePerUnit(pricePerUnit2);
 //        
 //        WWPrice priceTarriffe3 = new WWPrice();
@@ -95,7 +95,7 @@ public class WorldpayWithinWrapperTester {
 //        priceTarriffe3.setUnitId(47);
 //        WWPricePerUnit pricePerUnit3 = new WWPricePerUnit();
 //        pricePerUnit3.setAmount(12);
-//        pricePerUnit3.setCurrentCode("GDP");
+//        pricePerUnit3.setCurrencyCode("GDP");
 //        priceTarriffe3.setPricePerUnit(pricePerUnit3);
 //        
 //        HashMap<Integer, WWPrice> prices = new HashMap();
@@ -153,7 +153,7 @@ public class WorldpayWithinWrapperTester {
                             // Get the first price of the first service for tesitng purposes....
                         WWPrice price = pricesReceived.iterator().next();
 
-                        Logger.getLogger(WPWithinWrapperImpl.class.getName()).log(Level.INFO, price.getDescription() + " - " + price.getId() + " - " + price.getUnitId() + " - " + price.getUnitDescription() + " - " + price.getPricePerUnit().getAmount() + " - " + price.getPricePerUnit().getCurrentCode() + "\n");
+                        Logger.getLogger(WPWithinWrapperImpl.class.getName()).log(Level.INFO, price.getDescription() + " - " + price.getId() + " - " + price.getUnitId() + " - " + price.getUnitDescription() + " - " + price.getPricePerUnit().getAmount() + " - " + price.getPricePerUnit().getCurrencyCode() + "\n");
 
                     } else {
                         Logger.getLogger(WPWithinWrapperImpl.class.getName()).log(Level.INFO, "No prices found");

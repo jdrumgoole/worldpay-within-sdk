@@ -23,6 +23,7 @@ public class WWServiceMessage {
     int portNumber;
     String serverId;
     String urlPrefix;
+    String scheme;
 
     public String getDeviceDescription() {
         return deviceDescription;
@@ -63,7 +64,12 @@ public class WWServiceMessage {
     public void setUrlPrefix(String urlPrefix) {
         this.urlPrefix = urlPrefix;
     }
-    
-    
-    
+
+    public String getScheme() {
+        return scheme;
+    }
+
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
 }

@@ -11,14 +11,7 @@ package com.worldpay.innovation.wpwithin.types;
  * @author worldpay
  */
 public class WWTotalPriceResponse {
-//	1: string serverId
-//	2: string clientId
-//	3: i32 priceId
-//	4: i32 unitsToSupply
-//	5: i32 totalPrice
-//	6: string paymentReferenceId
-//	7: string merchantClientKey
-    
+
     String serverId;
     String clientId;
     int priceId;
@@ -26,6 +19,7 @@ public class WWTotalPriceResponse {
     int totalPrice;
     String paymentReferenceId;
     String merchantClientKey;
+    String currencyCode;
 
     public String getServerId() {
         return serverId;
@@ -82,7 +76,12 @@ public class WWTotalPriceResponse {
     public void setMerchantClientKey(String merchantClientKey) {
         this.merchantClientKey = merchantClientKey;
     }
-    
-    
-    
+
+    public String getCurrencyCode() {
+        return currencyCode;
+    }
+
+    public void setCurrencyCode(String currencyCode) {
+        this.currencyCode = currencyCode;
+    }
 }
