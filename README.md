@@ -11,7 +11,7 @@ Currently, there are wrappers available for the following technologies:
 
 **Note 1**: Please note that if you intend to work with one of the wrapper frameworks, it is not required that you build the Go source code directly. With each release we will bundle pre-built binaries of the RPC-Agent application. The RPC-Agent is an application that starts the Thrift RPC interface into the Go SDK Core. Once this application is up and running the wrapper can communicate with the SDK Core. In the latest release of the SDK, the RPC-Agent is started automatically by the wrapper.
 
-**Note 2**: To enable payments for your instance of the SDK and applications, you will need to create an account at [Worldpay Online Payments](online.worldpay.com). Once the account is created, please navigate to *settings* -> *API Keys* and keep note of the *service key* and *client key* for later. You will need to add these keys into your sample apps when "intialising a producer".
+**Note 2**: To enable payments for your instance of the SDK and applications, you will need to create an account at [Worldpay Online Payments](online.worldpay.com). Once the account is created, please navigate to *settings* -> *API Keys* and keep note of the *service key* and *client key* for later. You will need to add these keys into your sample apps when "initialising a producer".
 
 ### Top level directories
 
@@ -37,9 +37,9 @@ To enable the example wrapper applications, please use put the prebuilt binaries
 
 ### Example Usage
 
-* RPC Agent `./rpc-agent -port 9099 -logfile=wpwithin.log -loglevel=debug,warn,info,error,fatal -callbackport=9098`
+* RPC Agent `rpc-agent -port=9099 -logfile=wpwithin.log -loglevel=debug,warn,info,error,fatal -callbackport=9098`
 
-* Dev Client `./dev-client`
+* Dev Client `dev-client`
 
 ## How to use this SDK
 
