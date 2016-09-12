@@ -17,7 +17,7 @@ Currently, there are wrappers available for the following technologies:
 
 * applications - Applications used to support this SDK.
 * rpc - Thrift definitions for the RPC layer.
-* sdkcore - Worldpay Within SDK Core written in go.
+* sdkcore - Worldpay Within SDK Core written in Go.
 * wrappers - Wrapper implementations in other languages using Thrift RPC.
 
 ## Further documentation
@@ -37,7 +37,7 @@ To enable the example wrapper applications, please use put the prebuilt binaries
 
 ### Example Usage
 
-* RPC Agent `./rpc-agent -port 9099 -logfile=wpwithin.log -loglevel=debug,warn,info,error,fatal -callbackport=9098`.
+* RPC Agent `./rpc-agent -port 9099 -logfile=wpwithin.log -loglevel=debug,warn,info,error,fatal -callbackport=9098`
 
 * Dev Client `./dev-client`
 
@@ -45,7 +45,7 @@ To enable the example wrapper applications, please use put the prebuilt binaries
 
 If you intend to develop a Go application then you need not concern yourself with the RPC interface or any wrapper libraries, these are only required if you wish to work in another language.
 
-To develop using Go you must use the package `wpwithin` in the `sdkcore` directory.
+To develop using Go you must use the package `wpwithin` in the `sdkcore` directory. Please see the `examples` directory in `sdkcore`.
 
 If you wish to develop using a wrapper library then please navigate to your chosen language from the `wrappers` directory and see the included sample source code and readme files.
 
@@ -73,9 +73,8 @@ If you wish to develop using a wrapper library then please navigate to your chos
 * Running any of the wrappers, then the RPC agent will be automatically started for you, however this may not be available in early releases, and so you should be aware of how to manually run the RPC agent yourself
 * Change to the bin directory `cd $GOPATH/bin`
 * Type the following command to run the RPC agent and see the command line flags that you can pass; `./rpc-agent -help`
-* You can manually set the parameters, to get everything running quickly you just need to set the prot e.g. `./rpc-agent -port 9090`
+* You can manually set the parameters, to get everything running quickly you just need to set the port e.g. `./rpc-agent -port 9090`
 * Alternatively you can use the configuration file provided to configure the RPC agent, to do this type; `./rpc-agent -configfile <path and filename of config file>`
-* We have provided a config file in the source directory so; `./rpc-agent -configfile $GOPATH/src/worldpay-within-sdk/applications/rpc-agent/conf.json`
 
 ### Run the Client app
 * Change to the bin directory `cd $GOPATH/bin`
