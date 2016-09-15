@@ -49,84 +49,124 @@ func main() {
 
 func doSetupServices() {
 
-	// Big LED
+	// Green LED
 
-	svcBigLed, err := types.NewService()
-	errCheck(err, "Create new service - Big LED")
-	svcBigLed.ID = 1
-	svcBigLed.Name = "Big LED"
-	svcBigLed.Description = "Turn on the big LED"
+	svcGreenLed, err := types.NewService()
+	errCheck(err, "Create new service - Green LED")
+	svcGreenLed.ID = 1
+	svcGreenLed.Name = "Big LED"
+	svcGreenLed.Description = "Turn on the green LED"
 
-	priceBigLedSecond, err := types.NewPrice()
+	priceGreenLedSecond, err := types.NewPrice()
 	errCheck(err, "Create new price")
 
-	priceBigLedSecond.Description = "Turn on the big LED"
-	priceBigLedSecond.ID = 1
-	priceBigLedSecond.UnitDescription = "One second"
-	priceBigLedSecond.UnitID = 1
-	priceBigLedSecond.PricePerUnit = &types.PricePerUnit{
+	priceGreenLedSecond.Description = "Turn on the green LED"
+	priceGreenLedSecond.ID = 1
+	priceGreenLedSecond.UnitDescription = "One second"
+	priceGreenLedSecond.UnitID = 1
+	priceGreenLedSecond.PricePerUnit = &types.PricePerUnit{
 		Amount:       10,
 		CurrencyCode: "GBP",
 	}
 
-	svcBigLed.AddPrice(*priceBigLedSecond)
+	svcGreenLed.AddPrice(*priceGreenLedSecond)
 
-	priceBigLedMinute, err := types.NewPrice()
+	priceGreenLedMinute, err := types.NewPrice()
 	errCheck(err, "Create new price")
 
-	priceBigLedMinute.Description = "Turn on the big LED"
-	priceBigLedMinute.ID = 2
-	priceBigLedMinute.UnitDescription = "One minute"
-	priceBigLedMinute.UnitID = 2
-	priceBigLedMinute.PricePerUnit = &types.PricePerUnit{
+	priceGreenLedMinute.Description = "Turn on the green LED"
+	priceGreenLedMinute.ID = 2
+	priceGreenLedMinute.UnitDescription = "One minute"
+	priceGreenLedMinute.UnitID = 2
+	priceGreenLedMinute.PricePerUnit = &types.PricePerUnit{
 		Amount:       40,
 		CurrencyCode: "GBP",
 	}
 
-	svcBigLed.AddPrice(*priceBigLedMinute)
+	svcGreenLed.AddPrice(*priceGreenLedMinute)
 
-	err = wpw.AddService(svcBigLed)
-	errCheck(err, "Add service - big led")
+	err = wpw.AddService(svcGreenLed)
+	errCheck(err, "Add service - green led")
 
-	// Small LED
+	// Red LED
 
-	svcSmallLed, err := types.NewService()
-	errCheck(err, "New service - small led")
+	svcRedLed, err := types.NewService()
+	errCheck(err, "New service - red led")
 
-	svcSmallLed.ID = 2
-	svcSmallLed.Name = "Small LED"
-	svcSmallLed.Description = "Turn on the small LED"
+	svcRedLed.ID = 2
+	svcRedLed.Name = "Red LED"
+	svcRedLed.Description = "Turn on the red LED"
 
-	priceSmallLedSecond, err := types.NewPrice()
+	priceRedLedSecond, err := types.NewPrice()
 	errCheck(err, "Create new price")
 
-	priceSmallLedSecond.Description = "Turn on the small LED"
-	priceSmallLedSecond.ID = 3
-	priceSmallLedSecond.UnitDescription = "One second"
-	priceSmallLedSecond.UnitID = 1
-	priceSmallLedSecond.PricePerUnit = &types.PricePerUnit{
+	priceRedLedSecond.Description = "Turn on the red LED"
+	priceRedLedSecond.ID = 3
+	priceRedLedSecond.UnitDescription = "One second"
+	priceRedLedSecond.UnitID = 1
+	priceRedLedSecond.PricePerUnit = &types.PricePerUnit{
 		Amount:       5,
 		CurrencyCode: "GBP",
 	}
 
-	svcSmallLed.AddPrice(*priceBigLedSecond)
+	svcRedLed.AddPrice(*priceRedLedSecond)
 
-	priceSmallLedMinute, err := types.NewPrice()
+	priceRedLedMinute, err := types.NewPrice()
 	errCheck(err, "Create new price")
 
-	priceSmallLedMinute.Description = "Turn on the small LED"
-	priceSmallLedMinute.ID = 4
-	priceSmallLedMinute.UnitDescription = "One minute"
-	priceSmallLedMinute.UnitID = 2
-	priceSmallLedMinute.PricePerUnit = &types.PricePerUnit{
+	priceRedLedMinute.Description = "Turn on the red LED"
+	priceRedLedMinute.ID = 4
+	priceRedLedMinute.UnitDescription = "One minute"
+	priceRedLedMinute.UnitID = 2
+	priceRedLedMinute.PricePerUnit = &types.PricePerUnit{
 		Amount:       20,
 		CurrencyCode: "GBP",
 	}
 
-	svcSmallLed.AddPrice(*priceSmallLedMinute)
+	svcRedLed.AddPrice(*priceRedLedMinute)
 
-	err = wpw.AddService(svcSmallLed)
-	errCheck(err, "Add service - small led")
+	err = wpw.AddService(svcRedLed)
+	errCheck(err, "Add service - red led")
+
+	// Yellow LED
+
+	svcYellowLed, err := types.NewService()
+	errCheck(err, "New service - yellow led")
+
+	svcYellowLed.ID = 3
+	svcYellowLed.Name = "Yellow LED"
+	svcYellowLed.Description = "Turn on the yellow LED"
+
+	priceYellowLedSecond, err := types.NewPrice()
+	errCheck(err, "Create new price")
+
+	priceYellowLedSecond.Description = "Turn on the yellow LED"
+	priceYellowLedSecond.ID = 1
+	priceYellowLedSecond.UnitDescription = "One second"
+	priceYellowLedSecond.UnitID = 1
+	priceYellowLedSecond.PricePerUnit = &types.PricePerUnit{
+		Amount:       5,
+		CurrencyCode: "GBP",
+	}
+
+	svcYellowLed.AddPrice(*priceYellowLedSecond)
+
+	priceYellowLedMinute, err := types.NewPrice()
+	errCheck(err, "Create new price")
+
+	priceYellowLedMinute.Description = "Turn on the yellow LED"
+	priceYellowLedMinute.ID = 2
+	priceYellowLedMinute.UnitDescription = "One minute"
+	priceYellowLedMinute.UnitID = 2
+	priceYellowLedMinute.PricePerUnit = &types.PricePerUnit{
+		Amount:       20,
+		CurrencyCode: "GBP",
+	}
+
+	svcYellowLed.AddPrice(*priceYellowLedMinute)
+
+	err = wpw.AddService(svcYellowLed)
+	errCheck(err, "Add service - yellow led")
 }
 
 func errCheck(err error, hint string) {

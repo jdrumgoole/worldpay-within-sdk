@@ -9,14 +9,16 @@ import (
 
 // Handler handles the events coming from Worldpay Within
 type Handler struct {
-	ledBig   rpio.Pin
-	ledSmall rpio.Pin
+	ledGreen  rpio.Pin
+	ledRed    rpio.Pin
+	ledYellow rpio.Pin
 }
 
 func (handler *Handler) setup() error {
 
-	handler.ledBig = rpio.Pin(3)
-	handler.ledSmall = rpio.Pin(4)
+	handler.ledGreen = rpio.Pin(2)
+	handler.ledRed = rpio.Pin(3)
+	handler.ledYellow = rpio.Pin(4)
 
 	if err := rpio.Open(); err != nil {
 
@@ -27,12 +29,14 @@ func (handler *Handler) setup() error {
 	// rpio.Close()
 
 	// Ensure pins are in output mode
-	handler.ledBig.Output()
-	handler.ledSmall.Output()
+	handler.ledGreen.Output()
+	handler.ledRed.Output()
+	handler.ledYellow.Output()
 
-	// Turn on both LEDs, set the pins to high.
-	handler.ledBig.Low()
-	handler.ledSmall.Low()
+	// Turn of both LEDs, set the pins to low.
+	handler.ledGreen.Low()
+	handler.ledRed.Low()
+	handler.ledYellow.Low()
 
 	return nil
 }
@@ -43,11 +47,15 @@ func (handler *Handler) BeginServiceDelivery(serviceID int, serviceDeliveryToken
 	fmt.Printf("BeginServiceDelivery. ServiceID = %d\n", serviceID)
 
 	if serviceID == 1 {
-		handler.ledBig.High()
+
+		handler.ledGreen.High()
 
 	} else if serviceID == 2 {
 
-		handler.ledSmall.High()
+		handler.ledRed.High()
+	} else if serviceID == 3 {
+
+		handler.ledYellow.High()
 	}
 }
 
@@ -58,10 +66,13 @@ func (handler *Handler) EndServiceDelivery(serviceID int, serviceDeliveryToken t
 
 	if serviceID == 1 {
 
-		handler.ledBig.Low()
+		handler.ledGreen.Low()
 
 	} else if serviceID == 2 {
 
-		handler.ledSmall.Low()
+		handler.ledRed.Low()
+	} else if serviceID == 3 {
+
+		handler.ledYellow.Low()
 	}
 }
