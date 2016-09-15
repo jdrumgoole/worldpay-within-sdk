@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
@@ -21,7 +22,7 @@ func main() {
 
 	errCheckExit(err)
 
-	serviceMessages, err := wpw.DeviceDiscovery(15000)
+	serviceMessages, err := wpw.DeviceDiscovery(20000)
 
 	errCheckExit(err)
 
@@ -99,16 +100,16 @@ func main() {
 
 	for _, price := range prices {
 
-		fmt.Printf("[price] Id: %d Description: %s", price.ID, price.Description)
-		fmt.Printf("[unit] Id: %d Description: %s", price.UnitID, price.UnitDescription)
-		fmt.Printf("[pricePerUnit] Amount: %d CurrencyCode: %s", price.PricePerUnit.Amount, price.PricePerUnit.CurrencyCode)
+		fmt.Printf("[price] Id: %d Description: %s\n", price.ID, price.Description)
+		fmt.Printf("[unit] Id: %d Description: %s\n", price.UnitID, price.UnitDescription)
+		fmt.Printf("[pricePerUnit] Amount: %d CurrencyCode: %s\n", price.PricePerUnit.Amount, price.PricePerUnit.CurrencyCode)
 	}
 	fmt.Println()
 	fmt.Println()
 
 	price := prices[0]
 	numUnits := 10
-	fmt.Printf("Will select %d units of price %d - %s", numUnits, price.ID, price.Description)
+	fmt.Printf("Will select %d units of price %d - %s\n", numUnits, price.ID, price.Description)
 
 	tpr, err := wpw.SelectService(service.ServiceID, numUnits, price.ID)
 
@@ -150,6 +151,13 @@ func main() {
 	fmt.Println("Calling BeginServiceDelivery")
 	_, err = wpw.BeginServiceDelivery(service.ServiceID, *paymentResponse.ServiceDeliveryToken, numUnits)
 	errCheckExit(err)
+
+	fmt.Println()
+	fmt.Println()
+	fmt.Println("Waiting 5 seconds before calling end service delivery..")
+	time.Sleep(time.Second * 5)
+	fmt.Println()
+	fmt.Println()
 
 	fmt.Println("Calling endServiceDelivery")
 	_, err = wpw.EndServiceDelivery(service.ServiceID, *paymentResponse.ServiceDeliveryToken, numUnits)
