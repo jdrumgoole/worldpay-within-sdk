@@ -6,7 +6,7 @@ class SampleConsumer:
         self.client = client
         self.hceCard = hceCard
 
-    def discoverDevices(self):
+    def getDeviceDetails(self):
         try:
             serviceMessages = self.client.deviceDiscovery(100000)
         except types.Error as err:
@@ -26,7 +26,8 @@ class SampleConsumer:
             Hostname: {0.hostname}
             Port: {0.portNumber}
             Server ID: {0.serverId}
-            URL Prefix: {0.urlPrefix}'''.format(serviceMessages[i])
+            URL Prefix: {0.urlPrefix}
+            Scheme: {0.scheme}'''.format(serviceMessages[i])
 
             print(deviceLog)
         
