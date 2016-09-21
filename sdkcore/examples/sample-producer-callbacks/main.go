@@ -61,7 +61,7 @@ func addService() {
 	roboWash, _ := types.NewService()
 	roboWash.Name = "RoboWash"
 	roboWash.Description = "Car washed by robot"
-	roboWash.Id = 1
+	roboWash.ID = 1
 
 	washPriceCar := types.Price{
 
