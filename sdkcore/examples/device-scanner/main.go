@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -8,9 +9,20 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin"
 )
 
+// Flags
+var flagScanTimeout int
+
+// App vars
 var wpw wpwithin.WPWithin
 
+func init() {
+
+	flag.IntVar(&flagScanTimeout, "scantimeout", 2000, "Number of milliseconds to scan for. 0 = infinite.")
+}
+
 func main() {
+
+	flag.Parse()
 
 	initLog()
 
@@ -28,7 +40,9 @@ func main() {
 		for {
 
 			fmt.Println("Scanning network for devices now...")
-			devices, err := wpw.DeviceDiscovery(5000)
+			fmt.Printf("Will scan for %d milliseconds\n", flagScanTimeout)
+
+			devices, err := wpw.DeviceDiscovery(flagScanTimeout)
 
 			if err != nil {
 				fmt.Println("Error finding devices..")
@@ -44,8 +58,6 @@ func main() {
 				}
 				fmt.Println("------------------------------------------------------------")
 			}
-
-			// time.Sleep(time.Second * 5)
 		}
 	}
 
