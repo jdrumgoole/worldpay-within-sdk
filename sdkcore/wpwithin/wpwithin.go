@@ -134,6 +134,17 @@ func Initialise(name, description string) (WPWithin, error) {
 
 	result.core.SvcScanner = sc
 
+
+	// MongoDB Diff
+
+	err = result.core.Logger.Initialise()
+	
+	if err != nil {
+		return result, err
+	}
+
+	result.core.Logger.LogEventDoc( "WPWithin.initialise", "result", result.core ) 
+	
 	return result, nil
 }
 
@@ -143,6 +154,8 @@ type wpWithinImpl struct {
 
 func (wp *wpWithinImpl) AddService(service *types.Service) error {
 
+	fmt.Println( "in AddService" ) 
+	
 	defer func() {
 		if r := recover(); r != nil {
 
@@ -162,7 +175,9 @@ func (wp *wpWithinImpl) AddService(service *types.Service) error {
 	}
 
 	wp.core.Device.Services[service.ID] = service
-
+	
+	wp.core.Logger.LogEventDoc( "WPWithin.AddService", "Service", service )
+	
 	return nil
 }
 
@@ -180,7 +195,8 @@ func (wp *wpWithinImpl) RemoveService(service *types.Service) error {
 
 		delete(wp.core.Device.Services, service.ID)
 	}
-
+	
+	wp.core.Logger.LogEventDoc( "WPWithin.RemoveService", "Service", service )
 	return nil
 }
 
@@ -228,6 +244,10 @@ func (wp *wpWithinImpl) InitConsumer(scheme, hostname string, portNumber int, ur
 
 	wp.core.HTEClient = client
 
+	// MongoDB Diff
+
+	wp.core.Logger.LogEventDoc( "WPWithin.InitConsumer", "Service", clientID )
+	
 	return nil
 }
 
@@ -280,6 +300,17 @@ func (wp *wpWithinImpl) InitProducer(merchantClientKey, merchantServiceKey strin
 
 	wp.core.HTE = svc
 
+	// MongoDB Diff
+
+	wp.core.Logger.LogEventDoc( "WPWithin.initProducer",
+		                        "producer", svc )
+
+	if err != nil {
+		fmt.Errorf("Unable to insert into MongoDB : %q", err.Error())
+		return err
+	}
+	// end MongoDB Diff
+	
 	// Error channel allows us to get the error out of the go routine
 	chStartResult := make(chan error)
 	var startErr error
@@ -313,7 +344,9 @@ func (wp *wpWithinImpl) GetDevice() *types.Device {
 			log.WithField("Stack", string(debug.Stack())).Errorf("Recover: WPWithin.GetDevice()")
 		}
 	}()
-
+//
+//	wp.core.Logger.LogEventDoc( "WPWithin.GetDevice",
+//		                        "device", wp.core.Device )
 	return wp.core.Device
 }
 
@@ -360,7 +393,9 @@ func (wp *wpWithinImpl) StartServiceBroadcast(timeoutMillis int) error {
 	case <-time.After(time.Millisecond * 750):
 
 	}
-
+	wp.core.Logger.LogEventDoc( "WPWithin.StartServiceBroadcast",
+		                        "message", msg )
+	
 	return errBroadcast
 }
 
@@ -376,6 +411,9 @@ func (wp *wpWithinImpl) StopServiceBroadcast() {
 	}()
 
 	wp.core.SvcBroadcaster.StopBroadcast()
+	
+	wp.core.Logger.LogEventStr( "WPWithin.StopServiceBroadcast",
+		                        "stopping" )
 }
 
 func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.BroadcastMessage, error) {
@@ -405,6 +443,8 @@ func (wp *wpWithinImpl) DeviceDiscovery(timeoutMillis int) ([]types.BroadcastMes
 		}
 	}
 
+	wp.core.Logger.LogEventDoc( "WPWithin.DeviceDiscovery",
+		                        "devices", svcResults )
 	return svcResults, nil
 }
 
@@ -434,6 +474,9 @@ func (wp *wpWithinImpl) GetServicePrices(serviceID int) ([]types.Price, error) {
 		result = append(result, price)
 	}
 
+	wp.core.Logger.LogEventDoc( "WPWithin.GetServicePrices",
+		                        "prices", result )
+	
 	return result, nil
 }
 
@@ -451,6 +494,8 @@ func (wp *wpWithinImpl) SelectService(serviceID, numberOfUnits, priceID int) (ty
 
 	tpr, err := wp.core.HTEClient.NegotiatePrice(serviceID, priceID, numberOfUnits)
 
+	wp.core.Logger.LogEventDoc( "WPWithin.SelectService",
+		                        "Total Price Response", tpr  )
 	return tpr, err
 }
 
@@ -474,6 +519,13 @@ func (wp *wpWithinImpl) MakePayment(request types.TotalPriceResponse) (types.Pay
 	}
 
 	paymentResponse, err := wp.core.HTEClient.MakeHtePayment(request.PaymentReferenceID, request.ClientID, token)
+
+	if err != nil {
+		return types.PaymentResponse{}, err
+	}
+	
+	wp.core.Logger.LogEventDoc( "WPWithin.MakePayment", "Payment Request", paymentResponse )
+	wp.core.Logger.LogEventDoc( "WPWithin.MakePayment", "Payment Response", paymentResponse )
 
 	return paymentResponse, err
 }
@@ -502,7 +554,9 @@ func (wp *wpWithinImpl) RequestServices() ([]types.ServiceDetails, error) {
 
 		result = append(result, svc)
 	}
-
+	
+	wp.core.Logger.LogEventDoc( "WPWithin.RequestServices", "result", result )
+	
 	return result, nil
 }
 
@@ -547,6 +601,7 @@ func (wp *wpWithinImpl) BeginServiceDelivery(serviceID int, serviceDeliveryToken
 
 	log.WithFields(log.Fields{"UnitsToSupply": deliveryResponse.UnitsToSupply}).Info("EndDeliveryResponse")
 
+	wp.core.Logger.LogEventDoc( "WPWithin.BeginServiceDelivery", "DeliveryResponse", deliveryResponse )
 	return deliveryResponse.ServiceDeliveryToken, nil
 }
 
@@ -569,6 +624,8 @@ func (wp *wpWithinImpl) EndServiceDelivery(serviceID int, serviceDeliveryToken t
 
 	deliveryResponse, err := wp.core.HTEClient.EndDelivery(serviceID, serviceDeliveryToken, unitsReceived)
 
+	wp.core.Logger.LogEventDoc( "WPWithin.EndServiceDelivery", "DeliveryResponse", deliveryResponse )
+	
 	if err != nil {
 
 		log.Errorf("Error calling endServiceDelivery. Error: %s", err.Error())

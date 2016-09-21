@@ -7,6 +7,7 @@ import (
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/servicediscovery"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types"
 	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/types/event"
+	"github.com/wptechinnovation/worldpay-within-sdk/sdkcore/wpwithin/mongodblogger" //MongoDB Diff
 )
 
 // Core This acts as a container for dependencies of the SDK
@@ -21,12 +22,14 @@ type Core struct {
 	HTEClient      hte.Client
 	EventHandler   event.Handler
 	Configuration  configuration.WPWithin
+	Logger         *mongodblogger.MongoDBLogger // MongoDB Diff
 }
 
 // NewCore Create a new Core
 func NewCore() (*Core, error) {
 
 	result := &Core{}
+	result.Logger = new( mongodblogger.MongoDBLogger )
 
 	return result, nil
 }
